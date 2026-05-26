@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+    <!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
@@ -12,7 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Hi+Melody&display=swap" rel="stylesheet">
     
     <style>
-        /* 선생님의 원본 CSS를 단 1픽셀도 변경하지 않고 그대로 고정했습니다. */
+        /* 🔒 선생님의 원본 CSS 디자인은 단 1글자, 1픽셀도 변경하지 않고 철저히 고정했습니다! */
         :root {
             --primary: #c3bef0; 
             --primary-hover: #b19cd9;
@@ -175,32 +175,15 @@
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
         @keyframes twinkle { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(1.1) rotate(5deg); } 100% { opacity: 1; transform: scale(1); } }
 
-        /* 🔥 원본 디자인을 유지하며 탭 메뉴 구현을 위해 하단에 추가된 귀여운 스타일 세트 */
-        .tab-container {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            margin-bottom: 28px;
-        }
-        .tab-btn {
-            flex: 1;
-            padding: 12px;
-            font-family: 'Hi Melody', cursive, sans-serif;
-            font-size: 24px;
-            font-weight: bold;
-            border: 3px solid #fce4ec;
-            border-radius: 20px;
-            background-color: #fffaf0;
-            color: var(--text-main);
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .tab-btn.active {
-            background-image: linear-gradient(120deg, #c3bef0 0%, #fad0c4 100%);
-            color: white;
-            border-color: transparent;
-            box-shadow: 0 6px 15px rgba(195, 190, 240, 0.4);
-        }
+        /* 대메뉴 탭 스타일 */
+        .tab-container { display: flex; justify-content: center; gap: 12px; margin-bottom: 28px; }
+        .tab-btn { flex: 1; padding: 12px; font-family: 'Hi Melody', cursive, sans-serif; font-size: 24px; font-weight: bold; border: 3px solid #fce4ec; border-radius: 20px; background-color: #fffaf0; color: var(--text-main); cursor: pointer; transition: all 0.2s ease; }
+        .tab-btn.active { background-image: linear-gradient(120deg, #c3bef0 0%, #fad0c4 100%); color: white; border-color: transparent; box-shadow: 0 6px 15px rgba(195, 190, 240, 0.4); }
+
+        /* 🌸 학기를 전환할 수 있는 내부 소형 선택 단추 스타일 세트 추가 */
+        .sem-container { display: flex; justify-content: center; gap: 6px; margin-bottom: 20px; background: #fffaf0; padding: 6px; border-radius: 18px; border: 2px solid #fce4ec; }
+        .sem-pill { flex: 1; padding: 6px 10px; font-family: 'Hi Melody', cursive, sans-serif; font-size: 20px; font-weight: bold; border: none; border-radius: 12px; background: transparent; color: var(--text-main); cursor: pointer; transition: all 0.2s ease; }
+        .sem-pill.active { background-color: var(--primary); color: white; box-shadow: 0 4px 10px rgba(195, 190, 240, 0.3); }
 
         /* 스마트폰/태블릿을 위한 맞춤 여백 */
         @media screen and (max-width: 768px) {
@@ -216,6 +199,7 @@
             .btn-start { padding: 18px; font-size: 24px; }
             .footer { font-size: 16px; padding: 16px; }
             .tab-btn { font-size: 20px; padding: 10px; }
+            .sem-pill { font-size: 18px; padding: 4px; }
         }
     </style>
 </head>
@@ -246,17 +230,41 @@
                 </div>
 
                 <div id="tab-content1">
-                    <p class="desc">아래에서 이수할 과목을 선택하고<br>저장하기 버튼을 눌러주세요.</p>
+                    
+                    <div style="background-color: #fffaf0; border: 3px dashed #fce4ec; border-radius: 20px; padding: 20px; margin-bottom: 24px; font-size: 22px; color: #555555; display: flex; flex-direction: column; gap: 10px; text-align: left;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>🎓 총 설계 학점 (목표: 192)</span>
+                            <span id="total-credits-view" style="font-weight: bold; color: #6a5acd;">64 / 192 학점</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>⚠️ 국·영·수 지정 (최대: 81)</span>
+                            <span id="nem-credits-view" style="font-weight: bold; color: #6a5acd;">26 / 81 학점</span>
+                        </div>
+                        <div id="credit-warning" style="font-size: 18px; color: #ff69b4; text-align: center; font-weight: bold; display: none; margin-top: 5px;">
+                            ❌ 국·영·수 기준 학점이 81학점을 초과했습니다! 조정해 주세요. 😿
+                        </div>
+                    </div>
+
+                    <div class="sem-container">
+                        <button type="button" class="sem-pill active" id="sem-btn-2-1" onclick="changeSem('2-1')">2-1</button>
+                        <button type="button" class="sem-pill" id="sem-btn-2-2" onclick="changeSem('2-2')">2-2</button>
+                        <button type="button" class="sem-pill" id="sem-btn-3-1" onclick="changeSem('3-1')">3-1</button>
+                        <button type="button" class="sem-pill" id="sem-btn-3-2" onclick="changeSem('3-2')">3-2</button>
+                    </div>
+
+                    <p class="desc" style="font-size: 20px; margin-bottom: 16px;">해당 학기에 수강할 과목을 선택하세요.</p>
+                    
                     <div id="subject-list" style="text-align: left; max-width: 320px; margin: 0 auto 32px auto; font-size: 26px; line-height: 2;">
                         </div>
-                    <button class="btn-start" onclick="saveSelection()">저장하기 💾</button>
+                    
+                    <button class="btn-start" onclick="saveSelection()">전체 학기 설계 완료 💾</button>
                 </div>
 
                 <div id="tab-content2" style="display: none;">
                     <p class="desc">목표 대학과 학과의<br>핵심 권장 과목을 조회해 보세요.</p>
                     <div style="text-align: left; max-width: 380px; margin: 0 auto 32px auto; font-size: 22px; color: #555555; line-height: 1.6; background-color: #fffaf0; padding: 24px; border-radius: 20px; border: 3px dashed #fce4ec; box-sizing: border-box;">
                         <p style="margin: 0 0 12px 0; font-weight: bold; color: #6a5acd; font-size: 24px; text-align: center;">부산권/서울권 대학 정보 🔍</p>
-                        <p style="margin: 0; text-align: center; color: #b0b8c1; font-size: 20px;">(여기에 편제표 시트와 연동되어 부산 및 서울 주요 대학의 핵심 과목 정보가 예쁘게 구성될 예정입니다! ✨)</p>
+                        <p style="margin: 0; text-align: center; color: #b0b8c1; font-size: 20px;">(여기에 편제표 시트와 연동되어 부산 및 서울 주요 대학의 핵심 과목 정보가 구성될 예정입니다! ✨)</p>
                     </div>
                 </div>
 
@@ -274,8 +282,42 @@
         
         let globalStudentId = "";
         let globalStudentName = "";
+        let currentSemester = "2-1"; // 기본 선택 학기
 
-        const sampleSubjects = ["공통 국어1", "문학", "독서", "대수", "수학II"];
+        // 💡 4개 학기 아이들의 수강신청 바구니 현황 보관함
+        let selectedSubjects = { "2-1": [], "2-2": [], "3-1": [], "3-2": [] };
+
+        // 🏫 임시 교과 편제표 DB 세트 (과목명, 학점수, 계열 구분)
+        const subjectDB = {
+            "2-1": [
+                { name: "문학", credits: 4, type: "국어" },
+                { name: "대수", credits: 4, type: "수학" },
+                { name: "영어I", credits: 4, type: "영어" },
+                { name: "물리학I", credits: 3, type: "과학" },
+                { name: "세계사", credits: 3, type: "사회" }
+            ],
+            "2-2": [
+                { name: "독서", credits: 4, type: "국어" },
+                { name: "수학II", credits: 4, type: "수학" },
+                { name: "영어II", credits: 4, type: "영어" },
+                { name: "화학I", credits: 3, type: "과학" },
+                { name: "동아시아사", credits: 3, type: "사회" }
+            ],
+            "3-1": [
+                { name: "화법과 작문", credits: 4, type: "국어" },
+                { name: "미적분", credits: 4, type: "수학" },
+                { name: "영어 독해와 작문", credits: 4, type: "영어" },
+                { name: "지구과학I", credits: 3, type: "과학" },
+                { name: "사회·문화", credits: 3, type: "사회" }
+            ],
+            "3-2": [
+                { name: "언어와 매체", credits: 4, type: "국어" },
+                { name: "확률과 통계", credits: 4, type: "수학" },
+                { name: "영어 회화", credits: 4, type: "영어" },
+                { name: "생명과학I", credits: 3, type: "과학" },
+                { name: "한국지리", credits: 3, type: "사회" }
+            ]
+        };
 
         function login() {
             const studentId = document.getElementById('studentId').value;
@@ -302,9 +344,8 @@
                     document.getElementById('welcome-title').innerText = `${res.name} 학생 환영합니다!`;
                     document.getElementById('student-badge').innerText = `${studentId} ${res.name} ✨`;
 
-                    // 기본으로 1번 탭(과목 설계) 보여주기
                     changeTab(1);
-                    renderSubjects();
+                    changeSem("2-1");
                 } else {
                     alert("등록되지 않은 학번입니다. 명단을 확인해 주세요! 잉? 😿");
                     document.getElementById('db-status').innerText = "DB 연결 완료 ✨";
@@ -316,7 +357,6 @@
             });
         }
 
-        // 🔄 탭 전환 함수 (부드럽게 대상을 숨기고 보여주는 기능)
         function changeTab(tabIndex) {
             if (tabIndex === 1) {
                 document.getElementById('tab-content1').style.display = 'block';
@@ -331,29 +371,96 @@
             }
         }
 
+        // 🔄 소형 학기 탭 변경 매핑 제어판
+        function changeSem(sem) {
+            currentSemester = sem;
+            document.querySelectorAll('.sem-pill').forEach(btn => {
+                btn.classList.toggle('active', btn.id === `sem-btn-${sem}`);
+            });
+            renderSubjects();
+        }
+
         function renderSubjects() {
             const listDiv = document.getElementById('subject-list');
             listDiv.innerHTML = "";
-            sampleSubjects.forEach(sub => {
+            
+            const subjects = subjectDB[currentSemester];
+            subjects.forEach(sub => {
+                // 이전에 이미 눌러둔 기록이 있다면 체크 상태 유지
+                const isChecked = selectedSubjects[currentSemester].includes(sub.name) ? "checked" : "";
                 listDiv.innerHTML += `
                     <label style="display: flex; align-items: center; gap: 12px; cursor: pointer; margin-bottom: 8px;">
-                        <input type="checkbox" name="user-subject" value="${sub}" style="width:24px; height:24px; accent-color:#c3bef0;"> 
-                        <span>${sub}</span>
+                        <input type="checkbox" name="user-subject" value="${sub.name}" ${isChecked} onchange="syncSelection()" style="width:24px; height:24px; accent-color:#c3bef0;"> 
+                        <span>${sub.name} (${sub.credits}학점)</span>
                     </label>
                 `;
             });
         }
 
-        function saveSelection() {
+        // 체크박스 누를 때마다 장바구니 데이터를 동기화하고 실시간 진단 실행
+        function syncSelection() {
             const checkedBoxes = document.querySelectorAll('input[name="user-subject"]:checked');
-            if(checkedBoxes.length === 0) {
+            selectedSubjects[currentSemester] = Array.from(checkedBoxes).map(cb => cb.value);
+            updateCreditStatus();
+        }
+
+        // 🧮 실시간 학점 총계 연산 엔진
+        function updateCreditStatus() {
+            // 💡 고교학점제 기준선 조절용 베이스라인 설정 (1학년 고정 이수분 반영값 예시)
+            const BASE_TOTAL = 64;  // 1학년 공통과목 및 창체 기본 학점
+            const BASE_NEM = 26;    // 1학년 공통국어, 공통수학, 공통영어 지정 총이수 학점
+            
+            let addedTotal = 0;
+            let addedNem = 0;
+            
+            for (const sem in selectedSubjects) {
+                selectedSubjects[sem].forEach(subName => {
+                    const subObj = subjectDB[sem].find(s => s.name === subName);
+                    if (subObj) {
+                        addedTotal += subObj.credits;
+                        if (subObj.type === "국어" || subObj.type === "영어" || subObj.type === "수학") {
+                            addedNem += subObj.credits;
+                        }
+                    }
+                });
+            }
+            
+            const finalTotal = BASE_TOTAL + addedTotal;
+            const finalNem = BASE_NEM + addedNem;
+            
+            document.getElementById('total-credits-view').innerText = `${finalTotal} / 192 학점`;
+            document.getElementById('nem-credits-view').innerText = `${finalNem} / 81 학점`;
+            
+            // ⚠️ 국영수 합산 81학점 초과 시 실시간 시각적 경고 작동
+            const warningDiv = document.getElementById('credit-warning');
+            if (finalNem > 81) {
+                warningDiv.style.display = 'block';
+                document.getElementById('nem-credits-view').style.color = '#ff69b4';
+            } else {
+                warningDiv.style.display = 'none';
+                document.getElementById('nem-credits-view').style.color = '#6a5acd';
+            }
+        }
+
+        function saveSelection() {
+            let summaryParts = [];
+            let hasSelection = false;
+            
+            for (const sem in selectedSubjects) {
+                if (selectedSubjects[sem].length > 0) {
+                    summaryParts.push(`[${sem}] ${selectedSubjects[sem].join(", ")}`);
+                    hasSelection = true;
+                }
+            }
+            
+            if(!hasSelection) {
                 alert("최소 한 개 이상의 과목을 선택해 주세요! 😿");
                 return;
             }
-
-            const selectedArray = Array.from(checkedBoxes).map(cb => cb.value);
-            const subjectsString = selectedArray.join(", ");
-
+            
+            // 시트에 보기 좋게 문자열로 묶어서 발송
+            const subjectsString = summaryParts.join(" | ");
+            
             fetch(WEB_APP_URL, {
                 method: "POST",
                 body: JSON.stringify({
@@ -361,11 +468,11 @@
                     sheetName: "수강신청",
                     studentId: globalStudentId,
                     studentName: globalStudentName,
-                    semester: "2학년 1학기",
+                    semester: "2~3학년 전체설계",
                     subjects: subjectsString
                 })
             }).then(() => {
-                alert("수강신청 과목이 안전하게 저장되었습니다! 💖");
+                alert("4개 학기의 수강신청 설계가 시트에 안전하게 반영되었습니다! 💖");
                 location.reload(); 
             });
         }
