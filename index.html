@@ -15,7 +15,7 @@
             --primary-hover: #b19cd9;
             --bg-color: #fef1f8; 
             --surface: #ffffff;
-            --text-main: #333333; /* 아주 진한 먹색으로 변경하여 가독성 업! */
+            --text-main: #333333; 
             --text-sub: #b0b8c1;
         }
         
@@ -43,8 +43,10 @@
         .card {
             background-color: var(--surface);
             width: 100%;
-            max-width: 460px; /* 제목이 한 줄로 넉넉히 들어가도록 카드 너비 확대 */
-            padding: 56px 36px; 
+            /* 🔥 카드 가로를 넉넉하게 560px로 쫙 늘림! */
+            max-width: 560px; 
+            /* 🔥 위아래 여백은 살짝 줄이고, 좌우 여백을 늘려 안정감 있는 비율 완성 */
+            padding: 48px 56px; 
             border-radius: 40px; 
             box-shadow: 0 20px 50px rgba(255, 192, 203, 0.3);
             text-align: center;
@@ -54,39 +56,40 @@
 
         .icon-wrap {
             font-size: 64px; 
-            margin-bottom: 24px;
+            margin-bottom: 16px; /* 불필요한 세로 여백 축소 */
             animation: twinkle 2s infinite;
         }
         
         h1 {
-            margin: 0 0 20px 0;
+            margin: 0 0 16px 0; /* 불필요한 세로 여백 축소 */
             font-size: 38px; 
-            color: #6a5acd; /* 뭉개지지 않고 눈에 확 들어오는 진보라색 */
+            color: #6a5acd; 
             letter-spacing: 0.5px;
             font-weight: bold; 
-            white-space: nowrap; /* 🔥 무조건 한 줄로 나오게 강제 고정! */
-            text-shadow: 1px 1px 2px rgba(106, 90, 205, 0.15); /* 깔끔하고 은은한 입체감 */
+            white-space: nowrap; 
+            text-shadow: 1px 1px 2px rgba(106, 90, 205, 0.15); 
         }
         
         p.desc {
-            margin: 0 0 44px 0;
+            margin: 0 0 32px 0; /* 44px에서 32px로 대폭 줄여서 세로 길이 다이어트 */
             font-size: 24px; 
-            color: #555555; /* 회색에서 진한 색으로 변경하여 가독성 향상 */
+            color: #555555; 
             word-break: keep-all;
             line-height: 1.4;
             font-weight: bold; 
-            text-shadow: 0.5px 0.5px 0px rgba(0,0,0,0.05); /* 뭉개짐 방지 */
+            text-shadow: 0.5px 0.5px 0px rgba(0,0,0,0.05); 
         }
         
         .input-box {
-            margin-bottom: 36px;
+            margin-bottom: 24px; /* 간격 축소 */
         }
         
         input {
             width: 100%;
-            padding: 22px; 
+            /* 🔥 입력칸 높이와 폰트 크기 슬림하게 조절 */
+            padding: 18px; 
             font-family: 'Hi Melody', cursive, sans-serif; 
-            font-size: 28px; 
+            font-size: 24px; 
             color: var(--text-main);
             background-color: #fffaf0; 
             border: 3px solid #fce4ec; 
@@ -101,7 +104,7 @@
         input::placeholder {
             color: #c0c0c0;
             letter-spacing: 1px;
-            font-size: 24px;
+            font-size: 22px;
             font-weight: normal;
         }
         
@@ -114,9 +117,10 @@
         
         .btn-start {
             width: 100%;
-            padding: 22px; 
+            /* 🔥 버튼 높이도 슬림하게 조절 */
+            padding: 18px; 
             font-family: 'Hi Melody', cursive, sans-serif; 
-            font-size: 28px; 
+            font-size: 26px; 
             color: white;
             background-image: linear-gradient(120deg, #c3bef0 0%, #fad0c4 100%);
             border: none;
@@ -125,7 +129,7 @@
             box-shadow: 0 8px 20px rgba(195, 190, 240, 0.4);
             transition: all 0.3s ease;
             font-weight: bold;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.15); /* 깔끔한 그림자 */
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.15); 
         }
         
         .btn-start:hover {
@@ -144,7 +148,7 @@
             color: #ff69b4; 
             font-size: 18px;
             border-radius: 20px;
-            margin-bottom: 28px;
+            margin-bottom: 24px;
             border: 2px solid #fce4ec;
             font-weight: bold;
         }
@@ -165,7 +169,6 @@
             border-radius: 30px 30px 0 0; 
             z-index: 10;
             box-shadow: 0 -10px 30px rgba(255, 192, 203, 0.2);
-            /* 배경과 분리되어 잘 보이도록 흰색 테두리 효과 그림자 */
             text-shadow: 1px 1px 3px rgba(255,255,255,0.8), -1px -1px 3px rgba(255,255,255,0.8);
         }
 
@@ -175,13 +178,13 @@
             margin: 0 6px; 
         }
 
-        /* 🔥 스마트폰/태블릿을 위한 다이어트 & 줄바꿈 방지 마법 */
+        /* 스마트폰/태블릿을 위한 맞춤 여백 */
         @media screen and (max-width: 768px) {
             .content-wrapper {
                 padding-bottom: 80px; 
             }
             .card {
-                padding: 40px 20px; 
+                padding: 40px 24px; /* 폰에서는 글씨가 넘치지 않게 좌우 패딩을 줄여줌 */
                 border-radius: 30px;
             }
             .status-badge {
@@ -193,7 +196,6 @@
                 margin-bottom: 16px;
             }
             h1 {
-                /* 화면 크기에 맞춰 글자 크기가 고무줄처럼 자동으로 줄어들며 한 줄 유지! */
                 font-size: clamp(22px, 6.5vw, 32px); 
                 margin-bottom: 16px;
             }
@@ -202,7 +204,7 @@
                 margin-bottom: 24px; 
             }
             .input-box {
-                margin-bottom: 24px;
+                margin-bottom: 20px;
             }
             input {
                 padding: 16px; 
