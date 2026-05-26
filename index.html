@@ -4,69 +4,88 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>배정고 수강신청 안내서 💖</title>
+    
     <link href="https://fonts.googleapis.com/css2?family=Hi+Melody&display=swap" rel="stylesheet">
+    
     <style>
-        :root { --primary: #c3bef0; --bg-color: #fef1f8; --text-main: #333333; }
-        body { background-color: var(--bg-color); font-family: 'Hi Melody', cursive; margin: 0; padding-bottom: 100px; }
+        :root {
+            --primary: #c3bef0; 
+            --bg-color: #fef1f8; 
+            --surface: #ffffff;
+            --text-main: #333333; 
+        }
         
-        /* 탭 스타일 */
-        .tab-container { display: flex; justify-content: center; gap: 10px; margin: 20px 0; }
-        .tab-btn { padding: 10px 20px; border-radius: 20px; border: 2px solid var(--primary); background: white; cursor: pointer; font-size: 20px; }
-        .tab-btn.active { background: var(--primary); color: white; }
+        body {
+            background-color: var(--bg-color);
+            font-family: 'Hi Melody', cursive; 
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-image: radial-gradient(#ffe4e1 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
 
-        /* 과목 박스 */
-        .selection-area { display: none; max-width: 800px; margin: 0 auto; padding: 20px; }
-        .subject-group { background: white; padding: 20px; border-radius: 20px; margin-bottom: 20px; border: 2px solid #fce4ec; }
-        .required-mark { color: #ff69b4; font-size: 16px; font-weight: bold; }
+        .card {
+            background-color: var(--surface);
+            width: 90%;
+            max-width: 500px; 
+            padding: 40px; 
+            border-radius: 40px; 
+            box-shadow: 0 15px 30px rgba(255, 192, 203, 0.3);
+            text-align: center;
+            border: 3px solid #fce4ec; 
+        }
+
+        h1 { color: #6a5acd; font-size: 36px; margin: 0 0 15px 0; }
+        p { color: #555; font-size: 22px; margin-bottom: 30px; }
         
-        /* 이전 코드의 스타일 유지 (생략된 부분은 위 코드와 동일하게 연결) */
-        .selection-container { display: none; }
-        /* ... (중략: 기존 CSS 동일) ... */
+        input {
+            width: 100%;
+            padding: 15px; 
+            font-family: 'Hi Melody', cursive; 
+            font-size: 22px; 
+            border: 3px solid #fce4ec; 
+            border-radius: 15px;
+            box-sizing: border-box;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            width: 100%;
+            padding: 15px; 
+            background: linear-gradient(120deg, #c3bef0 0%, #fad0c4 100%);
+            border: none;
+            border-radius: 15px;
+            color: white;
+            font-family: 'Hi Melody', cursive;
+            font-size: 22px;
+            cursor: pointer;
+        }
+
+        .footer {
+            position: fixed; bottom: 10px; font-size: 18px; color: #6a5acd;
+        }
     </style>
 </head>
 <body>
-    <div id="step2" class="selection-container" style="display:none;">
-        <div class="tab-container">
-            <button class="tab-btn active" onclick="showSemester('2-1')">2-1학기</button>
-            <button class="tab-btn" onclick="showSemester('2-2')">2-2학기</button>
-            <button class="tab-btn" onclick="showSemester('3-1')">3-1학기</button>
-            <button class="tab-btn" onclick="showSemester('3-2')">3-2학기</button>
-        </div>
 
-        <div id="semester-content">
-            </div>
+    <div class="card">
+        <h1>배정고 수강신청 안내서</h1>
+        <p>나의 진로와 적성을 찾아보세요 💖</p>
+        <input type="text" id="studentId" placeholder="학번 5자리 입력">
+        <button onclick="check()">입장하기 ✨</button>
     </div>
 
+    <div class="footer">Made by 꿈을 응원하는 현정T 💖</div>
+    
     <script>
-        // 학기별 데이터 구조 (선생님이 안내서 보고 나중에 채우실 부분)
-        const curriculum = {
-            "2-1": {
-                required: ["언어와 매체", "수학 I", "영어 I"],
-                elective: ["문학(3)", "대수(3)", "물리학(3)", "사회와 문화(3)"]
-            },
-            "2-2": {
-                required: ["독서", "수학 II", "영어 II"],
-                elective: ["언어와 매체(3)", "미적분(3)", "화학(3)", "정치와 법(3)"]
-            }
-            // 3학년도 동일한 방식...
-        };
-
-        function showSemester(sem) {
-            const content = document.getElementById('semester-content');
-            const data = curriculum[sem];
-            
-            let html = `<div class="subject-group"><h3>필수과목 (자동 신청)</h3>`;
-            data.required.forEach(sub => html += `<div>✅ ${sub}</div>`);
-            
-            html += `</div><div class="subject-group"><h3>선택과목</h3>`;
-            data.elective.forEach(sub => {
-                html += `<label><input type="checkbox"> ${sub}</label><br>`;
-            });
-            content.innerHTML = html + `</div>`;
+        function check() {
+            const id = document.getElementById('studentId').value;
+            alert(id + "번 학생, 환영합니다! 🥰");
         }
-
-        // 페이지 로드 시 2-1학기 먼저 로드
-        showSemester('2-1');
     </script>
 </body>
 </html>
