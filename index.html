@@ -7,34 +7,43 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
     <style>
         :root {
-            --primary: #9b82d3; /* 선생님이 선호하시는 연보라색 포인트 */
+            --primary: #a084dc; /* 예쁜 연보라색 포인트 */
             --primary-hover: #8367c7;
-            --bg-color: #f4f5f7; 
+            --bg-color: #f4f5f7;
             --surface: #ffffff;
             --text-main: #191f28;
             --text-sub: #8b95a1;
         }
+        
         body {
             background-color: var(--bg-color);
             font-family: 'Pretendard', sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .content-wrapper {
+            flex: 1;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            position: relative; /* 서명을 하단에 고정하기 위한 설정 */
+            padding: 20px;
+            padding-bottom: 80px; /* 푸터 공간 확보 */
         }
+
         .card {
             background-color: var(--surface);
-            width: 90%;
+            width: 100%;
             max-width: 360px;
             padding: 40px 30px;
             border-radius: 24px;
             box-shadow: 0 16px 40px rgba(0,0,0,0.08);
             text-align: center;
             box-sizing: border-box;
-            z-index: 1;
         }
+
         .icon-wrap {
             font-size: 44px;
             margin-bottom: 16px;
@@ -54,7 +63,6 @@
             line-height: 1.5;
         }
         .input-box {
-            position: relative;
             margin-bottom: 24px;
         }
         input {
@@ -80,7 +88,7 @@
             outline: none;
             border-color: var(--primary);
             background-color: var(--surface);
-            box-shadow: 0 0 0 4px rgba(155, 130, 211, 0.15);
+            box-shadow: 0 0 0 4px rgba(160, 132, 220, 0.15);
         }
         .btn-start {
             width: 100%;
@@ -110,31 +118,71 @@
             border-radius: 20px;
             margin-bottom: 24px;
         }
-        
-        /* 🔥 여기를 완전히 바꿨습니다! 캡처 화면처럼 크고 선명하게 하단 고정 */
-        .footer-credit {
-            position: absolute;
-            bottom: 40px; /* 화면 맨 밑에서 띄우는 간격 */
+
+        /* 🔥 귀엽고 절대 밀리지 않는 푸터 서명 */
+        .footer {
+            position: fixed; /* 화면 하단에 무조건 고정 */
+            bottom: 0;
+            left: 0;
             width: 100%;
             text-align: center;
-            font-size: 18px; /* 글자 크기 확대 */
-            color: #555555; /* 색상을 훨씬 진하게 변경 */
-            font-weight: 600; /* 글자를 도톰하게 */
-            letter-spacing: 1px; /* 자간을 살짝 넓혀서 고급스럽게 */
+            padding: 20px 10px;
+            font-size: 16px;
+            font-weight: 700;
+            color: #8367c7; /* 진한 연보라색 텍스트 */
+            background-color: #e9e6f2; /* 은은한 연보라빛 바탕 */
+            box-sizing: border-box;
+            border-radius: 24px 24px 0 0; /* 푸터 상단을 둥글게 */
+            z-index: 10;
+        }
+
+        /* 움직이는 하트 스타일 추가 */
+        .heart-icon {
+            color: #e06c75; /* 빨간 하트 색상 */
+            display: inline-block;
+            animation: pulse 1.5s infinite; /* 심장 박동처럼 1.5초마다 움직임 */
+            margin: 0 3px;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
         }
     </style>
 </head>
 <body>
-    <div class="card">
-        <div class="status-badge" id="db-status">데이터베이스 연결 대기중</div>
-        
-        <div class="icon-wrap">🧭</div>
-        <h1>과목 설계 시작하기</h1>
-        <p class="desc">나의 진로에 맞는 과목을<br>선택하고 저장해 보세요.</p>
-        
-        <div class="input-box">
-            <input type="text" id="studentId" placeholder="학번 5자리 입력" maxlength="5" pattern="\d*">
+
+    <div class="content-wrapper">
+        <div class="card">
+            <div class="status-badge" id="db-status">데이터베이스 연결 대기중</div>
+            
+            <div class="icon-wrap">🧭</div>
+            <h1>과목 설계 시작하기</h1>
+            <p class="desc">나의 진로에 맞는 과목을<br>선택하고 저장해 보세요.</p>
+            
+            <div class="input-box">
+                <input type="text" id="studentId" placeholder="학번 5자리 입력" maxlength="5" pattern="\d*">
+            </div>
+            
+            <button class="btn-start" onclick="login()">입장하기</button>
         </div>
-        
-        <button class="btn-start" onclick="login()">입장하기</button>
     </div>
+
+    <div class="footer">
+        Made with <span class="heart-icon">❤️</span> by 꿈을 응원하는 현정T
+    </div>
+    
+    <script>
+        function login() {
+            const studentId = document.getElementById('studentId').value;
+            if(studentId.length !== 5 || isNaN(studentId)) {
+                alert("학번 5자리를 정확히 입력해주세요. (예: 10101)");
+                return;
+            }
+            alert(studentId + " 학생 확인 완료!");
+        }
+    </script>
+
+</body>
+</html>
