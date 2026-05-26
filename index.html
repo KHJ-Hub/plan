@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>고교학점제 과목 설계</title>
+    <style>
+        body {
+            background-color: #f8f9fa; /* 부드러운 배경색 */
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .login-container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        h2 {
+            margin-top: 0;
+            color: #333;
+        }
+        p.subtitle {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+        .alert-box {
+            background-color: #fff0f0;
+            color: #d32f2f;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 24px;
+            text-align: left;
+            border: 1px solid #ffcdd2;
+        }
+        .input-group {
+            text-align: left;
+            margin-bottom: 24px;
+        }
+        .input-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #444;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 14px;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+            text-align: center;
+            letter-spacing: 2px;
+            transition: border-color 0.3s;
+        }
+        .input-group input:focus {
+            outline: none;
+            border-color: #b39ddb; /* 연보라색 포커스 */
+            box-shadow: 0 0 0 3px rgba(179, 157, 219, 0.2);
+        }
+        .input-group .help-text {
+            display: block;
+            font-size: 12px;
+            color: #888;
+            margin-top: 8px;
+            text-align: center;
+        }
+        button {
+            background-color: #9575cd; /* 연보라색 버튼 */
+            color: white;
+            border: none;
+            padding: 16px;
+            width: 100%;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #7e57c2; /* 호버 시 약간 짙은 연보라색 */
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+    <h2>학점 설계 시작</h2>
+    <p class="subtitle">학번을 입력하면 과목 선택을 시작할 수 있어요.</p>
+
+    <div class="alert-box" id="gas-alert">
+        <strong>GAS URL이 설정되지 않았습니다.</strong><br>
+        교사가 먼저 구글 시트와 연동해야 합니다.
+    </div>
+
+    <div class="input-group">
+        <label for="studentId">학번 입력</label>
+        <input type="text" id="studentId" placeholder="예) 10101" maxlength="5" pattern="\d*">
+        <span class="help-text">5자리 학번을 입력하세요 (학년+반+번호)</span>
+    </div>
+
+    <button onclick="login()">입장하기 →</button>
+</div>
+
+<script>
+    // 선생님의 구글 앱스 스크립트(GAS) URL을 나중에 여기에 넣을 예정입니다.
+    const gasUrl = ""; 
+
+    function login() {
+        const studentId = document.getElementById('studentId').value;
+        
+        if(studentId.length !== 5 || isNaN(studentId)) {
+            alert("5자리 학번(숫자)을 정확히 입력해주세요.");
+            return;
+        }
+
+        if(gasUrl === "") {
+            alert("아직 데이터베이스(GAS)가 연결되지 않았습니다. 테스트 화면입니다.");
+            return;
+        }
+
+        // GAS URL이 세팅되면 실제 데이터를 불러오는 로직이 추가될 곳입니다.
+        alert(studentId + " 학생 데이터 조회 중...");
+    }
+</script>
+
+</body>
+</html>
