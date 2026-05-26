@@ -18,6 +18,7 @@
             background-color: var(--bg-color);
             font-family: 'Pretendard', sans-serif;
             display: flex;
+            flex-direction: column; /* 세로 정렬로 변경 */
             justify-content: center;
             align-items: center;
             min-height: 100vh;
@@ -96,7 +97,7 @@
             background-color: var(--primary-hover);
         }
         .btn-start:active {
-            transform: scale(0.98); /* 클릭 시 살짝 눌리는 애니메이션 */
+            transform: scale(0.98);
         }
         .status-badge {
             display: inline-block;
@@ -107,6 +108,14 @@
             font-weight: 600;
             border-radius: 20px;
             margin-bottom: 24px;
+        }
+        /* 하단 서명(Footer) 스타일 추가 */
+        .footer-credit {
+            margin-top: 24px;
+            font-size: 13px;
+            color: #b0b8c1;
+            font-weight: 500;
+            letter-spacing: 0.5px;
         }
     </style>
 </head>
@@ -125,6 +134,10 @@
         <button class="btn-start" onclick="login()">입장하기</button>
     </div>
     
+    <div class="footer-credit">
+        Made by 현정T
+    </div>
+    
     <script>
         function login() {
             const studentId = document.getElementById('studentId').value;
@@ -132,7 +145,6 @@
                 alert("학번 5자리를 정확히 입력해주세요. (예: 10101)");
                 return;
             }
-            // 나중에 여기에 실제 다음 페이지로 넘어가는 기능을 넣을 겁니다.
             alert(studentId + " 학생 확인 완료! (아직 다음 화면은 공사 중입니다 🚧)");
         }
     </script>
