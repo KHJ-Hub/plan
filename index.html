@@ -40,28 +40,48 @@
             padding-bottom: 110px; 
         }
 
+        /* 1단계: 로그인 카드 스타일 */
         .card {
             background-color: var(--surface);
             width: 100%;
-            /* 🔥 카드 가로를 넉넉하게 560px로 쫙 늘림! */
             max-width: 560px; 
-            /* 🔥 위아래 여백은 살짝 줄이고, 좌우 여백을 늘려 안정감 있는 비율 완성 */
             padding: 48px 56px; 
             border-radius: 40px; 
             box-shadow: 0 20px 50px rgba(255, 192, 203, 0.3);
             text-align: center;
             box-sizing: border-box;
             border: 3px solid #fce4ec; 
+            transition: all 0.5s ease;
+        }
+
+        /* 2단계: 수강신청 메인 화면 스타일 (초기에는 숨김) */
+        .selection-container {
+            display: none; 
+            width: 100%;
+            max-width: 800px;
+            background-color: var(--surface);
+            padding: 40px;
+            border-radius: 40px;
+            box-shadow: 0 20px 50px rgba(255, 192, 203, 0.3);
+            border: 3px solid #fce4ec;
+            box-sizing: border-box;
+            margin-top: 20px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .icon-wrap {
             font-size: 64px; 
-            margin-bottom: 16px; /* 불필요한 세로 여백 축소 */
+            margin-bottom: 16px; 
             animation: twinkle 2s infinite;
         }
         
         h1 {
-            margin: 0 0 16px 0; /* 불필요한 세로 여백 축소 */
+            margin: 0 0 16px 0; 
             font-size: 38px; 
             color: #6a5acd; 
             letter-spacing: 0.5px;
@@ -71,7 +91,7 @@
         }
         
         p.desc {
-            margin: 0 0 32px 0; /* 44px에서 32px로 대폭 줄여서 세로 길이 다이어트 */
+            margin: 0 0 32px 0; 
             font-size: 24px; 
             color: #555555; 
             word-break: keep-all;
@@ -81,12 +101,11 @@
         }
         
         .input-box {
-            margin-bottom: 24px; /* 간격 축소 */
+            margin-bottom: 24px; 
         }
         
-        input {
+        input[type="text"] {
             width: 100%;
-            /* 🔥 입력칸 높이와 폰트 크기 슬림하게 조절 */
             padding: 18px; 
             font-family: 'Hi Melody', cursive, sans-serif; 
             font-size: 24px; 
@@ -101,14 +120,7 @@
             font-weight: bold;
         }
         
-        input::placeholder {
-            color: #c0c0c0;
-            letter-spacing: 1px;
-            font-size: 22px;
-            font-weight: normal;
-        }
-        
-        input:focus {
+        input[type="text"]:focus {
             outline: none;
             border-color: var(--primary);
             background-color: var(--surface);
@@ -117,7 +129,6 @@
         
         .btn-start {
             width: 100%;
-            /* 🔥 버튼 높이도 슬림하게 조절 */
             padding: 18px; 
             font-family: 'Hi Melody', cursive, sans-serif; 
             font-size: 26px; 
@@ -130,11 +141,6 @@
             transition: all 0.3s ease;
             font-weight: bold;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.15); 
-        }
-        
-        .btn-start:hover {
-            transform: translateY(-3px); 
-            box-shadow: 0 12px 25px rgba(195, 190, 240, 0.5);
         }
         
         .btn-start:active {
@@ -153,13 +159,79 @@
             font-weight: bold;
         }
 
+        /* 2단계: 과목 그룹 스타일 */
+        .subject-group {
+            background-color: #fffaf0;
+            border: 2px solid #fce4ec;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .group-title {
+            font-size: 28px;
+            color: #7b68ee;
+            margin: 0 0 16px 0;
+            border-bottom: 2px dashed #fce4ec;
+            padding-bottom: 10px;
+        }
+
+        /* 체크박스 커스텀 디자인 */
+        .checkbox-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            background-color: white;
+            padding: 12px 20px;
+            border-radius: 15px;
+            border: 2px solid #e9e6f2;
+            font-size: 22px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #555;
+            flex: 1 1 calc(50% - 12px); /* 2열 배치 */
+            box-sizing: border-box;
+        }
+
+        .checkbox-label:hover {
+            border-color: #c3bef0;
+            background-color: #f9f8ff;
+        }
+
+        .checkbox-label input:checked + span {
+            color: #7b68ee;
+            font-weight: bold;
+        }
+
+        .checkbox-label input {
+            accent-color: #a084dc;
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        
+        .warning-text {
+            color: #ff69b4;
+            font-size: 18px;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        /* 서명 및 진행상태 바 */
         .footer {
             position: fixed; 
             bottom: 0;
             left: 0;
             width: 100%;
             text-align: center;
-            padding: 24px; 
+            padding: 20px; 
             font-family: 'Hi Melody', cursive, sans-serif; 
             font-size: 24px; 
             color: #6a5acd; 
@@ -170,6 +242,27 @@
             z-index: 10;
             box-shadow: 0 -10px 30px rgba(255, 192, 203, 0.2);
             text-shadow: 1px 1px 3px rgba(255,255,255,0.8), -1px -1px 3px rgba(255,255,255,0.8);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-left, .footer-right {
+            flex: 1;
+        }
+
+        .footer-center {
+            flex: 2;
+        }
+
+        .counter-badge {
+            background-color: white;
+            color: #ff69b4;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 22px;
+            border: 2px solid #ffb7b2;
+            -webkit-text-stroke: 0px; 
         }
 
         .heart-icon {
@@ -178,49 +271,13 @@
             margin: 0 6px; 
         }
 
-        /* 스마트폰/태블릿을 위한 맞춤 여백 */
         @media screen and (max-width: 768px) {
-            .content-wrapper {
-                padding-bottom: 80px; 
-            }
-            .card {
-                padding: 40px 24px; /* 폰에서는 글씨가 넘치지 않게 좌우 패딩을 줄여줌 */
-                border-radius: 30px;
-            }
-            .status-badge {
-                margin-bottom: 16px; 
-                padding: 6px 16px;
-            }
-            .icon-wrap {
-                font-size: 52px; 
-                margin-bottom: 16px;
-            }
-            h1 {
-                font-size: clamp(22px, 6.5vw, 32px); 
-                margin-bottom: 16px;
-            }
-            p.desc {
-                font-size: 20px; 
-                margin-bottom: 24px; 
-            }
-            .input-box {
-                margin-bottom: 20px;
-            }
-            input {
-                padding: 16px; 
-                font-size: 24px;
-            }
-            input::placeholder {
-                font-size: 20px;
-            }
-            .btn-start {
-                padding: 18px; 
-                font-size: 24px;
-            }
-            .footer {
-                font-size: 16px; 
-                padding: 16px; 
-            }
+            .content-wrapper { padding-bottom: 80px; }
+            .card { padding: 40px 24px; border-radius: 30px; }
+            h1 { font-size: clamp(22px, 6.5vw, 32px); margin-bottom: 16px; }
+            .checkbox-label { flex: 1 1 100%; } /* 모바일에서는 1열 배치 */
+            .footer { flex-direction: column; padding: 12px; gap: 8px; font-size: 20px; }
+            .counter-badge { font-size: 18px; }
         }
 
         @keyframes pulse {
@@ -228,7 +285,6 @@
             50% { transform: scale(1.2); }
             100% { transform: scale(1); }
         }
-
         @keyframes twinkle {
             0% { opacity: 1; transform: scale(1); }
             50% { opacity: 0.7; transform: scale(1.1) rotate(5deg); }
@@ -239,43 +295,135 @@
 <body>
 
     <div class="content-wrapper">
-        <div class="card">
-            <div class="status-badge" id="db-status">DB 연결 대기중 ✨</div>
-            
+        <div class="card" id="step1">
+            <div class="status-badge">DB 연결 대기중 ✨</div>
             <div class="icon-wrap">🏫💕</div>
-            
             <h1>배정고등학교 수강신청 안내서</h1>
             <p class="desc">나의 진로와 적성에 맞는 과목을<br>신중하게 선택하고 저장해 보세요.</p>
             
             <div class="input-box">
                 <input type="text" id="studentId" placeholder="학번 5자리 입력" maxlength="5" pattern="\d*">
             </div>
-            
             <button class="btn-start" onclick="login()">입장하기 ✨</button>
+        </div>
+
+        <div class="selection-container" id="step2">
+            <h1 style="font-size: 42px; margin-bottom: 10px;">2학년 과목 장바구니 🛒</h1>
+            <p class="desc" style="font-size: 22px;">학생 자율 선택: 1학기에 7과목을 골라주세요!<br><span style="color: #ff69b4; font-size: 18px;">※ 국/영/수 총합 81학점 초과 금지 규칙을 기억하세요!</span></p>
+
+            <div class="subject-group">
+                <h2 class="group-title">📚 국어 교과 (일반/진로/융합)</h2>
+                <div class="checkbox-container">
+                    <label class="checkbox-label"><input type="checkbox" name="subject" value="문학" onchange="updateCount()"><span>문학 (3학점)</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="subject" value="독서와 작문" onchange="updateCount()"><span>독서와 작문 (3학점)</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="subject" value="문학과 영상" onchange="updateCount()"><span>문학과 영상 (3학점)</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="subject" value="매체 의사소통" onchange="updateCount()"><span>매체 의사소통 (3학점)</span></label>
+                </div>
+            </div>
+
+            <div class="subject-group">
+                <h2 class="group-title">📐 수학 교과 (일반/진로/융합)</h2>
+                <div class="checkbox-container">
+                    <label class="checkbox-label"><input type="checkbox" name="subject" value="대수" onchange="updateCount()"><span>대수 (3학점)</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="subject" value="미적분 I" onchange="updateCount()"><span>미적분 I (3학점)</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="subject" value="확률과 통계" onchange="updateCount()"><span>확률과 통계 (3학점)</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="subject" value="미적분 II" onchange="updateCount()"><span>미적분 II (3학점)</span></label>
+                </div>
+            </div>
+
+            <div class="subject-group">
+                <h2 class="group-title">🔤 영어 교과 (일반/진로/융합)</h2>
+                <div class="checkbox-container">
+                    <label class="checkbox-label"><input type="checkbox" name="subject" value="영어 I" onchange="updateCount()"><span>영어 I (3학점)</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="subject" value="영미 문학 읽기" onchange="updateCount()"><span>영미 문학 읽기 (3학점)</span></label>
+                </div>
+            </div>
+
+            <div class="subject-group">
+                <h2 class="group-title">🌍 사회 교과 (일반/진로/융합)</h2>
+                <div class="checkbox-container">
+                    <label class="checkbox-label"><input type="checkbox" name="subject" value="세계 시민과 지리" onchange="updateCount()"><span>세계 시민과 지리 (3학점)</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="subject" value="사회와 문화" onchange="updateCount()"><span>사회와 문화 (3학점)</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="subject" value="현대 사회와 윤리" onchange="updateCount()"><span>현대 사회와 윤리 (3학점)</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="subject" value="정치" onchange="updateCount()"><span>정치 (3학점)</span></label>
+                </div>
+            </div>
+
+            <div class="subject-group">
+                <h2 class="group-title">🔬 과학 교과 (일반/진로/융합)</h2>
+                <div class="checkbox-container">
+                    <label class="checkbox-label"><input type="checkbox" name="subject" value="물리학" onchange="updateCount()"><span>물리학 (3학점)</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="subject" value="화학" onchange="updateCount()"><span>화학 (3학점)</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="subject" value="생명과학" onchange="updateCount()"><span>생명과학 (3학점)</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="subject" value="지구과학" onchange="updateCount()"><span>지구과학 (3학점)</span></label>
+                </div>
+            </div>
+            
+            <button class="btn-start" style="margin-top: 20px;" onclick="submitSelection()">선택 완료 저장하기 💾</button>
         </div>
     </div>
 
     <div class="footer">
-        <span class="heart-icon">💖</span> 
-        Made by 꿈을 응원하는 현정T 
-        <span class="heart-icon">💖</span>
+        <div class="footer-left" id="student-info" style="font-size: 20px; display: none;">환영합니다!</div>
+        <div class="footer-center">
+            <span class="heart-icon">💖</span> 
+            Made by 꿈을 응원하는 현정T 
+            <span class="heart-icon">💖</span>
+        </div>
+        <div class="footer-right">
+            <span class="counter-badge" id="subject-counter" style="display: none;">담은 과목: 0 / 7</span>
+        </div>
     </div>
     
     <script>
+        // 입장하기 버튼 클릭 시
         function login() {
             const studentId = document.getElementById('studentId').value;
             if(studentId.length !== 5 || isNaN(studentId)) {
                 alert("학번 5자리를 정확히 입력해주세요. (예: 10101) 잉? 😿");
                 return;
             }
-            alert(studentId + " 학생 확인 완료! 🥰");
+            
+            // 1단계 숨기고 2단계 보여주기
+            document.getElementById('step1').style.display = 'none';
+            document.getElementById('step2').style.display = 'block';
+            
+            // 하단 상태바 업데이트
+            document.getElementById('student-info').style.display = 'block';
+            document.getElementById('student-info').innerText = studentId + " 학생 접속중";
+            document.getElementById('subject-counter').style.display = 'inline-block';
         }
 
+        // 엔터키 감지 
         document.getElementById('studentId').addEventListener('keyup', function(event) {
             if (event.key === 'Enter') {
                 login();
             }
         });
+
+        // 체크박스 클릭할 때마다 카운트 업데이트 및 7과목 제한
+        function updateCount() {
+            const checkboxes = document.querySelectorAll('input[name="subject"]:checked');
+            const counter = document.getElementById('subject-counter');
+            
+            counter.innerText = "담은 과목: " + checkboxes.length + " / 7";
+            
+            if(checkboxes.length > 7) {
+                alert("앗! 2학년 1학기 자율 선택은 7과목까지만 담을 수 있어요! 🙅‍♂️");
+                event.target.checked = false; // 방금 체크한 거 취소
+                counter.innerText = "담은 과목: 7 / 7";
+            }
+        }
+
+        // 최종 제출
+        function submitSelection() {
+            const checkboxes = document.querySelectorAll('input[name="subject"]:checked');
+            if(checkboxes.length < 7) {
+                alert("아직 7과목을 다 채우지 않았어요! 나의 진로를 위해 꽉 채워 담아주세요 🥰");
+            } else {
+                alert("성공적으로 장바구니에 담겼습니다! (다음 단계: 대학 권장 과목 매칭 준비중 🚀)");
+            }
+        }
     </script>
 
 </body>
