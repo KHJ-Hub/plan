@@ -15,7 +15,7 @@
             --primary-hover: #b19cd9;
             --bg-color: #fef1f8; 
             --surface: #ffffff;
-            --text-main: #5d5d5d; 
+            --text-main: #333333; /* 아주 진한 먹색으로 변경하여 가독성 업! */
             --text-sub: #b0b8c1;
         }
         
@@ -43,7 +43,7 @@
         .card {
             background-color: var(--surface);
             width: 100%;
-            max-width: 420px; /* 한 줄로 길어진 제목을 위해 카드 너비 살짝 확보 */
+            max-width: 460px; /* 제목이 한 줄로 넉넉히 들어가도록 카드 너비 확대 */
             padding: 56px 36px; 
             border-radius: 40px; 
             box-shadow: 0 20px 50px rgba(255, 192, 203, 0.3);
@@ -60,22 +60,22 @@
         
         h1 {
             margin: 0 0 20px 0;
-            font-size: 40px; 
-            color: #7b68ee; 
-            letter-spacing: 1px;
-            line-height: 1.2;
+            font-size: 38px; 
+            color: #6a5acd; /* 뭉개지지 않고 눈에 확 들어오는 진보라색 */
+            letter-spacing: 0.5px;
             font-weight: bold; 
-            -webkit-text-stroke: 1.5px #7b68ee; 
+            white-space: nowrap; /* 🔥 무조건 한 줄로 나오게 강제 고정! */
+            text-shadow: 1px 1px 2px rgba(106, 90, 205, 0.15); /* 깔끔하고 은은한 입체감 */
         }
         
         p.desc {
-            margin: 0 0 48px 0;
+            margin: 0 0 44px 0;
             font-size: 24px; 
-            color: #555555; 
+            color: #555555; /* 회색에서 진한 색으로 변경하여 가독성 향상 */
             word-break: keep-all;
             line-height: 1.4;
             font-weight: bold; 
-            -webkit-text-stroke: 0.5px #555555; 
+            text-shadow: 0.5px 0.5px 0px rgba(0,0,0,0.05); /* 뭉개짐 방지 */
         }
         
         .input-box {
@@ -99,11 +99,10 @@
         }
         
         input::placeholder {
-            color: #d1d1d1;
+            color: #c0c0c0;
             letter-spacing: 1px;
             font-size: 24px;
             font-weight: normal;
-            -webkit-text-stroke: 0px; 
         }
         
         input:focus {
@@ -126,7 +125,7 @@
             box-shadow: 0 8px 20px rgba(195, 190, 240, 0.4);
             transition: all 0.3s ease;
             font-weight: bold;
-            -webkit-text-stroke: 0.5px white; 
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.15); /* 깔끔한 그림자 */
         }
         
         .btn-start:hover {
@@ -159,67 +158,66 @@
             padding: 24px; 
             font-family: 'Hi Melody', cursive, sans-serif; 
             font-size: 24px; 
-            color: #7b68ee; 
+            color: #6a5acd; 
             font-weight: bold;
-            -webkit-text-stroke: 0.5px #7b68ee; 
             background-image: linear-gradient(to top, #fad0c4 0%, #ffd1ff 100%);
             box-sizing: border-box;
             border-radius: 30px 30px 0 0; 
             z-index: 10;
             box-shadow: 0 -10px 30px rgba(255, 192, 203, 0.2);
+            /* 배경과 분리되어 잘 보이도록 흰색 테두리 효과 그림자 */
+            text-shadow: 1px 1px 3px rgba(255,255,255,0.8), -1px -1px 3px rgba(255,255,255,0.8);
         }
 
         .heart-icon {
             display: inline-block;
             animation: pulse 1.5s infinite; 
             margin: 0 6px; 
-            -webkit-text-stroke: 0px; 
         }
 
-        /* 🔥 스마트폰/태블릿을 위한 강력한 다이어트 마법 (스크롤 방지) */
+        /* 🔥 스마트폰/태블릿을 위한 다이어트 & 줄바꿈 방지 마법 */
         @media screen and (max-width: 768px) {
             .content-wrapper {
-                padding-bottom: 80px; /* 푸터 여백 축소 */
+                padding-bottom: 80px; 
             }
             .card {
-                padding: 36px 20px; /* 카드 위아래 여백 대폭 축소 */
+                padding: 40px 20px; 
                 border-radius: 30px;
             }
             .status-badge {
-                margin-bottom: 16px; /* 뱃지 아래 여백 축소 */
+                margin-bottom: 16px; 
                 padding: 6px 16px;
             }
             .icon-wrap {
-                font-size: 48px; /* 아이콘 축소 */
-                margin-bottom: 12px;
+                font-size: 52px; 
+                margin-bottom: 16px;
             }
             h1 {
-                font-size: 26px; /* 제목이 한 줄에 쏙 들어가도록 크기 조절 */
-                margin-bottom: 12px;
-                -webkit-text-stroke: 1px #7b68ee;
+                /* 화면 크기에 맞춰 글자 크기가 고무줄처럼 자동으로 줄어들며 한 줄 유지! */
+                font-size: clamp(22px, 6.5vw, 32px); 
+                margin-bottom: 16px;
             }
             p.desc {
-                font-size: 18px; /* 설명 크기 조절 */
-                margin-bottom: 24px; /* 입력창과의 거리 축소 */
+                font-size: 20px; 
+                margin-bottom: 24px; 
             }
             .input-box {
-                margin-bottom: 20px;
+                margin-bottom: 24px;
             }
             input {
-                padding: 16px; /* 입력창 높이 축소 */
+                padding: 16px; 
                 font-size: 24px;
             }
             input::placeholder {
                 font-size: 20px;
             }
             .btn-start {
-                padding: 16px; /* 버튼 높이 축소 */
+                padding: 18px; 
                 font-size: 24px;
             }
             .footer {
                 font-size: 16px; 
                 padding: 16px; 
-                -webkit-text-stroke: 0.3px #7b68ee; 
             }
         }
 
