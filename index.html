@@ -175,6 +175,33 @@
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
         @keyframes twinkle { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(1.1) rotate(5deg); } 100% { opacity: 1; transform: scale(1); } }
 
+        /* 🔥 원본 디자인을 유지하며 탭 메뉴 구현을 위해 하단에 추가된 귀여운 스타일 세트 */
+        .tab-container {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            font-family: 'Hi Melody', cursive, sans-serif;
+            font-size: 24px;
+            font-weight: bold;
+            border: 3px solid #fce4ec;
+            border-radius: 20px;
+            background-color: #fffaf0;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .tab-btn.active {
+            background-image: linear-gradient(120deg, #c3bef0 0%, #fad0c4 100%);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 6px 15px rgba(195, 190, 240, 0.4);
+        }
+
         /* 스마트폰/태블릿을 위한 맞춤 여백 */
         @media screen and (max-width: 768px) {
             .content-wrapper { padding-bottom: 80px; }
@@ -188,6 +215,7 @@
             input::placeholder { font-size: 20px; }
             .btn-start { padding: 18px; font-size: 24px; }
             .footer { font-size: 16px; padding: 16px; }
+            .tab-btn { font-size: 20px; padding: 10px; }
         }
     </style>
 </head>
@@ -211,12 +239,27 @@
                 <div class="status-badge" id="student-badge">배정고등학교 ✨</div>
                 <div class="icon-wrap">📚💖</div>
                 <h1 id="welcome-title">OOO 학생 환영합니다!</h1>
-                <p class="desc">아래에서 이수할 과목을 선택하고<br>저장하기 버튼을 눌러주세요.</p>
                 
-                <div id="subject-list" style="text-align: left; max-width: 320px; margin: 0 auto 32px auto; font-size: 26px; line-height: 2;">
+                <div class="tab-container">
+                    <button class="tab-btn active" id="tab-btn1" onclick="changeTab(1)">과목 설계 📝</button>
+                    <button class="tab-btn" id="tab-btn2" onclick="changeTab(2)">대학·학과 🏫</button>
+                </div>
+
+                <div id="tab-content1">
+                    <p class="desc">아래에서 이수할 과목을 선택하고<br>저장하기 버튼을 눌러주세요.</p>
+                    <div id="subject-list" style="text-align: left; max-width: 320px; margin: 0 auto 32px auto; font-size: 26px; line-height: 2;">
+                        </div>
+                    <button class="btn-start" onclick="saveSelection()">저장하기 💾</button>
+                </div>
+
+                <div id="tab-content2" style="display: none;">
+                    <p class="desc">목표 대학과 학과의<br>핵심 권장 과목을 조회해 보세요.</p>
+                    <div style="text-align: left; max-width: 380px; margin: 0 auto 32px auto; font-size: 22px; color: #555555; line-height: 1.6; background-color: #fffaf0; padding: 24px; border-radius: 20px; border: 3px dashed #fce4ec; box-sizing: border-box;">
+                        <p style="margin: 0 0 12px 0; font-weight: bold; color: #6a5acd; font-size: 24px; text-align: center;">부산권/서울권 대학 정보 🔍</p>
+                        <p style="margin: 0; text-align: center; color: #b0b8c1; font-size: 20px;">(여기에 편제표 시트와 연동되어 부산 및 서울 주요 대학의 핵심 과목 정보가 예쁘게 구성될 예정입니다! ✨)</p>
                     </div>
-                
-                <button class="btn-start" onclick="saveSelection()">저장하기 💾</button>
+                </div>
+
             </div>
 
         </div>
@@ -227,13 +270,11 @@
     </div>
     
     <script>
-        // 🔥 선생님의 최신 고정형 웹 앱 URL이 안전하게 반영되었습니다!
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxFFTb0vB25JuPk8YkMqIyygvsWnUe9BnxmrGJ9RQE17O2xrr66De9TeQf3snFQUiX3/exec";
         
         let globalStudentId = "";
         let globalStudentName = "";
 
-        // 임시 과목 데이터 (곧 편제표 시트 연동 후 자동으로 바뀔 부분입니다)
         const sampleSubjects = ["공통 국어1", "문학", "독서", "대수", "수학II"];
 
         function login() {
@@ -261,6 +302,8 @@
                     document.getElementById('welcome-title').innerText = `${res.name} 학생 환영합니다!`;
                     document.getElementById('student-badge').innerText = `${studentId} ${res.name} ✨`;
 
+                    // 기본으로 1번 탭(과목 설계) 보여주기
+                    changeTab(1);
                     renderSubjects();
                 } else {
                     alert("등록되지 않은 학번입니다. 명단을 확인해 주세요! 잉? 😿");
@@ -273,12 +316,27 @@
             });
         }
 
+        // 🔄 탭 전환 함수 (부드럽게 대상을 숨기고 보여주는 기능)
+        function changeTab(tabIndex) {
+            if (tabIndex === 1) {
+                document.getElementById('tab-content1').style.display = 'block';
+                document.getElementById('tab-content2').style.display = 'none';
+                document.getElementById('tab-btn1').classList.add('active');
+                document.getElementById('tab-btn2').classList.remove('active');
+            } else {
+                document.getElementById('tab-content1').style.display = 'none';
+                document.getElementById('tab-content2').style.display = 'block';
+                document.getElementById('tab-btn1').classList.remove('active');
+                document.getElementById('tab-btn2').classList.add('active');
+            }
+        }
+
         function renderSubjects() {
             const listDiv = document.getElementById('subject-list');
             listDiv.innerHTML = "";
             sampleSubjects.forEach(sub => {
                 listDiv.innerHTML += `
-                    <label style="display: flex; align-items: center; gap: 12px; cursor: pointer;">
+                    <label style="display: flex; align-items: center; gap: 12px; cursor: pointer; margin-bottom: 8px;">
                         <input type="checkbox" name="user-subject" value="${sub}" style="width:24px; height:24px; accent-color:#c3bef0;"> 
                         <span>${sub}</span>
                     </label>
