@@ -4,279 +4,79 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>배정고 수강신청 안내서 💖</title>
-    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Hi+Melody&display=swap" rel="stylesheet">
-    
     <style>
-        :root {
-            --primary: #c3bef0; 
-            --primary-hover: #b19cd9;
-            --bg-color: #fef1f8; 
-            --surface: #ffffff;
-            --text-main: #333333; 
-            --text-sub: #b0b8c1;
-        }
+        :root { --primary: #c3bef0; --bg-color: #fef1f8; --surface: #ffffff; --text-main: #333333; }
+        body { background-color: var(--bg-color); font-family: 'Hi Melody', cursive, sans-serif; margin: 0; display: flex; flex-direction: column; min-height: 100vh; background-image: radial-gradient(#ffe4e1 1px, transparent 1px); background-size: 40px 40px; }
+        .content-wrapper { flex: 1; display: flex; justify-content: center; align-items: center; padding: 16px; padding-bottom: 110px; }
+        .card { background-color: var(--surface); width: 100%; max-width: 560px; padding: 48px 56px; border-radius: 40px; box-shadow: 0 20px 50px rgba(255, 192, 203, 0.3); text-align: center; border: 3px solid #fce4ec; }
+        h1 { margin: 0 0 16px 0; font-size: 38px; color: #6a5acd; font-weight: bold; white-space: nowrap; }
+        p.desc { margin: 0 0 32px 0; font-size: 24px; color: #555555; font-weight: bold; }
+        input { width: 100%; padding: 18px; font-size: 24px; border: 3px solid #fce4ec; border-radius: 20px; text-align: center; box-sizing: border-box; margin-bottom: 20px; font-family: 'Hi Melody', cursive; }
+        .btn-start { width: 100%; padding: 18px; background: linear-gradient(120deg, #c3bef0 0%, #fad0c4 100%); border: none; border-radius: 20px; color: white; font-size: 26px; cursor: pointer; font-family: 'Hi Melody', cursive; font-weight: bold; }
         
-        body {
-            background-color: var(--bg-color);
-            font-family: 'Hi Melody', cursive, sans-serif; 
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            background-image: radial-gradient(#ffe4e1 1px, transparent 1px), radial-gradient(#ffe4e1 1px, transparent 1px);
-            background-size: 40px 40px;
-            background-position: 0 0, 20px 20px;
-        }
-
-        .content-wrapper {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 16px; 
-            padding-bottom: 110px; 
-        }
-
-        .card {
-            background-color: var(--surface);
-            width: 100%;
-            /* 🔥 카드 가로를 넉넉하게 560px로 쫙 늘림! */
-            max-width: 560px; 
-            /* 🔥 위아래 여백은 살짝 줄이고, 좌우 여백을 늘려 안정감 있는 비율 완성 */
-            padding: 48px 56px; 
-            border-radius: 40px; 
-            box-shadow: 0 20px 50px rgba(255, 192, 203, 0.3);
-            text-align: center;
-            box-sizing: border-box;
-            border: 3px solid #fce4ec; 
-        }
-
-        .icon-wrap {
-            font-size: 64px; 
-            margin-bottom: 16px; /* 불필요한 세로 여백 축소 */
-            animation: twinkle 2s infinite;
-        }
+        /* 과목 선택 시스템 스타일 (디자인 통일) */
+        #main-system { display: none; width: 100%; max-width: 560px; }
+        .tab-container { display: flex; justify-content: center; gap: 5px; margin-bottom: 20px; }
+        .tab-btn { padding: 10px 15px; border-radius: 15px; border: 2px solid var(--primary); background: white; cursor: pointer; font-size: 20px; color: #6a5acd; font-family: 'Hi Melody', cursive; }
+        .tab-btn.active { background: var(--primary); color: white; }
+        .group { background: white; padding: 20px; border-radius: 20px; margin-bottom: 20px; border: 2px solid #fce4ec; text-align: left; }
+        .group-title { font-size: 26px; color: #6a5acd; margin-bottom: 10px; border-bottom: 2px dashed #fce4ec; }
+        .subject-item { font-size: 22px; padding: 5px 0; display: block; }
         
-        h1 {
-            margin: 0 0 16px 0; /* 불필요한 세로 여백 축소 */
-            font-size: 38px; 
-            color: #6a5acd; 
-            letter-spacing: 0.5px;
-            font-weight: bold; 
-            white-space: nowrap; 
-            text-shadow: 1px 1px 2px rgba(106, 90, 205, 0.15); 
-        }
+        .footer { position: fixed; bottom: 0; width: 100%; text-align: center; padding: 24px; font-family: 'Hi Melody', cursive; font-size: 24px; color: #6a5acd; font-weight: bold; background: white; border-top: 3px solid #fce4ec; }
         
-        p.desc {
-            margin: 0 0 32px 0; /* 44px에서 32px로 대폭 줄여서 세로 길이 다이어트 */
-            font-size: 24px; 
-            color: #555555; 
-            word-break: keep-all;
-            line-height: 1.4;
-            font-weight: bold; 
-            text-shadow: 0.5px 0.5px 0px rgba(0,0,0,0.05); 
-        }
-        
-        .input-box {
-            margin-bottom: 24px; /* 간격 축소 */
-        }
-        
-        input {
-            width: 100%;
-            /* 🔥 입력칸 높이와 폰트 크기 슬림하게 조절 */
-            padding: 18px; 
-            font-family: 'Hi Melody', cursive, sans-serif; 
-            font-size: 24px; 
-            color: var(--text-main);
-            background-color: #fffaf0; 
-            border: 3px solid #fce4ec; 
-            border-radius: 20px;
-            box-sizing: border-box;
-            text-align: center;
-            letter-spacing: 4px;
-            transition: all 0.2s ease;
-            font-weight: bold;
-        }
-        
-        input::placeholder {
-            color: #c0c0c0;
-            letter-spacing: 1px;
-            font-size: 22px;
-            font-weight: normal;
-        }
-        
-        input:focus {
-            outline: none;
-            border-color: var(--primary);
-            background-color: var(--surface);
-            box-shadow: 0 0 0 5px rgba(195, 190, 240, 0.3);
-        }
-        
-        .btn-start {
-            width: 100%;
-            /* 🔥 버튼 높이도 슬림하게 조절 */
-            padding: 18px; 
-            font-family: 'Hi Melody', cursive, sans-serif; 
-            font-size: 26px; 
-            color: white;
-            background-image: linear-gradient(120deg, #c3bef0 0%, #fad0c4 100%);
-            border: none;
-            border-radius: 20px;
-            cursor: pointer;
-            box-shadow: 0 8px 20px rgba(195, 190, 240, 0.4);
-            transition: all 0.3s ease;
-            font-weight: bold;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.15); 
-        }
-        
-        .btn-start:hover {
-            transform: translateY(-3px); 
-            box-shadow: 0 12px 25px rgba(195, 190, 240, 0.5);
-        }
-        
-        .btn-start:active {
-            transform: translateY(1px) scale(0.98);
-        }
-        
-        .status-badge {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #fff0f5; 
-            color: #ff69b4; 
-            font-size: 18px;
-            border-radius: 20px;
-            margin-bottom: 24px;
-            border: 2px solid #fce4ec;
-            font-weight: bold;
-        }
-
-        .footer {
-            position: fixed; 
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            text-align: center;
-            padding: 24px; 
-            font-family: 'Hi Melody', cursive, sans-serif; 
-            font-size: 24px; 
-            color: #6a5acd; 
-            font-weight: bold;
-            background-image: linear-gradient(to top, #fad0c4 0%, #ffd1ff 100%);
-            box-sizing: border-box;
-            border-radius: 30px 30px 0 0; 
-            z-index: 10;
-            box-shadow: 0 -10px 30px rgba(255, 192, 203, 0.2);
-            text-shadow: 1px 1px 3px rgba(255,255,255,0.8), -1px -1px 3px rgba(255,255,255,0.8);
-        }
-
-        .heart-icon {
-            display: inline-block;
-            animation: pulse 1.5s infinite; 
-            margin: 0 6px; 
-        }
-
-        /* 스마트폰/태블릿을 위한 맞춤 여백 */
-        @media screen and (max-width: 768px) {
-            .content-wrapper {
-                padding-bottom: 80px; 
-            }
-            .card {
-                padding: 40px 24px; /* 폰에서는 글씨가 넘치지 않게 좌우 패딩을 줄여줌 */
-                border-radius: 30px;
-            }
-            .status-badge {
-                margin-bottom: 16px; 
-                padding: 6px 16px;
-            }
-            .icon-wrap {
-                font-size: 52px; 
-                margin-bottom: 16px;
-            }
-            h1 {
-                font-size: clamp(22px, 6.5vw, 32px); 
-                margin-bottom: 16px;
-            }
-            p.desc {
-                font-size: 20px; 
-                margin-bottom: 24px; 
-            }
-            .input-box {
-                margin-bottom: 20px;
-            }
-            input {
-                padding: 16px; 
-                font-size: 24px;
-            }
-            input::placeholder {
-                font-size: 20px;
-            }
-            .btn-start {
-                padding: 18px; 
-                font-size: 24px;
-            }
-            .footer {
-                font-size: 16px; 
-                padding: 16px; 
-            }
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); }
-        }
-
-        @keyframes twinkle {
-            0% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.7; transform: scale(1.1) rotate(5deg); }
-            100% { opacity: 1; transform: scale(1); }
-        }
+        @media screen and (max-width: 768px) { .card { padding: 40px 24px; } h1 { font-size: 28px; } }
     </style>
 </head>
 <body>
 
     <div class="content-wrapper">
-        <div class="card">
-            <div class="status-badge" id="db-status">DB 연결 대기중 ✨</div>
-            
-            <div class="icon-wrap">🏫💕</div>
-            
+        <div id="login-card" class="card">
             <h1>배정고등학교 수강신청 안내서</h1>
-            <p class="desc">나의 진로와 적성에 맞는 과목을<br>신중하게 선택하고 저장해 보세요.</p>
-            
-            <div class="input-box">
-                <input type="text" id="studentId" placeholder="학번 5자리 입력" maxlength="5" pattern="\d*">
-            </div>
-            
+            <p class="desc">나의 진로와 적성을 찾아보세요 ✨</p>
+            <input type="text" id="studentId" placeholder="학번 5자리 입력">
             <button class="btn-start" onclick="login()">입장하기 ✨</button>
+        </div>
+
+        <div id="main-system">
+            <div class="tab-container">
+                <button class="tab-btn active" onclick="loadSem('2-1')">2-1</button>
+                <button class="tab-btn" onclick="loadSem('2-2')">2-2</button>
+            </div>
+            <div id="app"></div>
+            <button class="btn-start" onclick="alert('제출 완료!')">신청하기 💾</button>
         </div>
     </div>
 
-    <div class="footer">
-        <span class="heart-icon">💖</span> 
-        Made by 꿈을 응원하는 현정T 
-        <span class="heart-icon">💖</span>
-    </div>
+    <div class="footer">Made by 꿈을 응원하는 현정T 💖</div>
     
     <script>
         function login() {
             const studentId = document.getElementById('studentId').value;
-            if(studentId.length !== 5 || isNaN(studentId)) {
-                alert("학번 5자리를 정확히 입력해주세요. (예: 10101) 잉? 😿");
-                return;
-            }
-            alert(studentId + " 학생 확인 완료! 🥰");
+            if(studentId.length === 5) {
+                document.getElementById('login-card').style.display = 'none';
+                document.getElementById('main-system').style.display = 'block';
+                loadSem('2-1');
+            } else { alert("학번 5자리를 정확히 입력해주세요! 😿"); }
         }
+        document.getElementById('studentId').addEventListener('keyup', (e) => { if(e.key === 'Enter') login(); });
 
-        document.getElementById('studentId').addEventListener('keyup', function(event) {
-            if (event.key === 'Enter') {
-                login();
-            }
-        });
+        function loadSem(sem) {
+            const app = document.getElementById('app');
+            const data = {
+                "2-1": { required: ["공통국어1"], elective: ["문학", "대수"] },
+                "2-2": { required: ["공통국어1"], elective: ["독서", "수학II"] }
+            };
+            const current = data[sem];
+            let html = `<div class="group"><div class="group-title">🔒 필수과목</div>`;
+            current.required.forEach(s => html += `<div class="subject-item">✅ ${s}</div>`);
+            html += `</div><div class="group"><div class="group-title">🎁 선택과목</div>`;
+            current.elective.forEach(s => html += `<label class="subject-item"><input type="checkbox"> ${s}</label>`);
+            app.innerHTML = html + `</div>`;
+        }
     </script>
-
 </body>
 </html>
