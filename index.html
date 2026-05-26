@@ -6,52 +6,62 @@
     <title>배정고 수강신청 안내서 💖</title>
     <link href="https://fonts.googleapis.com/css2?family=Hi+Melody&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #c3bef0; --bg-color: #fef1f8; --text-main: #333333; }
-        body { background-color: var(--bg-color); font-family: 'Hi Melody', cursive; margin: 0; padding-bottom: 120px; }
+        :root { --primary: #c3bef0; --bg-color: #fef1f8; --surface: #ffffff; --text-main: #333333; }
+        body { background-color: var(--bg-color); font-family: 'Hi Melody', cursive, sans-serif; margin: 0; padding-bottom: 120px; background-image: radial-gradient(#ffe4e1 1px, transparent 1px); background-size: 40px 40px; }
         
-        /* 로그인 카드 (이전 디자인 그대로) */
-        #login-card { background: white; padding: 48px 56px; border-radius: 40px; box-shadow: 0 20px 50px rgba(255,192,203,0.3); text-align: center; width: 90%; max-width: 560px; margin: 50px auto; border: 3px solid #fce4ec; }
-        h1 { color: #6a5acd; font-size: 38px; margin: 0 0 20px 0; white-space: nowrap; }
-        input { width: 100%; padding: 18px; font-size: 24px; border: 3px solid #fce4ec; border-radius: 20px; text-align: center; box-sizing: border-box; margin-bottom: 20px; font-family: 'Hi Melody', cursive; }
-        .action-btn { width: 100%; padding: 18px; background: linear-gradient(120deg, #c3bef0 0%, #fad0c4 100%); border: none; border-radius: 20px; color: white; font-size: 26px; cursor: pointer; font-family: 'Hi Melody', cursive; }
+        .content-wrapper { padding: 20px; display: flex; flex-direction: column; align-items: center; }
 
-        /* 수강신청 화면 */
-        #main-system { display: none; max-width: 600px; margin: 0 auto; padding: 20px; }
+        /* 선생님이 마음에 들어 하신 카드 디자인 */
+        .card { background-color: var(--surface); width: 100%; max-width: 560px; padding: 48px 56px; border-radius: 40px; box-shadow: 0 20px 50px rgba(255, 192, 203, 0.3); text-align: center; box-sizing: border-box; border: 3px solid #fce4ec; margin-top: 50px; }
+        h1 { margin: 0 0 16px 0; font-size: 38px; color: #6a5acd; font-weight: bold; white-space: nowrap; }
+        p.desc { margin: 0 0 32px 0; font-size: 24px; color: #555555; font-weight: bold; }
+        input { width: 100%; padding: 18px; font-size: 24px; border: 3px solid #fce4ec; border-radius: 20px; text-align: center; box-sizing: border-box; margin-bottom: 20px; font-family: 'Hi Melody', cursive; }
+        .btn-start { width: 100%; padding: 18px; background: linear-gradient(120deg, #c3bef0 0%, #fad0c4 100%); border: none; border-radius: 20px; color: white; font-size: 26px; cursor: pointer; font-family: 'Hi Melody', cursive; font-weight: bold; }
+
+        /* 수강신청 시스템 화면 */
+        #main-system { display: none; width: 100%; max-width: 600px; margin: 0 auto; }
         .tab-container { display: flex; justify-content: center; gap: 5px; margin: 20px 0; }
         .tab-btn { padding: 10px 20px; border-radius: 15px; border: 2px solid var(--primary); background: white; cursor: pointer; font-size: 20px; color: #6a5acd; font-family: 'Hi Melody', cursive; }
         .tab-btn.active { background: var(--primary); color: white; }
+        
         .group { background: white; padding: 20px; border-radius: 20px; margin-bottom: 20px; border: 2px solid #fce4ec; }
         .group-title { font-size: 26px; color: #6a5acd; margin-bottom: 15px; border-bottom: 2px dashed #fce4ec; }
         .subject-item { display: flex; align-items: center; font-size: 22px; padding: 10px 0; }
         
-        .footer { position: fixed; bottom: 0; width: 100%; padding: 20px; background: white; text-align: center; border-top: 2px solid #fce4ec; font-size: 22px; color: #6a5acd; }
+        .footer { position: fixed; bottom: 0; width: 100%; padding: 20px; background: white; text-align: center; border-top: 2px solid #fce4ec; font-size: 22px; color: #6a5acd; font-family: 'Hi Melody', cursive; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <div id="login-card">
-        <h1>배정고 수강신청 안내서 💖</h1>
-        <input type="text" id="studentId" placeholder="학번 5자리 입력">
-        <button class="action-btn" onclick="login()">입장하기 ✨</button>
-    </div>
-
-    <div id="main-system">
-        <div class="tab-container">
-            <button class="tab-btn active" onclick="loadSem('2-1')">2-1</button>
-            <button class="tab-btn" onclick="loadSem('2-2')">2-2</button>
-            <button class="tab-btn" onclick="loadSem('3-1')">3-1</button>
-            <button class="tab-btn" onclick="loadSem('3-2')">3-2</button>
+    <div class="content-wrapper">
+        <div id="login-card" class="card">
+            <h1>배정고 수강신청 안내서 💖</h1>
+            <p class="desc">나의 진로와 적성을 찾아보세요 ✨</p>
+            <input type="text" id="studentId" placeholder="학번 5자리 입력">
+            <button class="btn-start" onclick="login()">입장하기 ✨</button>
         </div>
-        <div id="app"></div>
+
+        <div id="main-system">
+            <div class="tab-container">
+                <button class="tab-btn active" onclick="loadSem('2-1')">2-1</button>
+                <button class="tab-btn" onclick="loadSem('2-2')">2-2</button>
+                <button class="tab-btn" onclick="loadSem('3-1')">3-1</button>
+                <button class="tab-btn" onclick="loadSem('3-2')">3-2</button>
+            </div>
+            <div id="app"></div>
+            <button class="btn-start" style="margin-top:20px;">신청 완료하기 💾</button>
+        </div>
     </div>
 
-    <div class="footer">Made by 꿈을 응원하는 현정T 💖</div>
+    <div class="footer" id="footer-text">Made by 꿈을 응원하는 현정T 💖</div>
 
     <script>
         const studentDB = { "10101": "김배정", "10102": "이수강" };
         const myCurriculum = {
-            "2-1": { required: ["언어와 매체", "수학 I"], elective: ["문학", "물리학"] },
-            "2-2": { required: ["독서", "수학 II"], elective: ["화법과 작문", "화학"] }
+            "2-1": { required: ["언어와 매체", "수학 I"], elective: ["문학", "물리학", "세계지리"] },
+            "2-2": { required: ["독서", "수학 II"], elective: ["화법과 작문", "화학", "정치와 법"] },
+            "3-1": { required: ["고전 읽기"], elective: ["미적분", "생명과학"] },
+            "3-2": { required: ["고전 읽기"], elective: ["확률과 통계", "지구과학"] }
         };
 
         function login() {
@@ -59,16 +69,21 @@
             if (studentDB[id]) {
                 document.getElementById('login-card').style.display = 'none';
                 document.getElementById('main-system').style.display = 'block';
+                document.getElementById('footer-text').innerText = studentDB[id] + " 학생 환영합니다! 🥰";
                 loadSem('2-1');
             } else { alert("등록되지 않은 학번입니다!"); }
         }
 
-        // 엔터키 기능
         document.getElementById('studentId').addEventListener('keyup', (e) => { if (e.key === 'Enter') login(); });
 
         function loadSem(sem) {
+            // 버튼 활성화 처리
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.innerText === sem);
+            });
+
             const app = document.getElementById('app');
-            const data = myCurriculum[sem] || {required: [], elective: []};
+            const data = myCurriculum[sem];
             let html = `<div class="group"><div class="group-title">🔒 필수과목</div>`;
             data.required.forEach(sub => html += `<div class="subject-item">✅ ${sub}</div>`);
             html += `</div><div class="group"><div class="group-title">🎁 선택과목</div>`;
