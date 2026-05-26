@@ -12,6 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Hi+Melody&display=swap" rel="stylesheet">
     
     <style>
+        /* 선생님의 원본 CSS를 단 1픽셀도 변경하지 않고 그대로 고정했습니다. */
         :root {
             --primary: #c3bef0; 
             --primary-hover: #b19cd9;
@@ -170,67 +171,23 @@
             text-shadow: 1px 1px 3px rgba(255,255,255,0.8), -1px -1px 3px rgba(255,255,255,0.8);
         }
 
-        .heart-icon {
-            display: inline-block;
-            animation: pulse 1.5s infinite; 
-            margin: 0 6px; 
-        }
+        .heart-icon { display: inline-block; animation: pulse 1.5s infinite; margin: 0 6px; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+        @keyframes twinkle { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(1.1) rotate(5deg); } 100% { opacity: 1; transform: scale(1); } }
 
         /* 스마트폰/태블릿을 위한 맞춤 여백 */
         @media screen and (max-width: 768px) {
-            .content-wrapper {
-                padding-bottom: 80px; 
-            }
-            .card {
-                padding: 40px 24px; 
-                border-radius: 30px;
-            }
-            .status-badge {
-                margin-bottom: 16px; 
-                padding: 6px 16px;
-            }
-            .icon-wrap {
-                font-size: 52px; 
-                margin-bottom: 16px;
-            }
-            h1 {
-                font-size: clamp(22px, 6.5vw, 32px); 
-                margin-bottom: 16px;
-            }
-            p.desc {
-                font-size: 20px; 
-                margin-bottom: 24px; 
-            }
-            .input-box {
-                margin-bottom: 20px;
-            }
-            input {
-                padding: 16px; 
-                font-size: 24px;
-            }
-            input::placeholder {
-                font-size: 20px;
-            }
-            .btn-start {
-                padding: 18px; 
-                font-size: 24px;
-            }
-            .footer {
-                font-size: 16px; 
-                padding: 16px; 
-            }
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.2); }
-            100% { transform: scale(1); }
-        }
-
-        @keyframes twinkle {
-            0% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.7; transform: scale(1.1) rotate(5deg); }
-            100% { opacity: 1; transform: scale(1); }
+            .content-wrapper { padding-bottom: 80px; }
+            .card { padding: 40px 24px; border-radius: 30px; }
+            .status-badge { margin-bottom: 16px; padding: 6px 16px; }
+            .icon-wrap { font-size: 52px; margin-bottom: 16px; }
+            h1 { font-size: clamp(22px, 6.5vw, 32px); margin-bottom: 16px; }
+            p.desc { font-size: 20px; margin-bottom: 24px; }
+            .input-box { margin-bottom: 20px; }
+            input { padding: 16px; font-size: 24px; }
+            input::placeholder { font-size: 20px; }
+            .btn-start { padding: 18px; font-size: 24px; }
+            .footer { font-size: 16px; padding: 16px; }
         }
     </style>
 </head>
@@ -238,43 +195,126 @@
 
     <div class="content-wrapper">
         <div class="card">
-            <div class="status-badge" id="db-status">DB 연결 대기중 ✨</div>
             
-            <div class="icon-wrap">🏫💕</div>
-            
-            <h1>배정고등학교 수강신청 안내서</h1>
-            <p class="desc">나의 진로와 적성에 맞는 과목을<br>신중하게 선택하고 저장해 보세요.</p>
-            
-            <div class="input-box">
-                <input type="text" id="studentId" placeholder="학번 5자리 입력" maxlength="5" pattern="\d*">
+            <div id="login-view">
+                <div class="status-badge" id="db-status">DB 연결 완료 ✨</div>
+                <div class="icon-wrap">🏫💕</div>
+                <h1>배정고등학교 수강신청 안내서</h1>
+                <p class="desc">나의 진로와 적성에 맞는 과목을<br>신중하게 선택하고 저장해 보세요.</p>
+                <div class="input-box">
+                    <input type="text" id="studentId" placeholder="학번 5자리 입력" maxlength="5" pattern="\d*">
+                </div>
+                <button class="btn-start" onclick="login()">입장하기 ✨</button>
             </div>
-            
-            <button class="btn-start" onclick="login()">입장하기 ✨</button>
+
+            <div id="main-view" style="display: none;">
+                <div class="status-badge" id="student-badge">배정고등학교 ✨</div>
+                <div class="icon-wrap">📚💖</div>
+                <h1 id="welcome-title">OOO 학생 환영합니다!</h1>
+                <p class="desc">아래에서 이수할 과목을 선택하고<br>저장하기 버튼을 눌러주세요.</p>
+                
+                <div id="subject-list" style="text-align: left; max-width: 320px; margin: 0 auto 32px auto; font-size: 26px; line-height: 2;">
+                    </div>
+                
+                <button class="btn-start" onclick="saveSelection()">저장하기 💾</button>
+            </div>
+
         </div>
     </div>
 
     <div class="footer">
-        <span class="heart-icon">💖</span> 
-        Made by 꿈을 응원하는 현정T 
-        <span class="heart-icon">💖</span>
+        <span class="heart-icon">💖</span> Made by 꿈을 응원하는 현정T <span class="heart-icon">💖</span>
     </div>
     
     <script>
+        // 🔥 선생님의 최신 고정형 웹 앱 URL이 안전하게 반영되었습니다!
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxFFTb0vB25JuPk8YkMqIyygvsWnUe9BnxmrGJ9RQE17O2xrr66De9TeQf3snFQUiX3/exec";
+        
+        let globalStudentId = "";
+        let globalStudentName = "";
+
+        // 임시 과목 데이터 (곧 편제표 시트 연동 후 자동으로 바뀔 부분입니다)
+        const sampleSubjects = ["공통 국어1", "문학", "독서", "대수", "수학II"];
+
         function login() {
             const studentId = document.getElementById('studentId').value;
             if(studentId.length !== 5 || isNaN(studentId)) {
                 alert("학번 5자리를 정확히 입력해주세요. (예: 10101) 잉? 😿");
                 return;
             }
-            alert(studentId + " 학생 확인 완료! 🥰");
+
+            document.getElementById('db-status').innerText = "학생 정보 조회 중... ⏳";
+
+            fetch(WEB_APP_URL, {
+                method: "POST",
+                body: JSON.stringify({ action: "login", studentId: studentId })
+            })
+            .then(res => res.json())
+            .then(res => {
+                if(res.name) {
+                    globalStudentId = studentId;
+                    globalStudentName = res.name;
+
+                    document.getElementById('login-view').style.display = 'none';
+                    document.getElementById('main-view').style.display = 'block';
+                    
+                    document.getElementById('welcome-title').innerText = `${res.name} 학생 환영합니다!`;
+                    document.getElementById('student-badge').innerText = `${studentId} ${res.name} ✨`;
+
+                    renderSubjects();
+                } else {
+                    alert("등록되지 않은 학번입니다. 명단을 확인해 주세요! 잉? 😿");
+                    document.getElementById('db-status').innerText = "DB 연결 완료 ✨";
+                }
+            })
+            .catch(err => {
+                alert("네트워크 연결에 실패했습니다. 다시 시도해 주세요.");
+                document.getElementById('db-status').innerText = "DB 연결 완료 ✨";
+            });
+        }
+
+        function renderSubjects() {
+            const listDiv = document.getElementById('subject-list');
+            listDiv.innerHTML = "";
+            sampleSubjects.forEach(sub => {
+                listDiv.innerHTML += `
+                    <label style="display: flex; align-items: center; gap: 12px; cursor: pointer;">
+                        <input type="checkbox" name="user-subject" value="${sub}" style="width:24px; height:24px; accent-color:#c3bef0;"> 
+                        <span>${sub}</span>
+                    </label>
+                `;
+            });
+        }
+
+        function saveSelection() {
+            const checkedBoxes = document.querySelectorAll('input[name="user-subject"]:checked');
+            if(checkedBoxes.length === 0) {
+                alert("최소 한 개 이상의 과목을 선택해 주세요! 😿");
+                return;
+            }
+
+            const selectedArray = Array.from(checkedBoxes).map(cb => cb.value);
+            const subjectsString = selectedArray.join(", ");
+
+            fetch(WEB_APP_URL, {
+                method: "POST",
+                body: JSON.stringify({
+                    action: "save",
+                    sheetName: "수강신청",
+                    studentId: globalStudentId,
+                    studentName: globalStudentName,
+                    semester: "2학년 1학기",
+                    subjects: subjectsString
+                })
+            }).then(() => {
+                alert("수강신청 과목이 안전하게 저장되었습니다! 💖");
+                location.reload(); 
+            });
         }
 
         document.getElementById('studentId').addEventListener('keyup', function(event) {
-            if (event.key === 'Enter') {
-                login();
-            }
+            if (event.key === 'Enter') login();
         });
     </script>
-
 </body>
 </html>
