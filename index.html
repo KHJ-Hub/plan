@@ -4,27 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>배정고 수강신청 안내서 💖</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2110@1.0/KOTRA_HOPE.css">
+    
     <style>
+        /* 🔥 폰트가 깨지지 않고 무조건 적용되도록 직접 불러오기 */
+        @font-face {
+            font-family: 'KOTRA_hope';
+            src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2110@1.0/KOTRA_hope.woff2') format('woff2');
+            font-weight: normal;
+            font-style: normal;
+        }
+
         :root {
-            /* 몽글몽글 솜사탕 파스텔 컬러로 변경 */
-            --primary: #c3bef0; /* 더 부드러운 라벤더 */
+            --primary: #c3bef0; 
             --primary-hover: #b19cd9;
-            --bg-color: #fef1f8; /* 아주 연한 파스텔 핑크 배경 */
+            --bg-color: #fef1f8; 
             --surface: #ffffff;
-            --text-main: #5d5d5d; /* 너무 검지 않은 부드러운 회색 */
+            --text-main: #5d5d5d; 
             --text-sub: #b0b8c1;
         }
         
         body {
             background-color: var(--bg-color);
-            /* 전체 폰트를 코트라 희망체로 변경! */
-            font-family: 'KOTRA_HOPE', sans-serif;
+            font-family: 'KOTRA_hope', sans-serif; /* 귀여운 폰트 적용 완료 */
             margin: 0;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
-            /* 몽글몽글한 배경 그라데이션 추가 */
             background-image: radial-gradient(#ffe4e1 1px, transparent 1px), radial-gradient(#ffe4e1 1px, transparent 1px);
             background-size: 40px 40px;
             background-position: 0 0, 20px 20px;
@@ -36,7 +41,7 @@
             justify-content: center;
             align-items: center;
             padding: 16px; 
-            padding-bottom: 110px; /* 푸터가 조금 더 커져서 여백 확대 */
+            padding-bottom: 110px; 
         }
 
         .card {
@@ -44,25 +49,23 @@
             width: 100%;
             max-width: 380px; 
             padding: 56px 36px; 
-            border-radius: 40px; /* 카드를 훨씬 더 둥글고 몽글몽글하게 */
-            /* 핑크빛 은은한 그림자 추가 */
+            border-radius: 40px; 
             box-shadow: 0 20px 50px rgba(255, 192, 203, 0.3);
             text-align: center;
             box-sizing: border-box;
-            border: 3px solid #fce4ec; /* 귀여운 핑크 테두리 추가 */
+            border: 3px solid #fce4ec; 
         }
 
         .icon-wrap {
-            font-size: 64px; /* 아이콘을 더 큼직하게 */
+            font-size: 64px; 
             margin-bottom: 24px;
-            /* 아이콘에 반짝이는 효과 애니메이션 추가 */
             animation: twinkle 2s infinite;
         }
         
         h1 {
             margin: 0 0 20px 0;
-            font-size: 34px; /* 폰트에 맞춰 크기 확대 */
-            color: #7b68ee; /* 제목은 조금 더 진한 보라색 */
+            font-size: 34px; 
+            color: #7b68ee; 
             letter-spacing: 1px;
             line-height: 1.2;
             font-weight: normal;
@@ -83,11 +86,11 @@
         input {
             width: 100%;
             padding: 22px; 
-            font-family: 'KOTRA_HOPE', sans-serif; /* 입력창에도 귀여운 폰트 */
+            font-family: 'KOTRA_hope', sans-serif; 
             font-size: 26px; 
             color: var(--text-main);
-            background-color: #fffaf0; /* 아주 연한 크림색 배경 */
-            border: 3px solid #fce4ec; /* 핑크색 테두리 */
+            background-color: #fffaf0; 
+            border: 3px solid #fce4ec; 
             border-radius: 20px;
             box-sizing: border-box;
             text-align: center;
@@ -111,10 +114,9 @@
         .btn-start {
             width: 100%;
             padding: 22px; 
-            font-family: 'KOTRA_HOPE', sans-serif; 
+            font-family: 'KOTRA_hope', sans-serif; 
             font-size: 26px; 
             color: white;
-            /* 연보라~핑크 그라데이션 버튼으로 변경 */
             background-image: linear-gradient(120deg, #c3bef0 0%, #fad0c4 100%);
             border: none;
             border-radius: 20px;
@@ -124,7 +126,7 @@
         }
         
         .btn-start:hover {
-            transform: translateY(-3px); /* 호버 시 살짝 떠오르는 효과 */
+            transform: translateY(-3px); 
             box-shadow: 0 12px 25px rgba(195, 190, 240, 0.5);
         }
         
@@ -135,15 +137,15 @@
         .status-badge {
             display: inline-block;
             padding: 10px 20px;
-            background-color: #fff0f5; /* 아주 연한 핑크 뱃지 */
-            color: #ff69b4; /* 핫핑크색 글씨 */
+            background-color: #fff0f5; 
+            color: #ff69b4; 
             font-size: 16px;
             border-radius: 20px;
             margin-bottom: 28px;
             border: 2px solid #fce4ec;
         }
 
-        /* 🎀 하트뿅뿅 글리터 푸터 서명 */
+        /* 🔥 서명 글씨를 흰색에서 눈에 확 띄는 진보라색으로 변경! */
         .footer {
             position: fixed; 
             bottom: 0;
@@ -151,9 +153,9 @@
             width: 100%;
             text-align: center;
             padding: 28px; 
-            font-size: 20px; 
-            color: #fff; /* 폰트 배경이 진해져서 흰색 글씨로 */
-            /* 핑크~보라 글리터 그라데이션 바탕 */
+            font-size: 22px; 
+            color: #7b68ee; /* 진한 보라색 */
+            font-weight: bold;
             background-image: linear-gradient(to top, #fad0c4 0%, #ffd1ff 100%);
             box-sizing: border-box;
             border-radius: 30px 30px 0 0; 
@@ -167,7 +169,6 @@
             margin: 0 6px; 
         }
 
-        /* 애니메이션 효과들 추가 */
         @keyframes pulse {
             0% { transform: scale(1); }
             50% { transform: scale(1.2); }
@@ -187,7 +188,8 @@
         <div class="card">
             <div class="status-badge" id="db-status">DB 연결 대기중 ✨</div>
             
-            <div class="icon-wrap">🏫💕</div> /* 아이콘에 하트 추가 */
+            <div class="icon-wrap">🏫💕</div>
+            
             <h1>배정고등학교<br>수강신청 안내서</h1>
             <p class="desc">나의 진로와 적성에 맞는 과목을<br>신중하게 선택하고 저장해 보세요.</p>
             
@@ -215,7 +217,7 @@
             alert(studentId + " 학생 확인 완료! 🥰");
         }
 
-        // 엔터키 감지 기능 (그대로 유지)
+        // 엔터키 감지 
         document.getElementById('studentId').addEventListener('keyup', function(event) {
             if (event.key === 'Enter') {
                 login();
