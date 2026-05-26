@@ -4,136 +4,137 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>고교학점제 과목 설계</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
     <style>
+        :root {
+            --primary: #9b82d3; /* 세련된 연보라색 포인트 */
+            --primary-hover: #8367c7;
+            --bg-color: #f4f5f7;
+            --surface: #ffffff;
+            --text-main: #191f28;
+            --text-sub: #8b95a1;
+        }
         body {
-            background-color: #f8f9fa; /* 부드러운 배경색 */
-            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+            background-color: var(--bg-color);
+            font-family: 'Pretendard', sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
         }
-        .login-container {
-            background-color: white;
-            padding: 40px;
-            border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-            width: 100%;
-            max-width: 400px;
+        .card {
+            background-color: var(--surface);
+            width: 90%;
+            max-width: 360px;
+            padding: 40px 30px;
+            border-radius: 24px;
+            box-shadow: 0 16px 40px rgba(0,0,0,0.08);
             text-align: center;
+            box-sizing: border-box;
         }
-        h2 {
-            margin-top: 0;
-            color: #333;
+        .icon-wrap {
+            font-size: 44px;
+            margin-bottom: 16px;
         }
-        p.subtitle {
-            color: #666;
-            font-size: 14px;
+        h1 {
+            margin: 0 0 12px 0;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: -0.5px;
+        }
+        p.desc {
+            margin: 0 0 32px 0;
+            font-size: 15px;
+            color: var(--text-sub);
+            word-break: keep-all;
+            line-height: 1.5;
+        }
+        .input-box {
+            position: relative;
             margin-bottom: 24px;
         }
-        .alert-box {
-            background-color: #fff0f0;
-            color: #d32f2f;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 13px;
-            margin-bottom: 24px;
-            text-align: left;
-            border: 1px solid #ffcdd2;
-        }
-        .input-group {
-            text-align: left;
-            margin-bottom: 24px;
-        }
-        .input-group label {
-            display: block;
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #444;
-        }
-        .input-group input {
+        input {
             width: 100%;
-            padding: 14px;
-            border: 1.5px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 16px;
+            padding: 18px 20px;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-main);
+            background-color: #f9fafb;
+            border: 2px solid transparent;
+            border-radius: 16px;
             box-sizing: border-box;
             text-align: center;
             letter-spacing: 2px;
-            transition: border-color 0.3s;
+            transition: all 0.2s ease;
         }
-        .input-group input:focus {
+        input::placeholder {
+            color: #b0b8c1;
+            font-weight: 400;
+            letter-spacing: normal;
+        }
+        input:focus {
             outline: none;
-            border-color: #b39ddb; /* 연보라색 포커스 */
-            box-shadow: 0 0 0 3px rgba(179, 157, 219, 0.2);
+            border-color: var(--primary);
+            background-color: var(--surface);
+            box-shadow: 0 0 0 4px rgba(155, 130, 211, 0.15);
         }
-        .input-group .help-text {
-            display: block;
-            font-size: 12px;
-            color: #888;
-            margin-top: 8px;
-            text-align: center;
-        }
-        button {
-            background-color: #9575cd; /* 연보라색 버튼 */
-            color: white;
-            border: none;
-            padding: 16px;
+        .btn-start {
             width: 100%;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: bold;
+            padding: 18px;
+            font-size: 17px;
+            font-weight: 700;
+            color: white;
+            background-color: var(--primary);
+            border: none;
+            border-radius: 16px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: background-color 0.2s ease, transform 0.1s ease;
         }
-        button:hover {
-            background-color: #7e57c2; /* 호버 시 약간 짙은 연보라색 */
+        .btn-start:hover {
+            background-color: var(--primary-hover);
+        }
+        .btn-start:active {
+            transform: scale(0.98); /* 클릭 시 살짝 눌리는 애니메이션 */
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            background-color: #f1f3f5;
+            color: var(--text-sub);
+            font-size: 12px;
+            font-weight: 600;
+            border-radius: 20px;
+            margin-bottom: 24px;
         }
     </style>
 </head>
 <body>
-
-<div class="login-container">
-    <h2>학점 설계 시작</h2>
-    <p class="subtitle">학번을 입력하면 과목 선택을 시작할 수 있어요.</p>
-
-    <div class="alert-box" id="gas-alert">
-        <strong>GAS URL이 설정되지 않았습니다.</strong><br>
-        교사가 먼저 구글 시트와 연동해야 합니다.
-    </div>
-
-    <div class="input-group">
-        <label for="studentId">학번 입력</label>
-        <input type="text" id="studentId" placeholder="예) 10101" maxlength="5" pattern="\d*">
-        <span class="help-text">5자리 학번을 입력하세요 (학년+반+번호)</span>
-    </div>
-
-    <button onclick="login()">입장하기 →</button>
-</div>
-
-<script>
-    // 선생님의 구글 앱스 스크립트(GAS) URL을 나중에 여기에 넣을 예정입니다.
-    const gasUrl = ""; 
-
-    function login() {
-        const studentId = document.getElementById('studentId').value;
+    <div class="card">
+        <div class="status-badge" id="db-status">데이터베이스 연결 대기중</div>
         
-        if(studentId.length !== 5 || isNaN(studentId)) {
-            alert("5자리 학번(숫자)을 정확히 입력해주세요.");
-            return;
+        <div class="icon-wrap">🧭</div>
+        <h1>과목 설계 시작하기</h1>
+        <p class="desc">나의 진로에 맞는 과목을<br>선택하고 저장해 보세요.</p>
+        
+        <div class="input-box">
+            <input type="text" id="studentId" placeholder="학번 5자리 입력" maxlength="5" pattern="\d*">
+        </div>
+        
+        <button class="btn-start" onclick="login()">입장하기</button>
+    </div>
+    
+    <script>
+        function login() {
+            const studentId = document.getElementById('studentId').value;
+            if(studentId.length !== 5 || isNaN(studentId)) {
+                alert("학번 5자리를 정확히 입력해주세요. (예: 10101)");
+                return;
+            }
+            // 나중에 여기에 실제 다음 페이지로 넘어가는 기능을 넣을 겁니다.
+            alert(studentId + " 학생 확인 완료! (아직 다음 화면은 공사 중입니다 🚧)");
         }
-
-        if(gasUrl === "") {
-            alert("아직 데이터베이스(GAS)가 연결되지 않았습니다. 테스트 화면입니다.");
-            return;
-        }
-
-        // GAS URL이 세팅되면 실제 데이터를 불러오는 로직이 추가될 곳입니다.
-        alert(studentId + " 학생 데이터 조회 중...");
-    }
-</script>
-
+    </script>
 </body>
 </html>
