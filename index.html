@@ -5,15 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>배정고 수강신청 안내서 💖</title>
     
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Hi+Melody&display=swap" rel="stylesheet">
+    
     <style>
-        /* 🔥 폰트가 깨지지 않고 무조건 적용되도록 직접 불러오기 */
-        @font-face {
-            font-family: 'KOTRA_hope';
-            src: url('https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2110@1.0/KOTRA_hope.woff2') format('woff2');
-            font-weight: normal;
-            font-style: normal;
-        }
-
         :root {
             --primary: #c3bef0; 
             --primary-hover: #b19cd9;
@@ -25,7 +21,8 @@
         
         body {
             background-color: var(--bg-color);
-            font-family: 'KOTRA_hope', sans-serif; /* 귀여운 폰트 적용 완료 */
+            /* 폰트 적용! (cursive가 손글씨 속성입니다) */
+            font-family: 'Hi Melody', cursive, sans-serif; 
             margin: 0;
             display: flex;
             flex-direction: column;
@@ -64,16 +61,16 @@
         
         h1 {
             margin: 0 0 20px 0;
-            font-size: 34px; 
+            font-size: 38px; /* 손글씨 폰트에 맞춰 제목 크기 확대 */
             color: #7b68ee; 
             letter-spacing: 1px;
             line-height: 1.2;
-            font-weight: normal;
+            font-weight: normal; /* 하이멜로디는 기본 굵기가 제일 예쁩니다 */
         }
         
         p.desc {
             margin: 0 0 48px 0;
-            font-size: 20px; 
+            font-size: 22px; /* 설명 글씨 확대 */
             color: #888;
             word-break: keep-all;
             line-height: 1.4;
@@ -86,8 +83,8 @@
         input {
             width: 100%;
             padding: 22px; 
-            font-family: 'KOTRA_hope', sans-serif; 
-            font-size: 26px; 
+            font-family: 'Hi Melody', cursive, sans-serif; /* 입력창 폰트 적용 */
+            font-size: 28px; /* 입력 글씨 확대 */
             color: var(--text-main);
             background-color: #fffaf0; 
             border: 3px solid #fce4ec; 
@@ -101,7 +98,7 @@
         input::placeholder {
             color: #d1d1d1;
             letter-spacing: 1px;
-            font-size: 22px;
+            font-size: 24px;
         }
         
         input:focus {
@@ -114,8 +111,8 @@
         .btn-start {
             width: 100%;
             padding: 22px; 
-            font-family: 'KOTRA_hope', sans-serif; 
-            font-size: 26px; 
+            font-family: 'Hi Melody', cursive, sans-serif; /* 버튼 폰트 적용 */
+            font-size: 28px; /* 버튼 글씨 확대 */
             color: white;
             background-image: linear-gradient(120deg, #c3bef0 0%, #fad0c4 100%);
             border: none;
@@ -139,13 +136,12 @@
             padding: 10px 20px;
             background-color: #fff0f5; 
             color: #ff69b4; 
-            font-size: 16px;
+            font-size: 18px;
             border-radius: 20px;
             margin-bottom: 28px;
             border: 2px solid #fce4ec;
         }
 
-        /* 🔥 서명 글씨를 흰색에서 눈에 확 띄는 진보라색으로 변경! */
         .footer {
             position: fixed; 
             bottom: 0;
@@ -153,9 +149,9 @@
             width: 100%;
             text-align: center;
             padding: 28px; 
-            font-size: 22px; 
-            color: #7b68ee; /* 진한 보라색 */
-            font-weight: bold;
+            font-family: 'Hi Melody', cursive, sans-serif; /* 서명 폰트 적용 */
+            font-size: 26px; /* 서명 글씨 확대 */
+            color: #7b68ee; 
             background-image: linear-gradient(to top, #fad0c4 0%, #ffd1ff 100%);
             box-sizing: border-box;
             border-radius: 30px 30px 0 0; 
