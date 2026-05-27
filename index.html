@@ -396,4 +396,305 @@
                 { name: "주제 탐구 독서", credits: 3, type: "국어", category: "진로선택", mandatory: "선택", desc: "대학 전공 도서 및 논문 요약 등 성인 학습자 수준의 고난도 고등 독해 스킬을 최종 완성합니다. 📖" },
                 { name: "독서 토론과 글쓰기", credits: 3, type: "국어", category: "융합선택", mandatory: "선택", desc: "찬반 토론과 사설 비평, 리포트 작성을 연습하며 전공 면접과 대학 리포트 작성을 선행 준비하는 실전형 과목입니다. ✍️" },
                 { name: "언어 생활 탐구", credits: 3, type: "국어", category: "융합선택", mandatory: "선택", desc: "신조어 현상, 방언 분화, 디지털 타이포그래피 등 실생활 언어의 사회적 변화를 국어학적으로 재미있게 연구합니다. 💬" },
-                { name: "인공 지능 수학", credits: 3, type: "수학", category: "진로선택", mandatory: "선택", desc: "인공지능의 데이터 데이터 분류 알고리즘에 핵심으로 쓰이는 확률, 선형대수(행렬) 원리를 마스터하는
+                { name: "인공 지능 수학", credits: 3, type: "수학", category: "진로선택", mandatory: "선택", desc: "인공지능의 데이터 데이터 분류 알고리즘에 핵심으로 쓰이는 확률, 선형대수(행렬) 원리를 마스터하는 융합 수학입니다. 🤖" },
+                { name: "고급 미적분", credits: 3, type: "수학", category: "진로선택", mandatory: "선택", desc: "대학 일반수학 1학년 과정의 다변수 미적분과 벡터 해석학 기초를 선행 다루는 상위권 공학 희망자 전용 하이엔드 과목입니다. 📐" },
+                { name: "영미 문학 읽기", credits: 3, type: "영어", category: "진로선택", mandatory: "선택", desc: "영미 문학의 시대적 배경을 영어 텍스트를 통해 종단 분석하며, 고도의 독해 요령과 배경지식을 확장합니다. 🇺🇸" },
+                { name: "심화 영어", credits: 3, type: "영어", category: "진로선택", mandatory: "선택", desc: "실제 원서 교재나 영문 저널을 읽고 요약하는 훈련을 통해 영어 전용 대학 강의 수강이 가능할 수준의 어학 한계를 돌파합니다. 📚" },
+                { name: "세계 문화와 영어", credits: 3, type: "영어", category: "융합선택", mandatory: "선택", desc: "다양한 영미 다큐와 글로벌 이슈를 텍스트로 비평하며 입체적 시각 영어를 완성합니다. 🌍" },
+                { name: "국제 관계의 이해", credits: 3, type: "사회", category: "진로선택", mandatory: "선택", desc: "외교 정책, 유엔(UN)의 한계, 국가 영토 분쟁 등 국제 사회의 첨예한 주권 투쟁을 외교학적 안목으로 분석합니다. 🏳️‍🌈" },
+                { name: "윤리문제 탐구", credits: 3, type: "사회", category: "융합선택", mandatory: "선택", desc: "안락사, 사형제, 안면인식 감시사회 등 현대 기술과 생명이 맞닿은 도덕적 딜레마를 스스로 비평하고 글을 쓰는 과목입니다. ⚖️" },
+                { name: "물리학 탐구", credits: 3, type: "과학", category: "융합선택", mandatory: "선택", desc: "물리 시뮬레이터나 MBL 센서 장비를 이용해 역학 실험을 설계하고, 논문급 분석 보고서를 도출하는 실증 실험 수업입니다. 🔬" },
+                { name: "생명과학 탐구", credits: 3, type: "과학", category: "융합선택", mandatory: "선택", desc: "유전자 전기영동 실험, 현미경 구조 분석 등 생명공학 정밀 실험을 직접 설계하고 체험하는 의생명 계열 전용 코스입니다. 🧪" },
+                { name: "융합과학 탐구", credits: 3, type: "과학", category: "융합선택", mandatory: "선택", desc: "물화생지의 한계를 허물고 기후 위기나 나노 테크 등 현대 과학의 대형 어젠다를 팀 프로젝트로 풀어나가는 융합형 과목입니다. ⚙️" },
+                { name: "일본어 회화", credits: 3, type: "제2외국어", category: "일반선택", mandatory: "선택", desc: "일본 현지 여행이나 일상 홈스테이에서 막힘없이 의사소통할 수 있을 정도의 살아있는 생활 밀착 실전 회화를 집중 숙달합니다. 🇯🇵" },
+                { name: "소프트웨어와 생활", credits: 3, type: "기술·가정", category: "융합선택", mandatory: "선택", desc: "앱 인벤터나 웹 빌더를 사용해 내 실생활의 불편함을 씻어내 줄 진짜 스마트폰 앱이나 웹 서비스를 직관적으로 기획하고 만들어 봅니다. 📱" }
+            ]
+        };
+
+        function login() {
+            const studentId = document.getElementById('studentId').value;
+            if(studentId.length !== 5 || isNaN(studentId)) {
+                alert("학번 5자리를 정확히 입력해주세요. (예: 10101) 잉? 😿");
+                return;
+            }
+
+            document.getElementById('db-status').innerText = "학생 및 과목 정보 로딩 중... ⏳";
+
+            fetch(WEB_APP_URL, {
+                method: "POST",
+                body: JSON.stringify({ action: "login", studentId: studentId })
+            })
+            .then(res => res.json())
+            .then(res => {
+                if(res.name) {
+                    globalStudentId = studentId;
+                    globalStudentName = res.name;
+                    
+                    if(res.db && res.db["2-1"] && res.db["2-1"].length > 0) {
+                        subjectDB = res.db; 
+                    }
+
+                    const cardElement = document.querySelector('.card');
+                    cardElement.style.maxWidth = '820px'; 
+                    cardElement.style.padding = '40px 48px';
+
+                    document.getElementById('login-view').style.display = 'none';
+                    document.getElementById('main-view').style.display = 'block';
+                    
+                    document.getElementById('welcome-title').innerText = `${res.name} 학생 환영합니다!`;
+                    document.getElementById('student-badge').innerText = `${studentId} ${res.name} ✨`;
+
+                    changeTrack('인문');
+                } else {
+                    alert("등록되지 않은 학번입니다. 명단을 확인해 주세요! 잉? 😿");
+                    document.getElementById('db-status').innerText = "DB 연결 완료 ✨";
+                }
+            })
+            .catch(err => {
+                alert("네트워크 연결에 실패했습니다. 내장 데이터 세트로 접속합니다! ✨");
+                globalStudentId = studentId;
+                globalStudentName = "테스트";
+                
+                const cardElement = document.querySelector('.card');
+                cardElement.style.maxWidth = '820px';
+                cardElement.style.padding = '40px 48px';
+
+                document.getElementById('login-view').style.display = 'none';
+                document.getElementById('main-view').style.display = 'block';
+                document.getElementById('welcome-title').innerText = `배정고 학생 환영합니다!`;
+                
+                changeTrack('인문');
+            });
+        }
+
+        // 🎯 [완벽 수정본 계열 처리기] 학생이 고른 직접 선택과목 명단을 유지한 채 필수 자물쇠만 똑똑하게 교체
+        function changeTrack(track) {
+            currentTrack = track;
+            document.getElementById('track-btn-human').classList.toggle('active', track === '인문');
+            document.getElementById('track-btn-nature').classList.toggle('active', track === '자연');
+            
+            for (const sem in subjectDB) {
+                // 1. 현재 바구니에서 필수과목을 제외한 순수 '자율선택과목'만 우선 보존
+                let pureElectives = selectedSubjects[sem].filter(subName => {
+                    const subObj = subjectDB[sem].find(s => s.name === subName);
+                    return subObj && subObj.mandatory === "선택";
+                });
+
+                // 2. 새로운 계열 조건에 부합하는 필수과목 리스트 도출
+                let newMandatories = subjectDB[sem]
+                    .filter(sub => {
+                        return sub.mandatory === "필수" || sub.mandatory === "공통필수" || 
+                               (sub.mandatory === "인문필수" && track === "인문") || 
+                               (sub.mandatory === "자연필수" && track === "자연");
+                    })
+                    .map(sub => sub.name);
+
+                // 3. 자율선택과 새 필수과목을 중복 없이 안전하게 융합
+                selectedSubjects[sem] = Array.from(new Set([...newMandatories, ...pureElectives]));
+            }
+            
+            changeSem(currentSemester);
+        }
+
+        function changeTab(tabIndex) {
+            if (tabIndex === 1) {
+                document.getElementById('tab-content1').style.display = 'block';
+                document.getElementById('tab-content2').style.display = 'none';
+                document.getElementById('tab-btn1').classList.add('active');
+                document.getElementById('tab-btn2').classList.remove('active');
+            } else {
+                document.getElementById('tab-content1').style.display = 'none';
+                document.getElementById('tab-content2').style.display = 'block';
+                document.getElementById('tab-btn1').classList.remove('active');
+                document.getElementById('tab-btn2').classList.add('active');
+            }
+        }
+
+        function changeSem(sem) {
+            currentSemester = sem;
+            // 🎯 학기 소형 단추 제어자를 ID 검색식(^=)으로 수정하여 계열 단추와의 스타일 간섭 원천 배제!
+            document.querySelectorAll('[id^="sem-btn-"]').forEach(btn => {
+                btn.classList.toggle('active', btn.id === `sem-btn-${sem}`);
+            });
+            renderSubjects();
+            syncSelection();
+        }
+
+        function renderSubjects() {
+            const listDiv = document.getElementById('subject-list');
+            listDiv.innerHTML = "";
+            
+            const subjects = subjectDB[currentSemester] || [];
+            
+            if(subjects.length === 0) {
+                listDiv.innerHTML = `<div style="font-size:20px; color:#b0b8c1; text-align:center; padding: 20px;">과목 데이터가 없습니다. 😿</div>`;
+                return;
+            }
+
+            subjects.forEach(sub => {
+                const isCommonMandatory = sub.mandatory === "필수" || sub.mandatory === "공통필수";
+                const isTrackMandatory = (sub.mandatory === "인문필수" && currentTrack === "인문") || 
+                                         (sub.mandatory === "자연필수" && currentTrack === "자연");
+                
+                const isMandatory = isCommonMandatory || isTrackMandatory;
+                const isChecked = isMandatory || selectedSubjects[currentSemester].includes(sub.name) ? "checked" : "";
+                const isDisabled = isMandatory ? "disabled" : ""; 
+                
+                const displayCategory = sub.category ? ` [${sub.category}]` : '';
+                const mandatoryLabel = isMandatory ? ' <span style="color:#ff69b4; font-weight:bold;">[필수선택]</span>' : '';
+                
+                listDiv.innerHTML += `
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; padding: 4px 12px; background-color: #fffaf0; border-radius: 12px; border: 1px solid #fef1f8;">
+                        <label style="display: flex; align-items: center; gap: 14px; cursor: pointer; ${isMandatory ? 'color: #999999;' : ''}; white-space: nowrap; flex: 1;">
+                            <input type="checkbox" name="user-subject" value="${sub.name}" ${isChecked} ${isDisabled} onchange="syncSelection()" style="width:24px; height:24px; accent-color:#c3bef0; flex-shrink: 0;"> 
+                            <span style="font-weight: bold; font-size: 24px;">${sub.name}${displayCategory}${mandatoryLabel} (${sub.credits}학점)</span>
+                        </label>
+                        <button type="button" onclick="openModal('${sub.name}', '${sub.category || '선택과목'}')" style="background: var(--primary); color: white; border: none; border-radius: 50%; width: 32px; height: 32px; font-size: 18px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 3px 6px rgba(0,0,0,0.05); transition: background 0.2s;">ℹ️</button>
+                    </div>
+                `;
+            });
+        }
+
+        function openModal(subName, subCategory) {
+            let description = "해당 과목의 상세 안내 데이터가 준비 중입니다. ✨";
+            for (const sem in subjectDB) {
+                const subObj = subjectDB[sem].find(s => s.name === subName);
+                if(subObj && subObj.desc) {
+                    description = subObj.desc;
+                    break;
+                }
+            }
+            
+            document.getElementById('modal-subject-name').innerText = subName;
+            document.getElementById('modal-badge').innerText = `${subCategory} 안내서 ℹ️`;
+            document.getElementById('modal-subject-desc').innerText = description;
+            document.getElementById('info-modal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('info-modal').classList.remove('active');
+        }
+
+        function syncSelection() {
+            const checkedBoxes = document.querySelectorAll('input[name="user-subject"]:checked');
+            let currentChoices = [];
+
+            for (let cb of checkedBoxes) {
+                let subName = cb.value;
+                let isDuplicate = false;
+
+                for (const sem in selectedSubjects) {
+                    if (sem !== currentSemester && selectedSubjects[sem].includes(subName)) {
+                        isDuplicate = true;
+                        break;
+                    }
+                }
+
+                if (isDuplicate) {
+                    alert(`⚠️ '${subName}' 과목은 이미 다른 학기에서 선택했습니다!\n동일한 과목을 중복하여 이수할 수 없습니다. 😿`);
+                    cb.checked = false; 
+                } else {
+                    currentChoices.push(subName);
+                }
+            }
+
+            selectedSubjects[currentSemester] = currentChoices;
+            updateCreditStatus();
+        }
+
+        function updateCreditStatus() {
+            const FIRST_YEAR_CREDITS = 84; 
+            const CHANGCHE_CREDITS = 18;   
+            const BASE_TOTAL = FIRST_YEAR_CREDITS + CHANGCHE_CREDITS; 
+            const BASE_NEM = 24; 
+            
+            let addedElective = 0; 
+            let addedNem = 0;      
+            
+            for (const sem in selectedSubjects) {
+                selectedSubjects[sem].forEach(subName => {
+                    const subObj = (subjectDB[sem] || []).find(s => s.name === subName);
+                    if (subObj) {
+                        addedElective += subObj.credits;
+                        if (subObj.type === "국어" || subObj.type === "영어" || subObj.type === "수학") {
+                            addedNem += subObj.credits;
+                        }
+                    }
+                });
+            }
+            
+            const currentSemElectives = selectedSubjects[currentSemester].filter(subName => {
+                const subObj = (subjectDB[currentSemester] || []).find(s => s.name === subName);
+                const isCommonMandatory = subObj && (subObj.mandatory === "필수" || subObj.mandatory === "공통필수");
+                const isTrackMandatory = subObj && ((subObj.mandatory === "인문필수" && currentTrack === "인문") || (subObj.mandatory === "자연필수" && currentTrack === "자연"));
+                return subObj && !isCommonMandatory && !isTrackMandatory;
+            }).length;
+
+            const targetCount = targetLimits[currentSemester] || 7;
+            
+            const finalTotal = BASE_TOTAL + addedElective;
+            const finalNem = BASE_NEM + addedNem;
+            
+            document.getElementById('total-credits-view').innerText = `${finalTotal} / 192 학점`;
+            document.getElementById('elective-credits-view').innerText = `${addedElective} / 90 학점`;
+            document.getElementById('nem-credits-view').innerText = `${finalNem} / 81 학점`;
+            
+            document.getElementById('current-sem-title').innerText = currentSemester;
+            document.getElementById('sem-choice-view').innerText = `${currentSemElectives} / ${targetCount} 개`;
+
+            if(currentSemElectives === targetCount) {
+                document.getElementById('sem-choice-view').style.color = '#6a5acd';
+            } else {
+                document.getElementById('sem-choice-view').style.color = '#ff69b4';
+            }
+            
+            const warningDiv = document.getElementById('credit-warning');
+            if (finalNem > 81) {
+                warningDiv.style.display = 'block';
+                document.getElementById('nem-credits-view').style.color = '#ff69b4';
+            } else {
+                warningDiv.style.display = 'none';
+                document.getElementById('nem-credits-view').style.color = '#6a5acd';
+            }
+        }
+
+        function saveSelection() {
+            let summaryParts = [];
+            let hasSelection = false;
+            
+            for (const sem in selectedSubjects) {
+                if (selectedSubjects[sem].length > 0) {
+                    summaryParts.push(`[${sem}] ${selectedSubjects[sem].join(", ")}`);
+                    hasSelection = true;
+                }
+            }
+            
+            if(!hasSelection) {
+                alert("최소 한 개 이상의 과목을 선택해 주세요! 😿");
+                return;
+            }
+            
+            const subjectsString = summaryParts.join(" | ");
+            
+            fetch(WEB_APP_URL, {
+                method: "POST",
+                body: JSON.stringify({
+                    action: "save",
+                    sheetName: "수강신청",
+                    studentId: globalStudentId,
+                    studentName: globalStudentName,
+                    semester: `2~3학년 설계 (${currentTrack}계열)`,
+                    subjects: subjectsString
+                })
+            }).then(() => {
+                alert(`${currentTrack}계열 기준 4개 학기의 설계가 시트에 안전하게 반영되었습니다! 💖`);
+                location.reload(); 
+            });
+        }
+
+        document.getElementById('studentId').addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') login();
+        });
+    </script>
+</body>
+</html>
