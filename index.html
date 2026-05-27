@@ -306,7 +306,6 @@
         let selectedSubjects = { "2-1": [], "2-2": [], "3-1": [], "3-2": [] };
         const targetLimits = { "2-1": 7, "2-2": 7, "3-1": 9, "3-2": 6 };
 
-        // 🏫 [데이터 세부 튜닝 완료] 교대이수 지정 교과만 '학교지정'으로 분리수거!
         let subjectDB = {
             "2-1": [
                 { name: "스포츠 생활2", credits: 2, type: "체육", category: "융합선택", mandatory: "학교지정" },
@@ -317,12 +316,12 @@
                 { name: "미적분 I", credits: 3, type: "수학", category: "일반선택", mandatory: "공통필수" },
                 { name: "영어 I", credits: 3, type: "영어", category: "일반선택", mandatory: "공통필수" },
                 { name: "사회와 문화", credits: 3, type: "사회", category: "일반선택", mandatory: "인문필수" }, 
+                { name: "세계시민과 지리", credits: 3, type: "사회", category: "융합선택", mandatory: "인문필수" }, // 🔥 과목명 수정 및 인문필수 지정 성공!
                 { name: "물리학I", credits: 3, type: "과학", category: "일반선택", mandatory: "자연필수" },   
                 { name: "생명과학I", credits: 3, type: "과학", category: "일반선택", mandatory: "자연필수" }, 
                 { name: "매체 의사소통", credits: 3, type: "국어", category: "융합선택", mandatory: "선택" },
                 { name: "영미 문학 읽기", credits: 3, type: "영어", category: "진로선택", mandatory: "선택" },
                 { name: "세계 문화와 영어", credits: 3, type: "영어", category: "융합선택", mandatory: "선택" },
-                { name: "세계 시민 and 지리", credits: 3, type: "사회", category: "융합선택", mandatory: "선택" },
                 { name: "사회문제 탐구", credits: 3, type: "사회", category: "융합선택", mandatory: "선택" },
                 { name: "과학의 역사와 문화", credits: 3, type: "과학", category: "융합선택", mandatory: "선택" },
                 { name: "기후변화와 환경생태", credits: 3, type: "과학", category: "융합선택", mandatory: "선택" }
@@ -349,7 +348,7 @@
                 { name: "기후변화와 환경생태", credits: 3, type: "과학", category: "융합선택", mandatory: "선택" }
             ],
             "3-1": [
-                { name: "스포츠 문화", credits: 2, type: "체육", category: "진로선택", mandatory: "학교지정" }, // 3-1 학교지정
+                { name: "스포츠 문화", credits: 2, type: "체육", category: "진로선택", mandatory: "학교지정" }, 
                 { name: "화법과 언어", credits: 3, type: "국어", category: "일반선택", mandatory: "공통필수" },
                 { name: "주제 탐구 독서", credits: 3, type: "국어", category: "진로선택", mandatory: "선택" },
                 { name: "문학과 영상", credits: 3, type: "국어", category: "진로선택", mandatory: "선택" },
@@ -376,9 +375,9 @@
                 { name: "인공지능 기초", credits: 3, type: "기술·가정", category: "융합선택", mandatory: "선택" }
             ],
             "3-2": [
-                { name: "스포츠 과학", credits: 2, type: "체육", category: "진로선택", mandatory: "학교지정" }, // 3-2 학교지정
-                { name: "생태와 환경", credits: 2, type: "교양", category: "일반선택", mandatory: "학교지정" }, // 3-2 학교지정
-                { name: "인간과 심리", credits: 3, type: "교양", category: "진로선택", mandatory: "학교지정" }, // 3-2 학교지정
+                { name: "스포츠 과학", credits: 2, type: "체육", category: "진로선택", mandatory: "학교지정" }, 
+                { name: "생태와 환경", credits: 2, type: "교양", category: "일반선택", mandatory: "학교지정" }, 
+                { name: "인간과 심리", credits: 3, type: "교양", category: "진로선택", mandatory: "학교지정" }, 
                 { name: "주제 탐구 독서", credits: 3, type: "국어", category: "진로선택", mandatory: "선택" },
                 { name: "독서 토론과 글쓰기", credits: 3, type: "국어", category: "융합선택", mandatory: "선택" },
                 { name: "언어 생활 탐구", credits: 3, type: "국어", category: "융합선택", mandatory: "선택" },
@@ -470,7 +469,6 @@
                     return subObj && subObj.mandatory === "선택";
                 });
 
-                // 🛡️ [수정 연산] 학교 지정 과목과 모든 필수성격(공통필수/계열필수)을 바구니에 전부 바인딩합니다.
                 let newMandatories = (subjectDB[sem] || [])
                     .filter(sub => {
                         return sub.mandatory === "학교지정" || sub.mandatory === "공통필수" || 
@@ -520,7 +518,6 @@
             }
 
             subjects.forEach(sub => {
-                // 🛡️ 학교지정과 일반 필수교과를 완벽하게 분리 판독
                 const isSchoolMandatory = sub.mandatory === "학교지정";
                 const isCommonMandatory = sub.mandatory === "공통필수";
                 const isTrackMandatory = (sub.mandatory === "인문필수" && currentTrack === "인문") || 
@@ -531,8 +528,6 @@
                 const isDisabled = isMandatory ? "disabled" : ""; 
                 
                 const displayCategory = sub.category ? ` [${sub.category}]` : '';
-                
-                // 📝 꼬리표 출력 수정: 완전히 고정된 체육/미술만 [학교지정], 문학/대수 등은 수능 연계에 맞게 [필수선택]으로 마킹
                 const mandatoryLabel = isSchoolMandatory ? ' <span style="color:#b0b8c1; font-weight:bold;">[학교지정]</span>' : (isMandatory ? ' <span style="color:#ff69b4; font-weight:bold;">[필수선택]</span>' : '');
                 
                 listDiv.innerHTML += `
@@ -560,109 +555,4 @@
                 }
 
                 if (isDuplicate) {
-                    alert(`⚠️ '${subName}' 과목은 이미 다른 학기에서 선택했습니다!\n동일한 과목을 중복하여 이수할 수 없습니다. 😿`);
-                    cb.checked = false; 
-                } else {
-                    currentChoices.push(subName);
-                }
-            }
-
-            selectedSubjects[currentSemester] = currentChoices;
-            updateCreditStatus();
-        }
-
-        function updateCreditStatus() {
-            const FIRST_YEAR_CREDITS = 84; 
-            const CHANGCHE_CREDITS = 18;   
-            const BASE_TOTAL = FIRST_YEAR_CREDITS + CHANGCHE_CREDITS; 
-            const BASE_NEM = 24; 
-            
-            let addedElective = 0; 
-            let addedNem = 0;      
-            
-            for (const sem in selectedSubjects) {
-                selectedSubjects[sem].forEach(subName => {
-                    const subObj = (subjectDB[sem] || []).find(s => s.name === subName);
-                    if (subObj) {
-                        addedElective += subObj.credits;
-                        if (subObj.type === "국어" || subObj.type === "영어" || subObj.type === "수학") {
-                            addedNem += subObj.credits;
-                        }
-                    }
-                });
-            }
-            
-            // 🎯 [핵심 알고리즘 수정] 순수 '학교지정' 과목만 카운트 필터링에서 배제하여, 문학/대수/계열필수/자율과목이 전부 목표 개수에 실시간 누적 연동됩니다!
-            const currentSemElectives = selectedSubjects[currentSemester].filter(subName => {
-                const subObj = (subjectDB[currentSemester] || []).find(s => s.name === subName);
-                return subObj && subObj.mandatory !== "학교지정";
-            }).length;
-
-            const targetCount = targetLimits[currentSemester] || 7;
-            
-            const finalTotal = BASE_TOTAL + addedElective;
-            const finalNem = BASE_NEM + addedNem;
-            
-            document.getElementById('total-credits-view').innerText = `${finalTotal} / 192 학점`;
-            document.getElementById('elective-credits-view').innerText = `${addedElective} / 90 학점`;
-            document.getElementById('nem-credits-view').innerText = `${finalNem} / 81 학점`;
-            
-            document.getElementById('current-sem-title').innerText = currentSemester;
-            document.getElementById('sem-choice-view').innerText = `${currentSemElectives} / ${targetCount} 개`;
-
-            if(currentSemElectives === targetCount) {
-                document.getElementById('sem-choice-view').style.color = '#6a5acd';
-            } else {
-                document.getElementById('sem-choice-view').style.color = '#ff69b4';
-            }
-            
-            const warningDiv = document.getElementById('credit-warning');
-            if (finalNem > 81) {
-                warningDiv.style.display = 'block';
-                document.getElementById('nem-credits-view').style.color = '#ff69b4';
-            } else {
-                warningDiv.style.display = 'none';
-                document.getElementById('nem-credits-view').style.color = '#6a5acd';
-            }
-        }
-
-        function saveSelection() {
-            let summaryParts = [];
-            let hasSelection = false;
-            
-            for (const sem in selectedSubjects) {
-                if (selectedSubjects[sem].length > 0) {
-                    summaryParts.push(`[${sem}] ${selectedSubjects[sem].join(", ")}`);
-                    hasSelection = true;
-                }
-            }
-            
-            if(!hasSelection) {
-                alert("최소 한 개 이상의 과목을 선택해 주세요! 😿");
-                return;
-            }
-            
-            const subjectsString = summaryParts.join(" | ");
-            
-            fetch(WEB_APP_URL, {
-                method: "POST",
-                body: JSON.stringify({
-                    action: "save",
-                    sheetName: "수강신청",
-                    studentId: globalStudentId,
-                    studentName: globalStudentName,
-                    semester: `2~3학년 설계 (${currentTrack}계열)`,
-                    subjects: subjectsString
-                })
-            }).then(() => {
-                alert(`${currentTrack}계열 기준 4개 학기의 설계가 시트에 안전하게 반영되었습니다! 💖`);
-                location.reload(); 
-            });
-        }
-
-        document.getElementById('studentId').addEventListener('keyup', function(event) {
-            if (event.key === 'Enter') login();
-        });
-    </script>
-</body>
-</html>
+                    alert(`⚠️ '${subName}' 과목은 이미 다른 학기에서 선택했습니다!\n동일한 과목을 중복하여 이수할 수 없습니다. 😿
