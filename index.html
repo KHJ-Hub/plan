@@ -56,6 +56,34 @@
             transition: max-width 0.4s ease, padding 0.4s ease; 
         }
 
+        /* 🔄 [스마트 확장 클래스] PC에서는 시원하게 늘어나고 모바일 미디어쿼리 간섭을 차단 */
+        .card.expanded {
+            max-width: 820px;
+            padding: 40px 48px;
+        }
+
+        /* 🔄 [과목 아이템 데스크톱용 표준 클래스] 단 한 줄로 정렬 박제 */
+        .subject-item {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 14px;
+            cursor: pointer;
+            margin-bottom: 10px;
+            padding: 4px 12px;
+            background-color: #fffaf0;
+            border-radius: 12px;
+            border: 1px solid #fef1f8;
+            white-space: nowrap;
+        }
+        .subject-item.mandatory {
+            color: #999999;
+        }
+        .subject-text {
+            font-weight: bold;
+            font-size: 24px;
+        }
+
         .icon-wrap {
             font-size: 64px; 
             margin-bottom: 16px; 
@@ -184,10 +212,14 @@
         .sem-pill { flex: 1; padding: 6px 10px; font-family: 'Hi Melody', cursive, sans-serif; font-size: 20px; font-weight: bold; border: none; border-radius: 12px; background: transparent; color: var(--text-main); cursor: pointer; transition: all 0.2s ease; }
         .sem-pill.active { background-color: var(--primary); color: white; box-shadow: 0 4px 10px rgba(195, 190, 240, 0.3); }
 
-        /* 스마트폰/태블릿을 위한 맞춤 여백 */
+        /* 📱 스마트폰/태블릿을 위한 맞춤 반응형 여백 설계도 */
         @media screen and (max-width: 768px) {
             .content-wrapper { padding-bottom: 80px; }
             .card { padding: 40px 24px; border-radius: 30px; }
+            
+            /* 🔥 모바일에서 확장 모드가 켜졌을 때 좌우 패딩을 좁혀서 실전 가로공간 확보 */
+            .card.expanded { padding: 30px 16px; }
+
             .status-badge { margin-bottom: 16px; padding: 6px 16px; }
             .icon-wrap { font-size: 52px; margin-bottom: 16px; }
             h1 { font-size: clamp(22px, 6.5vw, 32px); margin-bottom: 16px; }
@@ -199,6 +231,22 @@
             .footer { font-size: 16px; padding: 16px; }
             .tab-btn { font-size: 20px; padding: 10px; }
             .sem-pill { font-size: 18px; padding: 4px; }
+
+            /* 🔥 [모바일 대참사 진압 소방관 코딩] 글자 짤림 방지 및 단어 정렬 유연화 */
+            .subject-item {
+                white-space: normal; /* 모바일에서는 자동 줄바꿈 전격 전개 */
+                gap: 10px;
+                padding: 6px 12px;
+                align-items: flex-start; /* 글자가 내려가도 체크박스는 첫째줄에 예쁘게 고정 */
+            }
+            .subject-item input[type="checkbox"] {
+                margin-top: 4px; /* 좁은 화면에서 체크박스 높이 밸런스 패치 */
+            }
+            .subject-text {
+                font-size: 17px; /* 아이들이 한눈에 읽기 가장 쾌적한 크기로 다운사이징 */
+                line-height: 1.4;
+                word-break: keep-all; /* 단어가 도중에 뚝 잘리지 않고 단어 단위로 예쁘게 내려감 */
+            }
         }
     </style>
 </head>
@@ -265,14 +313,14 @@
 
                     <div class="sem-container">
                         <button type="button" class="sem-pill active" id="sem-btn-2-1" onclick="changeSem('2-1')">2-1</button>
-                        <button type="button" class="sem-pill" id="sem-btn-2-2" onclick="changeSem('2-2')">2-2</button>
+                        <button type="button" class="sem-pill" id="sem-btn-2-2" onclick="changeSem('2-2') text-align: center;" id="sem-btn-2-2" onclick="changeSem('2-2')">2-2</button>
                         <button type="button" class="sem-pill" id="sem-btn-3-1" onclick="changeSem('3-1')">3-1</button>
                         <button type="button" class="sem-pill" id="sem-btn-3-2" onclick="changeSem('3-2')">3-2</button>
                     </div>
 
                     <p class="desc" style="font-size: 20px; margin-bottom: 16px;">해당 학기에 수강할 과목을 선택하세요.</p>
                     
-                    <div id="subject-list" style="text-align: left; width: 100%; margin: 0 auto 32px auto; font-size: 25px; line-height: 2;">
+                    <div id="subject-list" style="text-align: left; width: 100%; margin: 0 auto 32px auto; line-height: 2;">
                         </div>
                     
                     <button class="btn-start" onclick="saveSelection()">전체 학기 설계 완료 💾</button>
@@ -316,7 +364,7 @@
                 { name: "미적분 I", credits: 3, type: "수학", category: "일반선택", mandatory: "공통필수" },
                 { name: "영어 I", credits: 3, type: "영어", category: "일반선택", mandatory: "공통필수" },
                 { name: "사회와 문화", credits: 3, type: "사회", category: "일반선택", mandatory: "인문필수" }, 
-                { name: "세계시민과 지리", credits: 3, type: "사회", category: "융합선택", mandatory: "인문필수" }, // 🔥 과목명 수정 및 인문필수 지정 성공!
+                { name: "세계시민과 지리", credits: 3, type: "사회", category: "융합선택", mandatory: "인문필수" }, 
                 { name: "물리학I", credits: 3, type: "과학", category: "일반선택", mandatory: "자연필수" },   
                 { name: "생명과학I", credits: 3, type: "과학", category: "일반선택", mandatory: "자연필수" }, 
                 { name: "매체 의사소통", credits: 3, type: "국어", category: "융합선택", mandatory: "선택" },
@@ -426,9 +474,8 @@
                     document.getElementById('login-view').style.display = 'none';
                     document.getElementById('main-view').style.display = 'block';
                     
-                    const cardElement = document.querySelector('.card');
-                    cardElement.style.maxWidth = '820px'; 
-                    cardElement.style.padding = '40px 48px';
+                    // 🔒 [디자인 절대 박제] 하드코딩 제거 후 정식 반응형 CSS 클래스로 가동 확장
+                    document.querySelector('.card').classList.add('expanded');
                     
                     document.getElementById('welcome-title').innerText = `${res.name} 학생 환영합니다!`;
                     document.getElementById('student-badge').innerText = `${studentId} ${res.name} ✨`;
@@ -446,9 +493,7 @@
                 document.getElementById('login-view').style.display = 'none';
                 document.getElementById('main-view').style.display = 'block';
                 
-                const cardElement = document.querySelector('.card');
-                cardElement.style.maxWidth = '820px';
-                cardElement.style.padding = '40px 48px';
+                document.querySelector('.card').classList.add('expanded');
                 
                 document.getElementById('welcome-title').innerText = `배정고 학생 환영합니다!`;
                 document.getElementById('student-badge').innerText = `${studentId} 테스트 ✨`;
@@ -530,10 +575,11 @@
                 const displayCategory = sub.category ? ` [${sub.category}]` : '';
                 const mandatoryLabel = isSchoolMandatory ? ' <span style="color:#b0b8c1; font-weight:bold;">[학교지정]</span>' : (isMandatory ? ' <span style="color:#ff69b4; font-weight:bold;">[필수선택]</span>' : '');
                 
+                // 🔒 [완벽한 구조화 구현] 인라인 하드코딩 완전 철거 후 CSS 반응형 클래스 주입 바인딩
                 listDiv.innerHTML += `
-                    <label style="display: flex; align-items: center; justify-content: flex-start; gap: 14px; cursor: pointer; margin-bottom: 10px; padding: 4px 12px; background-color: #fffaf0; border-radius: 12px; border: 1px solid #fef1f8; ${isMandatory ? 'color: #999999;' : ''}; white-space: nowrap;">
+                    <label class="subject-item ${isMandatory ? 'mandatory' : ''}">
                         <input type="checkbox" name="user-subject" value="${sub.name}" ${isChecked} ${isDisabled} onchange="syncSelection()" style="width:24px; height:24px; accent-color:#c3bef0; flex-shrink: 0;"> 
-                        <span style="font-weight: bold; font-size: 24px;">${sub.name}${displayCategory}${mandatoryLabel} (${sub.credits}학점)</span>
+                        <span class="subject-text">${sub.name}${displayCategory}${mandatoryLabel} (${sub.credits}학점)</span>
                     </label>
                 `;
             });
