@@ -46,14 +46,14 @@
         .card {
             background-color: var(--surface);
             width: 100%;
-            max-width: 560px; /* 로그인창 전용 가로폭 고정 */
+            max-width: 560px; 
             padding: 48px 56px; 
             border-radius: 40px; 
             box-shadow: 0 20px 50px rgba(255, 192, 203, 0.3);
             text-align: center;
             box-sizing: border-box;
             border: 3px solid #fce4ec; 
-            transition: max-width 0.4s ease, padding 0.4s ease; /* 가로폭 다단 확장 애니메이션 */
+            transition: max-width 0.4s ease, padding 0.4s ease; 
         }
 
         .icon-wrap {
@@ -176,15 +176,18 @@
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
         @keyframes twinkle { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(1.1) rotate(5deg); } 100% { opacity: 1; transform: scale(1); } }
 
-        /* 대메뉴 탭 스타일 */
         .tab-container { display: flex; justify-content: center; gap: 12px; margin-bottom: 28px; }
         .tab-btn { flex: 1; padding: 12px; font-family: 'Hi Melody', cursive, sans-serif; font-size: 24px; font-weight: bold; border: 3px solid #fce4ec; border-radius: 20px; background-color: #fffaf0; color: var(--text-main); cursor: pointer; transition: all 0.2s ease; }
         .tab-btn.active { background-image: linear-gradient(120deg, #c3bef0 0%, #fad0c4 100%); color: white; border-color: transparent; box-shadow: 0 6px 15px rgba(195, 190, 240, 0.4); }
 
-        /* 학기 전환 단추 바 */
         .sem-container { display: flex; justify-content: center; gap: 6px; margin-bottom: 20px; background: #fffaf0; padding: 6px; border-radius: 18px; border: 2px solid #fce4ec; }
         .sem-pill { flex: 1; padding: 6px 10px; font-family: 'Hi Melody', cursive, sans-serif; font-size: 20px; font-weight: bold; border: none; border-radius: 12px; background: transparent; color: var(--text-main); cursor: pointer; transition: all 0.2s ease; }
         .sem-pill.active { background-color: var(--primary); color: white; box-shadow: 0 4px 10px rgba(195, 190, 240, 0.3); }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 192, 203, 0.2); backdrop-filter: blur(4px); z-index: 100; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .modal-box { background: white; padding: 40px; border-radius: 32px; border: 3px solid #fce4ec; box-shadow: 0 15px 40px rgba(106, 90, 205, 0.2); width: 90%; max-width: 480px; text-align: center; transform: translateY(20px); transition: transform 0.3s ease; }
+        .modal-overlay.active .modal-box { transform: translateY(0); }
 
         /* 스마트폰/태블릿을 위한 맞춤 여백 */
         @media screen and (max-width: 768px) {
@@ -293,6 +296,15 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="info-modal" onclick="closeModal()">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <div class="status-badge" style="background-color:#fff0f5; color:#6a5acd; margin-bottom:16px;" id="modal-badge">과목 안내서 ℹ️</div>
+            <h1 id="modal-subject-name" style="font-size:32px; margin-bottom:16px;">과목명</h1>
+            <p class="desc" id="modal-subject-desc" style="font-size:22px; color:#555555; text-align:left; line-height:1.6; max-height:240px; overflow-y:auto; padding:5px;"></p>
+            <button class="btn-start" style="padding:12px; font-size:22px; margin-top:10px;" onclick="closeModal()">이해했어요! 🥰</button>
+        </div>
+    </div>
+
     <div class="footer">
         <span class="heart-icon">💖</span> Made by 꿈을 응원하는 현정T <span class="heart-icon">💖</span>
     </div>
@@ -308,347 +320,80 @@
         let selectedSubjects = { "2-1": [], "2-2": [], "3-1": [], "3-2": [] };
         const targetLimits = { "2-1": 7, "2-2": 7, "3-1": 9, "3-2": 6 };
 
-        // 🏫 [배정고 1반 맞춤형 완성 DB] 분반 이동 수업에 맞춰 교대 이수 완벽 재가공
+        // 🏫 [배정고 계열별 필수화 정밀 매핑 DB 교체] 
         let subjectDB = {
             "2-1": [
-                { name: "스포츠 생활2", credits: 2, type: "체육", category: "융합선택", mandatory: "공통필수" },
-                { name: "미술 창작", credits: 3, type: "예술", category: "진로선택", mandatory: "공통필수" }, // 🔥 1반은 1학기에 미술 고정!
-                { name: "일본어I / 중국어I", credits: 4, type: "제2외국어", category: "일반선택", mandatory: "공통필수" }, // 🔥 1반은 1학기에 제2외국어 고정!
-                { name: "문학", credits: 3, type: "국어", category: "일반선택", mandatory: "공통필수" },
-                { name: "대수", credits: 3, type: "수학", category: "일반선택", mandatory: "공통필수" },
-                { name: "미적분 I", credits: 3, type: "수학", category: "일반선택", mandatory: "공통필수" },
-                { name: "영어 I", credits: 3, type: "영어", category: "일반선택", mandatory: "공통필수" },
-                { name: "매체 의사소통", credits: 3, type: "국어", category: "융합선택", mandatory: "선택" },
-                { name: "영미 문학 읽기", credits: 3, type: "영어", category: "진로선택", mandatory: "선택" },
-                { name: "세계 문화와 영어", credits: 3, type: "영어", category: "융합선택", mandatory: "선택" },
-                { name: "세계 시민과 지리", credits: 3, type: "사회", category: "융합선택", mandatory: "선택" },
-                { name: "사회와 문화", credits: 3, type: "사회", category: "일반선택", mandatory: "선택" },
-                { name: "사회문제 탐구", credits: 3, type: "사회", category: "융합선택", mandatory: "선택" },
-                { name: "물리학I", credits: 3, type: "과학", category: "일반선택", mandatory: "선택" },
-                { name: "생명과학I", credits: 3, type: "과학", category: "일반선택", mandatory: "선택" },
-                { name: "과학의 역사와 문화", credits: 3, type: "과학", category: "융합선택", mandatory: "선택" },
-                { name: "기후변화와 환경생태", credits: 3, type: "과학", category: "융합선택", mandatory: "선택" }
+                { name: "스포츠 생활2", credits: 2, type: "체육", category: "융합선택", mandatory: "공통필수", desc: "체육 활동을 통해 일상 속 활력과 건강한 스포츠 문화를 배우고 실천하는 과목입니다. ⚽" },
+                { name: "미술 창작", credits: 3, type: "예술", category: "진로선택", mandatory: "공통필수", desc: "다양한 매체와 기법을 활용해 나만의 창의적인 아이디어를 시각 예술 작품으로 표현해 봅니다. 🎨" },
+                { name: "일본어I / 중국어I", credits: 4, type: "제2외국어", category: "일반선택", mandatory: "공통필수", desc: "기초적인 일상 외국어 회화와 문화를 배우며 글로벌 소통 능력을 키우는 기초 어학 과목입니다. 🗺️" },
+                { name: "문학", credits: 3, type: "국어", category: "일반선택", mandatory: "공통필수", desc: "다양한 문학 작품을 감상하고 분석하며, 인간과 세계에 대한 심미적 안목과 공감 능력을 키우는 수능 필수 교과입니다. 📖" },
+                { name: "대수", credits: 3, type: "수학", category: "일반선택", mandatory: "공통필수", desc: "방정식, 함수, 행렬 등 현대 수학과 과학 공식의 뼈대가 되는 수학적 개념과 원리를 깊게 다룹니다. 📊" },
+                { name: "미적분 I", credits: 3, type: "수학", category: "일반선택", mandatory: "공통필수", desc: "변화율과 넓이를 계산하는 미분과 적분의 기초를 확립하여 대입 및 이공계열의 필수 기초 학력을 다지는 과목입니다. 📐" },
+                { name: "영어 I", credits: 3, type: "영어", category: "일반선택", mandatory: "공통필수", desc: "수능 독해와 청해의 기초가 되며 다양한 주제의 지문을 통해 전반적인 영어 커뮤니케이션 능력을 심화합니다. 🔤" },
+                { name: "사회와 문화", credits: 3, type: "사회", category: "일반선택", mandatory: "인문필수", desc: "사회학의 기초 이론, 문화의 다양성, 사회 불평등 구조를 분석하는 수능 단골 사회 탐구 필수 선택 과목입니다. 👥" }, // 🔥 인문 필수과목화!
+                { name: "물리학I", credits: 3, type: "과학", category: "일반선택", mandatory: "자연필수", desc: "역학적 에너지, 전자기장, 파동 등 자연계의 물리적 법칙과 대입 공과/이공계 진학의 절대 기준이 되는 기초 과학입니다. ⚡" },   // 🔥 자연 필수과목화!
+                { name: "생명과학I", credits: 3, type: "과학", category: "일반선택", mandatory: "자연필수", desc: "세포의 구조, 항상성 유지, 유전 법칙 등 생명체 시스템의 작동 방식을 연구하며 의학/보건 계열 필수 교과입니다. 🧬" }, // 🔥 자연 필수과목화!
+                { name: "매체 의사소통", credits: 3, type: "국어", category: "융합선택", mandatory: "선택", desc: "디지털 및 뉴스 미디어를 비판적으로 수용하고 미디어를 통해 올바르게 소통하는 방법을 배우는 융합 국어 과목입니다. 📱" },
+                { name: "영미 문학 읽기", credits: 3, type: "영어", category: "진로선택", mandatory: "선택", desc: "소설, 시, 드라마 등 영미권의 고전 및 현대 문학 원작을 직접 읽으며 인문학적 소양을 깊이 다집니다. 🇬🇧" },
+                { name: "세계 문화와 영어", credits: 3, type: "영어", category: "융합선택", mandatory: "선택", desc: "영어권 국가들의 지리, 역사, 문화를 텍스트로 고찰하며 폭넓은 세계시민 의식을 함양합니다. 🗺️" },
+                { name: "세계 시민과 지리", credits: 3, type: "사회", category: "융합선택", mandatory: "선택", desc: "지구촌 환경문제, 도시화, 인구구조 등 세계적 현상들을 지리적 관점에서 창의적으로 분석합니다. 🌍" },
+                { name: "사회문제 탐구", credits: 3, type: "사회", category: "융합선택", mandatory: "선택", desc: "저출산, 고령화, 환경 위기 등 실제 현대 사회의 쟁점들을 스스로 탐구하고 대안을 제시하는 프로젝트형 과목입니다. 🔍" },
+                { name: "과학의 역사와 문화", credits: 3, type: "과학", category: "융합선택", mandatory: "선택", desc: "갈릴레이부터 인공지능까지 과학 기술의 발달사와 그것이 인간 문명에 끼친 인문학적 파장을 배우는 유쾌한 과목입니다. ⏳" },
+                { name: "기후변화와 환경생태", credits: 3, type: "과학", category: "융합선택", mandatory: "선택", desc: "지구 온난화와 생태계 파괴 등 전 지구적 환경 위기의 원인을 과학적으로 검증하고 보존 대책을 모색합니다. 🌿" }
             ],
             "2-2": [
-                { name: "스포츠 생활1", credits: 2, type: "체육", category: "융합선택", mandatory: "공통필수" },
-                { name: "음악 연주와 창작", credits: 3, type: "예술", category: "진로선택", mandatory: "공통필수" }, // 🔥 1반은 2학기에 음악 고정!
-                { name: "정보", credits: 4, type: "정보", category: "일반선택", mandatory: "공통필수" }, // 🔥 1반은 2학기에 정보 고정!
-                { name: "독서와 작문", credits: 3, type: "국어", category: "일반선택", mandatory: "공통필수" },
-                { name: "확률과 통계", credits: 3, type: "수학", category: "일반선택", mandatory: "공통필수" },
-                { name: "영어 II", credits: 3, type: "영어", category: "일반선택", mandatory: "공통필수" },
-                { name: "문학과 영상", credits: 3, type: "국어", category: "진로선택", mandatory: "선택" },
-                { name: "미적분 II", credits: 3, type: "수학", category: "일반선택", mandatory: "선택" },
-                { name: "영어 발표와 토론", credits: 3, type: "영어", category: "진로선택", mandatory: "선택" },
-                { name: "미디어 영어", credits: 3, type: "영어", category: "융합선택", mandatory: "선택" },
-                { name: "세계사", credits: 3, type: "사회", category: "일반선택", mandatory: "선택" },
-                { name: "현대 사회와 윤리", credits: 3, type: "사회", category: "일반선택", mandatory: "선택" },
-                { name: "정치", credits: 3, type: "사회", category: "진로선택", mandatory: "선택" },
-                { name: "경제", credits: 3, type: "사회", category: "진로선택", mandatory: "선택" },
-                { name: "여행 지리", credits: 3, type: "사회", category: "진로선택", mandatory: "선택" },
-                { name: "화학I", credits: 3, type: "과학", category: "일반선택", mandatory: "선택" },
-                { name: "지구과학I", credits: 3, type: "과학", category: "일반선택", mandatory: "선택" },
-                { name: "과학의 역사와 문화", credits: 3, type: "과학", category: "융합선택", mandatory: "선택" },
-                { name: "기후변화와 환경생태", credits: 3, type: "과학", category: "융합선택", mandatory: "선택" }
+                { name: "스포츠 생활1", credits: 2, type: "체육", category: "융합선택", mandatory: "공통필수", desc: "체력 증진과 구기 종목 중심의 체육 활동을 다루며, 협동심과 건강한 생활 루틴을 배우는 실기 중심 필수 과목입니다. 🏀" },
+                { name: "음악 연주와 창작", credits: 3, type: "예술", category: "진로선택", mandatory: "공통필수", desc: "악기 연주와 작곡 기초 학습을 통해 음악적 표현 능력을 기르고 예술적 감수성을 키우는 교과입니다. 🎵" },
+                { name: "정보", credits: 4, type: "정보", category: "일반선택", mandatory: "공통필수", desc: "컴퓨팅 사고력을 바탕으로 알고리즘 이해 및 파이썬 코딩의 기본 메커니즘을 마스터하는 필수 디지털 과목입니다. 💻" },
+                { name: "독서와 작문", credits: 3, type: "국어", category: "일반선택", mandatory: "공통필수", desc: "비문학 지문의 논리적 독해 요령과 나만의 생각을 논리정연하게 글로 써내는 비판적 소통 능력을 키웁니다. ✍️" },
+                { name: "확률과 통계", credits: 3, type: "수학", category: "일반선택", mandatory: "공통필수", desc: "순열, 조합, 확률분포, 통계적 추정을 다루며, 인문계열 수능 수학의 핵심이자 빅데이터 분석의 원초가 되는 학문입니다. 🎲" },
+                { name: "영어 II", credits: 3, type: "영어", category: "일반선택", mandatory: "공통필수", desc: "영어 I의 읽기 능력을 고도화하여 고급 영문 텍스트 분석 및 토론 중심의 전방위적 고난도 어학 능력을 체득합니다. 📚" },
+                { name: "세계사", credits: 3, type: "사회", category: "일반선택", mandatory: "인문필수", desc: "인류 문명의 발상부터 20세기 냉전까지 동서양 역사의 수레바퀴를 입체적으로 읽어내는 깊이 있는 인문 역사 교과입니다. 🏛️" },       // 🔥 인문 필수과목화!
+                { name: "현대 사회와 윤리", credits: 3, type: "사회", category: "일반선택", mandatory: "인문필수", desc: "인간 존엄성, 환경 윤리, 정의론 등 현대 사회의 첨예한 도덕적 갈등을 윤리학적 관점에서 분석하고 길을 모색합니다. ⚖️" }, // 🔥 인문 필수과목화!
+                { name: "화학I", credits: 3, type: "과학", category: "일반선택", mandatory: "자연필수", desc: "물질의 양적 관계, 원소의 주기율, 화학 결합의 성질을 규명하여 의학/신소재/바이오 계열 대입의 핵심 주춧돌이 되는 과학입니다. 🧪" },      // 🔥 자연 필수과목화!
+                { name: "지구과학I", credits: 3, type: "과학", category: "일반선택", mandatory: "자연필수", desc: "판구조론, 기후 시스템, 천문 우주와 별의 진화를 대주제로 삼아 지구와 우주의 장엄한 대자연 원리를 규명합니다. 🌌" },    // 🔥 자연 필수과목화!
+                { name: "문학과 영상", credits: 3, type: "국어", category: "진로선택", mandatory: "선택", desc: "문학 원작 소설และ 시가 영화나 웹툰, 드라마 등 영상 콘텐츠로 어떻게 각색되고 재창조되는지 분석하는 시각 국어 교과입니다. 🎬" },
+                { name: "미적분 II", credits: 3, type: "수학", category: "일반선택", mandatory: "선택", desc: "초월함수(로그, 지수, 삼각함수)의 미적분을 심화 연산하여 자연계 수능 수학의 최고 난이도 문항을 대비하는 교과입니다. 📐" },
+                { name: "영어 발표와 토론", credits: 3, type: "영어", category: "진로선택", mandatory: "선택", desc: "글로벌 비즈니스 및 학술 환경에서 논리적으로 의견을 개진하고, 영어 PT 및 영어 디베이트를 연습하는 고급 회화 과목입니다. 🗣️" },
+                { name: "미디어 영어", credits: 3, type: "영어", category: "융합선택", mandatory: "선택", desc: "외신 뉴스(CNN, BBC), TED 강연, 영화 스크립트 등 실제 생활 속 살아있는 미디어 텍스트를 통해 고급 시사 영어를 학습합니다. 📰" },
+                { name: "정치", credits: 3, type: "사회", category: "진로선택", mandatory: "선택", desc: "민주주의 제도의 기원, 헌법 정신, 선거 메커니즘 및 국제 정치 지형을 폭넓고 학술적으로 연구하는 과목입니다. 🏛️" },
+                { name: "경제", credits: 3, type: "사회", category: "진로선택", mandatory: "선택", desc: "시장 경제 구조, 금융 금리 원리, 환율 변화 및 국가 재정 정책 등 현대 자본주의 사회를 살아가기 위한 경제적 시야를 틔워줍니다. 📈" },
+                { name: "여행 지리", credits: 3, type: "사회", category: "진로선택", mandatory: "선택", desc: "관광 자원과 세계적 명소들을 인문지리적 관점에서 가볍고 재미있게 탐색하며 융합적 진로 설계를 돕는 과목입니다. ✈️" },
+                { name: "과학의 역사와 문화", credits: 3, type: "과학", category: "융합선택", mandatory: "선택", desc: "인류 발전의 분기점이 된 과학 혁명과 사상가들의 비하인드 스토리를 통해 과학철학의 교양을 쌓는 가벼운 과목입니다. ⏳" },
+                { name: "기후변화와 환경생태", credits: 3, type: "과학", category: "융합선택", mandatory: "선택", desc: "실시간 환경 지표 분석과 생태 복원 프로젝트를 다루는 친환경 융합 탐구형 수업입니다. 🌿" }
             ],
             "3-1": [
-                { name: "스포츠 문화", credits: 2, type: "체육", category: "진로선택", mandatory: "공통필수" },
-                { name: "화법과 언어", credits: 3, type: "국어", category: "일반선택", mandatory: "공통필수" },
-                { name: "주제 탐구 독서", credits: 3, type: "국어", category: "진로선택", mandatory: "선택" },
-                { name: "문학과 영상", credits: 3, type: "국어", category: "진로선택", mandatory: "선택" },
-                { name: "기하", credits: 3, type: "수학", category: "진로선택", mandatory: "선택" },
-                { name: "경제 수학", credits: 3, type: "수학", category: "진로선택", mandatory: "선택" },
-                { name: "수학 과제 탐구", credits: 3, type: "수학", category: "융합선택", mandatory: "선택" },
-                { name: "영어 독해와 작문", credits: 3, type: "영어", category: "일반선택", mandatory: "선택" },
-                { name: "영어 발표와 토론", credits: 3, type: "영어", category: "진로선택", mandatory: "선택" },
-                { name: "미디어 영어", credits: 3, type: "영어", category: "융합선택", mandatory: "선택" },
-                { name: "한국지리 탐구", credits: 3, type: "사회", category: "진로선택", mandatory: "선택" },
-                { name: "법과 사회", credits: 3, type: "사회", category: "진로선택", mandatory: "선택" },
-                { name: "윤리와 사상", credits: 3, type: "사회", category: "진로선택", mandatory: "선택" },
-                { name: "금융과 경제생활", credits: 3, type: "사회", category: "융합선택", mandatory: "선택" },
-                { name: "역학과 에너지", credits: 3, type: "과학", category: "진로선택", mandatory: "선택" },
-                { name: "전자기와 양자", credits: 3, type: "과학", category: "진로선택", mandatory: "선택" },
-                { name: "물질과 에너지", credits: 3, type: "과학", category: "진로선택", mandatory: "선택" },
-                { name: "화학 반응의 세계", credits: 3, type: "과학", category: "진로선택", mandatory: "선택" },
-                { name: "세포와 물질 대사", credits: 3, type: "과학", category: "진로선택", mandatory: "선택" },
-                { name: "생물의 유전", credits: 3, type: "과학", category: "진로선택", mandatory: "선택" },
-                { name: "지구시스템과학", credits: 3, type: "과학", category: "진로선택", mandatory: "선택" },
-                { name: "행성우주과학", credits: 3, type: "과학", category: "진로선택", mandatory: "선택" },
-                { name: "융합과학 탐구", credits: 3, type: "과학", category: "융합선택", mandatory: "선택" },
-                { name: "심화 일본어", credits: 3, type: "제2외국어", category: "진로선택", mandatory: "선택" },
-                { name: "인공지능 기초", credits: 3, type: "기술·가정", category: "융합선택", mandatory: "선택" }
+                { name: "스포츠 문화", credits: 2, type: "체육", category: "진로선택", mandatory: "공통필수", desc: "스포츠의 역사, 윤리, 세계적 빅 이벤트 비즈니스를 학술적·실기적으로 균형 있게 탐구하는 과목입니다. 🏆" },
+                { name: "화법과 언어", credits: 3, type: "국어", category: "일반선택", mandatory: "공통필수", desc: "수능 국어의 전통 선택 교과로, 올바른 대화와 발표 방법론(화법) 및 국어 문법 이론(언어)을 심층 마스터합니다. 🗣️" },
+                { name: "주제 탐구 독서", credits: 3, type: "국어", category: "진로선택", mandatory: "선택", desc: "인문, 사회, 과학 등 고난도 전문 학술 지문을 스스로 분석하고 요약하며 대입 논술 및 학업 역량을 강화합니다. 🔍" },
+                { name: "문학과 영상", credits: 3, type: "국어", category: "진로선택", mandatory: "선택", desc: "희곡과 시나리오 작법을 분석하고 연출 기법을 탐구하여 문화 콘텐츠 제작 역량을 키우는 스토리 교과입니다. 🎬" },
+                { name: "기하", credits: 3, type: "수학", category: "진로선택", mandatory: "선택", desc: "이차곡선과 평면·공간 벡터를 연구하여 공학 및 물리 그래픽 연산의 핵심 뼈대를 다지는 정통 자연계 진로 수학입니다. 📐" },
+                { name: "경제 수학", credits: 3, type: "수학", category: "진로선택", mandatory: "선택", desc: "수열 tobacco 이자 계산, 미분과 한계비용 등 경제 현상 속에 숨겨진 수학적 알고리즘을 분석하는 상경계열 희망자 필독 교과입니다. 📈" },
+                { name: "수학 과제 탐구", credits: 3, type: "수학", category: "융합선택", mandatory: "선택", desc: "수학적 개념을 활용해 우리 주변의 현상을 스스로 주제 선정하여 수학 소논문이나 리포트를 작성하는 자율 탐구 과목입니다. 📝" },
+                { name: "영어 독해와 작문", credits: 3, type: "영어", category: "일반선택", mandatory: "선택", desc: "수능 영어 1등급을 결정짓는 고난도 빈칸 추론 독해와 격식 있는 영문 에세이 작성(작문) 기술을 체계적으로 훈련합니다. ✍️" },
+                { name: "영어 발표와 토론", credits: 3, type: "영어", category: "진로선택", mandatory: "선택", desc: "글로벌 이슈를 분석하여 설득력 있는 개인 스피치와 정통 아카데믹 찬반 토론의 포맷을 완성합니다. 🗣️" },
+                { name: "미디어 영어", credits: 3, type: "영어", category: "융합선택", mandatory: "선택", desc: "인터넷 영미 기사와 글로벌 다큐멘터리 스크립트를 직독직해하며 글로벌 시사 트렌드를 리드합니다. 📰" },
+                { name: "한국지리 탐구", credits: 3, type: "사회", category: "진로선택", mandatory: "선택", desc: "우리나라 국토의 지형, 기후, 지역 개발 및 도시 성장의 역사를 학술적으로 고찰하는 정통 진로 탐구 과목입니다. 🗺️" },
+                { name: "법과 사회", credits: 3, type: "사회", category: "진로선택", mandatory: "선택", desc: "민법(계약, 결혼), 형법(범죄와 형벌) 등 실생활에 직결되는 법률 상식과 사법 제도를 배우는 법학과 지망생 강력 추천 과목입니다. ⚖️" },
+                { name: "윤리와 사상", credits: 3, type: "사회", category: "진로선택", mandatory: "선택", desc: "소크라테스, 공자, 칸트 등 동서양 거장들의 철학 체계를 탐독하며 인간 존재의 근원적 사유 능력을 확립하는 인문 필수 과목입니다. 🏛️" },
+                { name: "금융과 경제생활", credits: 3, type: "사회", category: "융합선택", mandatory: "선택", desc: "주식, 채권, 자산 관리 원리, 세금 등 사회 초년생에게 필요한 실전 재테크 정보와 거시 경제 생활 양식을 명쾌하게 가르쳐 줍니다. 💰" },
+                { name: "역학과 에너지", credits: 3, type: "과학", category: "진로선택", mandatory: "선택", desc: "물리학 II의 전반부 내용으로, 2차원 평면 운동과 에너지 보존 법칙을 더 높은 수학적 도구로 정교하게 증명하는 공학 필수 수업입니다. ⚙️" },
+                { name: "전자기와 양자", credits: 3, type: "과학", category: "진로선택", mandatory: "선택", desc: "물리학 II의 후반부 내용으로, 전기장, 자기장 유도 및 현대 물리학의 정수인 양자역학 기초를 가르치는 고난도 상위권 과목입니다. ⚡" },
+                { name: "물질과 에너지", credits: 3, type: "과학", category: "진로선택", mandatory: "선택", desc: "화학 II의 전반부 내용으로, 기체 법칙, 분자 간 상호작용 및 물질의 상태 변화 속 열역학 법칙을 학술적으로 입증합니다. 🧪" },
+                { name: "화학 반응의 세계", credits: 3, type: "과학", category: "진로선택", mandatory: "선택", desc: "화학 II의 후반부 내용으로, 화학 평형과 산-염기 중화반응의 속도론적 연산을 깊게 파고들어 약학/화공 지망생의 필수 뼈대가 됩니다. ⚗️" },
+                { name: "细胞와 물질 대사", credits: 3, type: "과학", category: "진로선택", mandatory: "선택", desc: "생명과학 II 전반부로, 광합성, 세포 호흡, DNA 복제와 단백질 합성의 미시 생화학 메커니즘을 심화 학습합니다. 🧬" },
+                { name: "생물의 유전", credits: 3, type: "과학", category: "진로선택", mandatory: "선택", desc: "생명과학 II 후반부로, 복잡한 유전자 발현 조절 메커니즘과 첨단 바이오 생명공학 기술(CRISPR 등)을 탐구하는 상위권 필수 과목입니다. 🧫" },
+                { name: "지구시스템과학", credits: 3, type: "과학", category: "진로선택", mandatory: "선택", desc: "지구과학 II 전반부로, 대기와 해양의 순환 구조, 지진파 분석 및 지구 내부의 지구물리학적 메커니즘을 규명합니다. 🌍" },
+                { name: "행성우주과학", credits: 3, type: "과학", category: "진로선택", mandatory: "선택", desc: "지구과학 II 후반부로, 좌표계 분석, 행성의 겉보기 운동 및 은하 우주의 기원과 팽창을 수학적으로 해석하는 고난도 천문학 교과입니다. 🌌" },
+                { name: "융합과학 탐구", credits: 3, type: "과학", category: "융합선택", mandatory: "선택", desc: "과학 교과서에 갇히지 않고 실생활 속 과학적 의문을 실험 설계, 데이터 도출을 통해 스스로 해답을 찾는 완전 자율 논문 프로젝트식 수업입니다. 🔬" },
+                { name: "심화 일본어", credits: 3, type: "제2외국어", category: "진로선택", mandatory: "선택", desc: "일본어 I을 넘어 실제 소설 번역이나 에세이 독해, 비즈니스 수준의 회화를 체득하는 어문 계열 타깃 심화 과목입니다. 🇯🇵" },
+                { name: "인공지능 기초", credits: 3, type: "기술·가정", category: "융합선택", mandatory: "선택", desc: "머신러닝 알고리즘의 원리를 수학적으로 이해하고 데이터 수집, 분류 및 AI 모델을 직접 파이썬으로 구현해 보는 첨단 테크 과목입니다. 🤖" }
             ],
             "3-2": [
-                { name: "스포츠 과학", credits: 2, type: "체육", category: "진로선택", mandatory: "공통필수" },
-                { name: "생태와 환경", credits: 2, type: "교양", category: "일반선택", mandatory: "공통필수" },
-                { name: "인간과 심리", credits: 3, type: "교양", category: "진로선택", mandatory: "공통필수" },
-                { name: "주제 탐구 독서", credits: 3, type: "국어", category: "진로선택", mandatory: "선택" },
-                { name: "독서 토론과 글쓰기", credits: 3, type: "국어", category: "융합선택", mandatory: "선택" },
-                { name: "언어 생활 탐구", credits: 3, type: "국어", category: "융합선택", mandatory: "선택" },
-                { name: "인공 지능 수학", credits: 3, type: "수학", category: "진로선택", mandatory: "선택" },
-                { name: "고급 미적분", credits: 3, type: "수학", category: "진로선택", mandatory: "선택" },
-                { name: "영미 문학 읽기", credits: 3, type: "영어", category: "진로선택", mandatory: "선택" },
-                { name: "심화 영어", credits: 3, type: "영어", category: "진로선택", mandatory: "선택" },
-                { name: "세계 문화와 영어", credits: 3, type: "영어", category: "융합선택", mandatory: "선택" },
-                { name: "국제 관계의 이해", credits: 3, type: "사회", category: "진로선택", mandatory: "선택" },
-                { name: "윤리문제 탐구", credits: 3, type: "사회", category: "융합선택", mandatory: "선택" },
-                { name: "물리학 탐구", credits: 3, type: "과학", category: "융합선택", mandatory: "선택" },
-                { name: "생명과학 탐구", credits: 3, type: "과학", category: "융합선택", mandatory: "선택" },
-                { name: "융합과학 탐구", credits: 3, type: "과학", category: "융합선택", mandatory: "선택" },
-                { name: "일본어 회화", credits: 3, type: "제2외국어", category: "일반선택", mandatory: "선택" },
-                { name: "소프트웨어와 생활", credits: 3, type: "기술·가정", category: "융합선택", mandatory: "선택" }
-            ]
-        };
-
-        function login() {
-            const studentId = document.getElementById('studentId').value;
-            if(studentId.length !== 5 || isNaN(studentId)) {
-                alert("학번 5자리를 정확히 입력해주세요. (예: 10101) 잉? 😿");
-                return;
-            }
-
-            document.getElementById('db-status').innerText = "학생 및 과목 정보 로딩 중... ⏳";
-
-            fetch(WEB_APP_URL, {
-                method: "POST",
-                body: JSON.stringify({ action: "login", studentId: studentId })
-            })
-            .then(res => res.json())
-            .then(res => {
-                if(res.name) {
-                    globalStudentId = studentId;
-                    globalStudentName = res.name;
-                    
-                    if(res.db && res.db["2-1"] && res.db["2-1"].length > 0) {
-                        subjectDB = res.db; 
-                    }
-
-                    const cardElement = document.querySelector('.card');
-                    cardElement.style.maxWidth = '820px'; 
-                    cardElement.style.padding = '40px 48px';
-
-                    document.getElementById('login-view').style.display = 'none';
-                    document.getElementById('main-view').style.display = 'block';
-                    
-                    document.getElementById('welcome-title').innerText = `${res.name} 학생 환영합니다!`;
-                    document.getElementById('student-badge').innerText = `${studentId} ${res.name} ✨`;
-
-                    changeTrack('인문');
-                } else {
-                    alert("등록되지 않은 학번입니다. 명단을 확인해 주세요! 잉? 😿");
-                    document.getElementById('db-status').innerText = "DB 연결 완료 ✨";
-                }
-            })
-            .catch(err => {
-                alert("네트워크 연결에 실패했습니다. 내장 데이터 세트로 접속합니다! ✨");
-                globalStudentId = studentId;
-                globalStudentName = "테스트";
-                
-                const cardElement = document.querySelector('.card');
-                cardElement.style.maxWidth = '820px';
-                cardElement.style.padding = '40px 48px';
-
-                document.getElementById('login-view').style.display = 'none';
-                document.getElementById('main-view').style.display = 'block';
-                document.getElementById('welcome-title').innerText = `배정고 학생 환영합니다!`;
-                
-                changeTrack('인문');
-            });
-        }
-
-        function changeTrack(track) {
-            currentTrack = track;
-            document.getElementById('track-btn-human').classList.toggle('active', track === '인문');
-            document.getElementById('track-btn-nature').classList.toggle('active', track === '자연');
-            
-            for (const sem in subjectDB) {
-                selectedSubjects[sem] = subjectDB[sem]
-                    .filter(sub => {
-                        return sub.mandatory === "필수" || 
-                               sub.mandatory === "공통필수" || 
-                               (sub.mandatory === "인문필수" && track === "인문") || 
-                               (sub.mandatory === "자연필수" && track === "자연");
-                    })
-                    .map(sub => sub.name);
-            }
-            
-            changeSem(currentSemester);
-        }
-
-        function changeTab(tabIndex) {
-            if (tabIndex === 1) {
-                document.getElementById('tab-content1').style.display = 'block';
-                document.getElementById('tab-content2').style.display = 'none';
-                document.getElementById('tab-btn1').classList.add('active');
-                document.getElementById('tab-btn2').classList.remove('active');
-            } else {
-                document.getElementById('tab-content1').style.display = 'none';
-                document.getElementById('tab-content2').style.display = 'block';
-                document.getElementById('tab-btn1').classList.remove('active');
-                document.getElementById('tab-btn2').classList.add('active');
-            }
-        }
-
-        function changeSem(sem) {
-            currentSemester = sem;
-            document.querySelectorAll('.sem-pill').forEach(btn => {
-                btn.classList.toggle('active', btn.id === `sem-btn-${sem}`);
-            });
-            renderSubjects();
-            syncSelection();
-        }
-
-        function renderSubjects() {
-            const listDiv = document.getElementById('subject-list');
-            listDiv.innerHTML = "";
-            
-            const subjects = subjectDB[currentSemester] || [];
-            
-            if(subjects.length === 0) {
-                listDiv.innerHTML = `<div style="font-size:20px; color:#b0b8c1; text-align:center; padding: 20px;">과목 데이터가 없습니다. 😿</div>`;
-                return;
-            }
-
-            subjects.forEach(sub => {
-                const isCommonMandatory = sub.mandatory === "필수" || sub.mandatory === "공통필수";
-                const isTrackMandatory = (sub.mandatory === "인문필수" && currentTrack === "인문") || 
-                                         (sub.mandatory === "자연필수" && currentTrack === "자연");
-                
-                const isMandatory = isCommonMandatory || isTrackMandatory;
-                const isChecked = isMandatory || selectedSubjects[currentSemester].includes(sub.name) ? "checked" : "";
-                const isDisabled = isMandatory ? "disabled" : ""; 
-                
-                const displayCategory = sub.category ? ` [${sub.category}]` : '';
-                const mandatoryLabel = isMandatory ? ' <span style="color:#ff69b4; font-weight:bold;">[필수선택]</span>' : '';
-                
-                listDiv.innerHTML += `
-                    <label style="display: flex; align-items: center; justify-content: flex-start; gap: 14px; cursor: pointer; margin-bottom: 10px; padding: 4px 12px; background-color: #fffaf0; border-radius: 12px; border: 1px solid #fef1f8; ${isMandatory ? 'color: #999999;' : ''}; white-space: nowrap;">
-                        <input type="checkbox" name="user-subject" value="${sub.name}" ${isChecked} ${isDisabled} onchange="syncSelection()" style="width:24px; height:24px; accent-color:#c3bef0; flex-shrink: 0;"> 
-                        <span style="font-weight: bold; font-size: 24px;">${sub.name}${displayCategory}${mandatoryLabel} (${sub.credits}학점)</span>
-                    </label>
-                `;
-            });
-        }
-
-        function syncSelection() {
-            const checkedBoxes = document.querySelectorAll('input[name="user-subject"]:checked');
-            let currentChoices = [];
-
-            for (let cb of checkedBoxes) {
-                let subName = cb.value;
-                let isDuplicate = false;
-
-                for (const sem in selectedSubjects) {
-                    if (sem !== currentSemester && selectedSubjects[sem].includes(subName)) {
-                        isDuplicate = true;
-                        break;
-                    }
-                }
-
-                if (isDuplicate) {
-                    alert(`⚠️ '${subName}' 과목은 이미 다른 학기에서 선택했습니다!\n동일한 과목을 중복하여 이수할 수 없습니다. 😿`);
-                    cb.checked = false; 
-                } else {
-                    currentChoices.push(subName);
-                }
-            }
-
-            selectedSubjects[currentSemester] = currentChoices;
-            updateCreditStatus();
-        }
-
-        function updateCreditStatus() {
-            const FIRST_YEAR_CREDITS = 84; 
-            const CHANGCHE_CREDITS = 18;   
-            const BASE_TOTAL = FIRST_YEAR_CREDITS + CHANGCHE_CREDITS; 
-            const BASE_NEM = 24; 
-            
-            let addedElective = 0; 
-            let addedNem = 0;      
-            
-            for (const sem in selectedSubjects) {
-                selectedSubjects[sem].forEach(subName => {
-                    const subObj = (subjectDB[sem] || []).find(s => s.name === subName);
-                    if (subObj) {
-                        addedElective += subObj.credits;
-                        if (subObj.type === "국어" || subObj.type === "영어" || subObj.type === "수학") {
-                            addedNem += subObj.credits;
-                        }
-                    }
-                });
-            }
-            
-            const currentSemElectives = selectedSubjects[currentSemester].filter(subName => {
-                const subObj = (subjectDB[currentSemester] || []).find(s => s.name === subName);
-                const isCommonMandatory = subObj && (subObj.mandatory === "필수" || subObj.mandatory === "공통필수");
-                const isTrackMandatory = subObj && ((subObj.mandatory === "인문필수" && currentTrack === "인문") || (subObj.mandatory === "자연필수" && currentTrack === "자연"));
-                return subObj && !isCommonMandatory && !isTrackMandatory;
-            }).length;
-
-            const targetCount = targetLimits[currentSemester] || 7;
-            
-            const finalTotal = BASE_TOTAL + addedElective;
-            const finalNem = BASE_NEM + addedNem;
-            
-            document.getElementById('total-credits-view').innerText = `${finalTotal} / 192 학점`;
-            document.getElementById('elective-credits-view').innerText = `${addedElective} / 90 학점`;
-            document.getElementById('nem-credits-view').innerText = `${finalNem} / 81 학점`;
-            
-            document.getElementById('current-sem-title').innerText = currentSemester;
-            document.getElementById('sem-choice-view').innerText = `${currentSemElectives} / ${targetCount} 개`;
-
-            if(currentSemElectives === targetCount) {
-                document.getElementById('sem-choice-view').style.color = '#6a5acd';
-            } else {
-                document.getElementById('sem-choice-view').style.color = '#ff69b4';
-            }
-            
-            const warningDiv = document.getElementById('credit-warning');
-            if (finalNem > 81) {
-                warningDiv.style.display = 'block';
-                document.getElementById('nem-credits-view').style.color = '#ff69b4';
-            } else {
-                warningDiv.style.display = 'none';
-                document.getElementById('nem-credits-view').style.color = '#6a5acd';
-            }
-        }
-
-        function saveSelection() {
-            let summaryParts = [];
-            let hasSelection = false;
-            
-            for (const sem in selectedSubjects) {
-                if (selectedSubjects[sem].length > 0) {
-                    summaryParts.push(`[${sem}] ${selectedSubjects[sem].join(", ")}`);
-                    hasSelection = true;
-                }
-            }
-            
-            if(!hasSelection) {
-                alert("최소 한 개 이상의 과목을 선택해 주세요! 😿");
-                return;
-            }
-            
-            const subjectsString = summaryParts.join(" | ");
-            
-            fetch(WEB_APP_URL, {
-                method: "POST",
-                body: JSON.stringify({
-                    action: "save",
-                    sheetName: "수강신청",
-                    studentId: globalStudentId,
-                    studentName: globalStudentName,
-                    semester: `2~3학년 설계 (${currentTrack}계열)`,
-                    subjects: subjectsString
-                })
-            }).then(() => {
-                alert(`${currentTrack}계열 기준 4개 학기의 설계가 시트에 안전하게 반영되었습니다! 💖`);
-                location.reload(); 
-            });
-        }
-
-        document.getElementById('studentId').addEventListener('keyup', function(event) {
-            if (event.key === 'Enter') login();
-        });
-    </script>
-</body>
-</html>
+                { name: "스포츠 과학", credits: 2, type: "체육", category: "진로선택", mandatory: "공통필수", desc: "운동역학, 운동생리학 등 스포츠 성과 뒤에 숨겨진 물리적·신체적 과학 원리를 탐색하는 체육 진로 교과입니다. 🏃‍♂️" },
+                { name: "생태와 환경", credits: 2, type: "교양", category: "일반선택", mandatory: "공통필수", desc: "생태학의 기초와 생물다양성 보존, 그리고 환경 문제 해결을 위한 국제 협력을 탐구하는 소양 과목입니다. 🌿" },
+                { name: "인간과 심리", credits: 3, type: "교양", category: "진로선택", mandatory: "공통필수", desc: "발달 심리학, 행동 유전학 등을 다루며 나 자신과 타인의 내면을 과학적으로 탐색하여 상대를 깊이 이해하는 흥미로운 인문 교양입니다. 🧠" },
+                { name: "주제 탐구 독서", credits: 3, type: "국어", category: "진로선택", mandatory: "선택", desc: "대학 전공 도서 및 논문 요약 등 성인 학습자 수준의 고난도 고등 독해 스킬을 최종 완성합니다. 📖" },
+                { name: "독서 토론과 글쓰기", credits: 3, type: "국어", category: "융합선택", mandatory: "선택", desc: "찬반 토론과 사설 비평, 리포트 작성을 연습하며 전공 면접과 대학 리포트 작성을 선행 준비하는 실전형 과목입니다. ✍️" },
+                { name: "언어 생활 탐구", credits: 3, type: "국어", category: "융합선택", mandatory: "선택", desc: "신조어 현상, 방언 분화, 디지털 타이포그래피 등 실생활 언어의 사회적 변화를 국어학적으로 재미있게 연구합니다. 💬" },
+                { name: "인공 지능 수학", credits: 3, type: "수학", category: "진로선택", mandatory: "선택", desc: "인공지능의 데이터 데이터 분류 알고리즘에 핵심으로 쓰이는 확률, 선형대수(행렬) 원리를 마스터하는
