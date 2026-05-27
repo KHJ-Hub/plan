@@ -46,13 +46,14 @@
         .card {
             background-color: var(--surface);
             width: 100%;
-            max-width: 560px; 
+            max-width: 560px; /* 로그인창 전용 가로폭 고정 */
             padding: 48px 56px; 
             border-radius: 40px; 
             box-shadow: 0 20px 50px rgba(255, 192, 203, 0.3);
             text-align: center;
             box-sizing: border-box;
             border: 3px solid #fce4ec; 
+            transition: max-width 0.4s ease, padding 0.4s ease; /* 가로폭 다단 확장 애니메이션 */
         }
 
         .icon-wrap {
@@ -236,10 +237,16 @@
                             <span>🎓 총 이수 학점 (목표: 192)</span>
                             <span id="total-credits-view" style="font-weight: bold; color: #6a5acd;">102 / 192 학점</span>
                         </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #fce4ec; padding-bottom: 8px; margin-bottom: 2px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
                             <span>📝 2·3학년 선택과목 (목표: 90)</span>
                             <span id="elective-credits-view" style="font-weight: bold; color: #6a5acd;">0 / 90 학점</span>
                         </div>
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #fce4ec; padding-bottom: 8px; margin-bottom: 2px; color: #ff69b4; font-weight: bold;">
+                            <span>✨ <span id="current-sem-title">2-1</span> 학기 자율 선택 과목 수</span>
+                            <span id="sem-choice-view">0 / 7 개</span>
+                        </div>
+                        
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <span>⚠️ 국·영·수 총합 (최대: 81)</span>
                             <span id="nem-credits-view" style="font-weight: bold; color: #6a5acd;">24 / 81 학점</span>
@@ -258,7 +265,7 @@
 
                     <p class="desc" style="font-size: 20px; margin-bottom: 16px;">해당 학기에 수강할 과목을 선택하세요.</p>
                     
-                    <div id="subject-list" style="text-align: left; max-width: 420px; margin: 0 auto 32px auto; font-size: 25px; line-height: 2;">
+                    <div id="subject-list" style="text-align: left; width: 100%; margin: 0 auto 32px auto; font-size: 25px; line-height: 2;">
                         </div>
                     
                     <button class="btn-start" onclick="saveSelection()">전체 학기 설계 완료 💾</button>
@@ -266,7 +273,7 @@
 
                 <div id="tab-content2" style="display: none;">
                     <p class="desc">목표 대학과 학과의<br>핵심 권장 과목을 조회해 보세요.</p>
-                    <div style="text-align: left; max-width: 380px; margin: 0 auto 32px auto; font-size: 22px; color: #555555; line-height: 1.6; background-color: #fffaf0; padding: 24px; border-radius: 20px; border: 3px dashed #fce4ec; box-sizing: border-box;">
+                    <div style="text-align: left; width: 100%; margin: 0 auto 32px auto; font-size: 22px; color: #555555; line-height: 1.6; background-color: #fffaf0; padding: 24px; border-radius: 20px; border: 3px dashed #fce4ec; box-sizing: border-box;">
                         <p style="margin: 0 0 12px 0; font-weight: bold; color: #6a5acd; font-size: 24px; text-align: center;">부산권/서울권 대학 정보 🔍</p>
                         <p style="margin: 0; text-align: center; color: #b0b8c1; font-size: 20px;">(여기에 편제표 시트와 연동되어 부산 및 서울 주요 대학의 핵심 과목 정보가 구성될 예정입니다! ✨)</p>
                     </div>
@@ -289,8 +296,8 @@
         let currentSemester = "2-1"; 
 
         let selectedSubjects = { "2-1": [], "2-2": [], "3-1": [], "3-2": [] };
-        
-        // 🏫 이미지 체크리스트 양식을 100% 반영한 임시 내장 백업 DB (시트 로딩 실패 시 자동 작동)
+        const targetLimits = { "2-1": 7, "2-2": 7, "3-1": 9, "3-2": 6 };
+
         let subjectDB = {
             "2-1": [
                 { name: "스포츠 생활2", credits: 2, type: "체육", category: "융합선택", mandatory: "필수" },
@@ -366,217 +373,4 @@
             "3-2": [
                 { name: "스포츠 과학", credits: 2, type: "체육", category: "진로선택", mandatory: "필수" },
                 { name: "생태와 환경", credits: 2, type: "교양", category: "일반선택", mandatory: "필수" },
-                { name: "인간과 심리", credits: 3, type: "교양", category: "진로선택", mandatory: "필수" },
-                { name: "주제 탐구 독서", credits: 3, type: "국어", category: "진로선택", mandatory: "선택" },
-                { name: "독서 토론과 글쓰기", credits: 3, type: "국어", category: "융합선택", mandatory: "선택" },
-                { name: "언어 생활 탐구", credits: 3, type: "국어", category: "융합선택", mandatory: "선택" },
-                { name: "인공 지능 수학", credits: 3, type: "수학", category: "진로선택", mandatory: "선택" },
-                { name: "고급 미적분", credits: 3, type: "수학", category: "진로선택", mandatory: "선택" },
-                { name: "영미 문학 읽기", credits: 3, type: "영어", category: "진로선택", mandatory: "선택" },
-                { name: "심화 영어", credits: 3, type: "영어", category: "진로선택", mandatory: "선택" },
-                { name: "세계 문화와 영어", credits: 3, type: "영어", category: "융합선택", mandatory: "선택" },
-                { name: "국제 관계의 이해", credits: 3, type: "사회", category: "진로선택", mandatory: "선택" },
-                { name: "윤리문제 탐구", credits: 3, type: "사회", category: "융합선택", mandatory: "선택" },
-                { name: "물리학 탐구", credits: 3, type: "과학", category: "융합선택", mandatory: "선택" },
-                { name: "생명과학 탐구", credits: 3, type: "과학", category: "융합선택", mandatory: "선택" },
-                { name: "융합과학 탐구", credits: 3, type: "과학", category: "융합선택", mandatory: "선택" },
-                { name: "일본어 회화", credits: 3, type: "제2외국어", category: "일반선택", mandatory: "선택" },
-                { name: "소프트웨어와 생활", credits: 3, type: "기술·가정", category: "융합선택", mandatory: "선택" }
-            ]
-        };
-
-        function login() {
-            const studentId = document.getElementById('studentId').value;
-            if(studentId.length !== 5 || isNaN(studentId)) {
-                alert("학번 5자리를 정확히 입력해주세요. (예: 10101) 잉? 😿");
-                return;
-            }
-
-            document.getElementById('db-status').innerText = "학생 및 과목 정보 로딩 중... ⏳";
-
-            fetch(WEB_APP_URL, {
-                method: "POST",
-                body: JSON.stringify({ action: "login", studentId: studentId })
-            })
-            .then(res => res.json())
-            .then(res => {
-                if(res.name) {
-                    globalStudentId = studentId;
-                    globalStudentName = res.name;
-                    
-                    // 만약 구글 편제표 시트에 데이터가 채워져 있다면 시트 우선으로 로딩
-                    if(res.db && res.db["2-1"] && res.db["2-1"].length > 0) {
-                        subjectDB = res.db; 
-                    }
-
-                    // 로그인 성공 직후 전 학년의 모든 '지정필수' 과목들을 바구니에 선탑재
-                    for (const sem in subjectDB) {
-                        selectedSubjects[sem] = subjectDB[sem]
-                            .filter(sub => sub.mandatory === "필수")
-                            .map(sub => sub.name);
-                    }
-
-                    document.getElementById('login-view').style.display = 'none';
-                    document.getElementById('main-view').style.display = 'block';
-                    
-                    document.getElementById('welcome-title').innerText = `${res.name} 학생 환영합니다!`;
-                    document.getElementById('student-badge').innerText = `${studentId} ${res.name} ✨`;
-
-                    changeTab(1);
-                    changeSem("2-1");
-                } else {
-                    alert("등록되지 않은 학번입니다. 명단을 확인해 주세요! 잉? 😿");
-                    document.getElementById('db-status').innerText = "DB 연결 완료 ✨";
-                }
-            })
-            .catch(err => {
-                alert("네트워크 연결에 실패했습니다. 내장 데이터 세트로 접속합니다! ✨");
-                // 네트워크 오류 시 로컬 백업 세션 강제 구동
-                globalStudentId = studentId;
-                globalStudentName = "테스트";
-                for (const sem in subjectDB) {
-                    selectedSubjects[sem] = subjectDB[sem].filter(sub => sub.mandatory === "필수").map(sub => sub.name);
-                }
-                document.getElementById('login-view').style.display = 'none';
-                document.getElementById('main-view').style.display = 'block';
-                document.getElementById('welcome-title').innerText = `배정고 학생 환영합니다!`;
-                changeTab(1);
-                changeSem("2-1");
-            });
-        }
-
-        function changeTab(tabIndex) {
-            if (tabIndex === 1) {
-                document.getElementById('tab-content1').style.display = 'block';
-                document.getElementById('tab-content2').style.display = 'none';
-                document.getElementById('tab-btn1').classList.add('active');
-                document.getElementById('tab-btn2').classList.remove('active');
-            } else {
-                document.getElementById('tab-content1').style.display = 'none';
-                document.getElementById('tab-content2').style.display = 'block';
-                document.getElementById('tab-btn1').classList.remove('active');
-                document.getElementById('tab-btn2').classList.add('active');
-            }
-        }
-
-        function changeSem(sem) {
-            currentSemester = sem;
-            document.querySelectorAll('.sem-pill').forEach(btn => {
-                btn.classList.toggle('active', btn.id === `sem-btn-${sem}`);
-            });
-            renderSubjects();
-            syncSelection();
-        }
-
-        function renderSubjects() {
-            const listDiv = document.getElementById('subject-list');
-            listDiv.innerHTML = "";
-            
-            const subjects = subjectDB[currentSemester] || [];
-            
-            if(subjects.length === 0) {
-                listDiv.innerHTML = `<div style="font-size:20px; color:#b0b8c1; text-align:center; padding: 20px;">과목 데이터가 없습니다. 😿</div>`;
-                return;
-            }
-
-            subjects.forEach(sub => {
-                const isMandatory = sub.mandatory === "필수";
-                const isChecked = isMandatory || selectedSubjects[currentSemester].includes(sub.name) ? "checked" : "";
-                const isDisabled = isMandatory ? "disabled" : ""; 
-                
-                const displayCategory = sub.category ? ` [${sub.category}]` : '';
-                const mandatoryLabel = isMandatory ? ' <span style="color:#ff69b4; font-weight:bold;">[지정필수]</span>' : '';
-                
-                listDiv.innerHTML += `
-                    <label style="display: flex; align-items: center; gap: 12px; cursor: pointer; margin-bottom: 8px; ${isMandatory ? 'color: #999999;' : ''}">
-                        <input type="checkbox" name="user-subject" value="${sub.name}" ${isChecked} ${isDisabled} onchange="syncSelection()" style="width:24px; height:24px; accent-color:#c3bef0;"> 
-                        <span>${sub.name}${displayCategory}${mandatoryLabel} (${sub.credits}학점)</span>
-                    </label>
-                `;
-            });
-        }
-
-        function syncSelection() {
-            const checkedBoxes = document.querySelectorAll('input[name="user-subject"]:checked');
-            selectedSubjects[currentSemester] = Array.from(checkedBoxes).map(cb => cb.value);
-            updateCreditStatus();
-        }
-
-        function updateCreditStatus() {
-            const FIRST_YEAR_CREDITS = 84; 
-            const CHANGCHE_CREDITS = 18;   
-            const BASE_TOTAL = FIRST_YEAR_CREDITS + CHANGCHE_CREDITS; 
-            const BASE_NEM = 24; 
-            
-            let addedElective = 0; 
-            let addedNem = 0;      
-            
-            for (const sem in selectedSubjects) {
-                selectedSubjects[sem].forEach(subName => {
-                    const subObj = (subjectDB[sem] || []).find(s => s.name === subName);
-                    if (subObj) {
-                        addedElective += subObj.credits;
-                        if (subObj.type === "국어" || subObj.type === "영어" || subObj.type === "수학") {
-                            addedNem += subObj.credits;
-                        }
-                    }
-                });
-            }
-            
-            const finalTotal = BASE_TOTAL + addedElective;
-            const finalNem = BASE_NEM + addedNem;
-            
-            document.getElementById('total-credits-view').innerText = `${finalTotal} / 192 학점`;
-            document.getElementById('elective-credits-view').innerText = `${addedElective} / 90 학점`;
-            document.getElementById('nem-credits-view').innerText = `${finalNem} / 81 학점`;
-            
-            const warningDiv = document.getElementById('credit-warning');
-            if (finalNem > 81) {
-                warningDiv.style.display = 'block';
-                document.getElementById('nem-credits-view').style.color = '#ff69b4';
-            } else {
-                warningDiv.style.display = 'none';
-                document.getElementById('nem-credits-view').style.color = '#6a5acd';
-            }
-        }
-
-        function saveSelection() {
-            let summaryParts = [];
-            let hasSelection = false;
-            
-            for (const sem in selectedSubjects) {
-                if (selectedSubjects[sem].length > 0) {
-                    summaryParts.push(`[${sem}] ${selectedSubjects[sem].join(", ")}`);
-                    hasSelection = true;
-                }
-            }
-            
-            if(!hasSelection) {
-                alert("최소 한 개 이상의 과목을 선택해 주세요! 😿");
-                return;
-            }
-            
-            const subjectsString = summaryParts.join(" | ");
-            
-            fetch(WEB_APP_URL, {
-                method: "POST",
-                body: JSON.stringify({
-                    action: "save",
-                    sheetName: "수강신청",
-                    studentId: globalStudentId,
-                    studentName: globalStudentName,
-                    semester: "2~3학년 전체설계",
-                    subjects: subjectsString
-                })
-            }).then(() => {
-                alert("4개 학기의 수강신청 설계가 시트에 안전하게 반영되었습니다! 💖");
-                location.reload(); 
-            });
-        }
-
-        document.getElementById('studentId').addEventListener('keyup', function(event) {
-            if (event.key === 'Enter') login();
-        });
-    </script>
-</body>
-</html>
+                { name: "인간과 심리", credits: 3, type: "교양", category: "
