@@ -56,13 +56,11 @@
             transition: max-width 0.4s ease, padding 0.4s ease; 
         }
 
-        /* [스마트 확장 클래스] PC 대화면 수호 */
         .card.expanded {
             max-width: 820px;
             padding: 40px 48px;
         }
 
-        /* 📊 대시보드 전용 표준 스타일 세트 */
         .dashboard-box {
             background-color: #fffaf0;
             border: 3px dashed #fce4ec;
@@ -97,7 +95,6 @@
             width: 220px;
         }
 
-        /* 🔒 디자인 패밀리룩 수호: 폰트, 컬러감, 라운딩 비율을 완벽하게 계승한 선택창 스타일 */
         select {
             width: 100%;
             padding: 16px;
@@ -120,7 +117,6 @@
             box-shadow: 0 0 0 5px rgba(195, 190, 240, 0.3);
         }
 
-        /* 과목 아이템 데스크톱용 클래스 */
         .subject-item {
             display: flex;
             align-items: center;
@@ -270,7 +266,6 @@
         .sem-pill { flex: 1; padding: 6px 10px; font-family: 'Hi Melody', cursive, sans-serif; font-size: 20px; font-weight: bold; border: none; border-radius: 12px; background: transparent; color: var(--text-main); cursor: pointer; transition: all 0.2s ease; }
         .sem-pill.active { background-color: var(--primary); color: white; box-shadow: 0 4px 10px rgba(195, 190, 240, 0.3); }
 
-        /* 📱 스마트폰/태블릿을 위한 맞춤 반응형 여백 설계도 */
         @media screen and (max-width: 768px) {
             .content-wrapper { padding-bottom: 80px; }
             .card { padding: 40px 24px; border-radius: 30px; }
@@ -403,32 +398,25 @@
 
                 <div id="tab-content2" style="display: none;">
                     <p class="desc" style="margin-bottom: 20px;">목표 대학과 학과의<br>2028학년도 전형 기준 과목을 조회하세요.</p>
-                    
                     <select id="region-select" onchange="onRegionChange()">
                         <option value="">[1단계] 권역 선택 🗺️</option>
                     </select>
-                    
                     <select id="college-select" onchange="onCollegeChange()">
                         <option value="">[2단계] 대학 선택 🏛️</option>
                     </select>
-                    
                     <select id="dept-select" onchange="onDeptChange()">
                         <option value="">[3단계] 학과 선택 🏫</option>
                     </select>
-                    
                     <div id="recommendation-result" class="dashboard-box" style="display: none; background-color: #fffaf0; border: 3px dashed #fce4ec; margin-top: 24px;">
                         <p style="margin: 0 0 12px 0; font-weight: bold; color: #6a5acd; font-size: 26px; text-align: center;" id="result-title">🎯 모집단위명</p>
-                        
                         <div style="font-size: 20px; margin-bottom: 8px; line-height: 1.5;">
                             <span style="font-weight: bold; color: #ff69b4; display: block; margin-bottom: 2px;">🔥 필수 핵심 권장과목</span>
                             <span id="result-core" style="font-weight: bold; color: #555555; padding-left: 4px; white-space: normal; word-break: keep-all;">-</span>
                         </div>
-                        
                         <div style="font-size: 20px; margin-bottom: 8px; line-height: 1.5; border-top: 1px dashed #fce4ec; padding-top: 8px;">
                             <span style="font-weight: bold; color: #6a5acd; display: block; margin-bottom: 2px;">✨ 가급적 권장과목</span>
                             <span id="result-recommend" style="font-weight: bold; color: #555555; padding-left: 4px; white-space: normal; word-break: keep-all;">-</span>
                         </div>
-                        
                         <div id="result-note-box" style="font-size: 16px; color: #777777; line-height: 1.5; border-top: 1px dashed #fce4ec; padding-top: 8px;">
                             📌 <span id="result-note" style="word-break: keep-all;">-</span>
                         </div>
@@ -455,7 +443,7 @@
         let selectedSubjects = { "2-1": [], "2-2": [], "3-1": [], "3-2": [] };
         const targetLimits = { "2-1": 7, "2-2": 7, "3-1": 9, "3-2": 6 };
 
-        let subjectDB = { /* 이전의 초경량 정밀 교과 DB 세트 동일 고정 */
+        let subjectDB = {
             "2-1": [
                 { name: "스포츠 생활2", credits: 2, type: "체육", category: "융합선택", mandatory: "학교지정" },
                 { name: "미술 창작", credits: 3, type: "예술", category: "진로선택", mandatory: "학교지정" }, 
@@ -545,7 +533,6 @@
             ]
         };
 
-        // 🏛️ 대형 데이터 연동용 글로벌 사전 저장소
         let globalRegions = {};
         let globalDepts = [];
 
@@ -574,7 +561,6 @@
                         });
                     }
 
-                    // 🔥 로그인 시 실시간 권역-대학 매핑 상자 장착
                     globalRegions = res.regions || {};
                     initRegionDropdown();
 
@@ -585,7 +571,22 @@
                     document.getElementById('welcome-title').innerText = `${res.name} 학생 환영합니다!`;
                     document.getElementById('student-badge').innerText = `${studentId} ${res.name} ✨`;
 
-                    changeTrack('인문');
+                    // 🔥 [진환 복원 스크립트 핵심부] 기존 저장 내역 유무 자동 검증 분기 회로
+                    if(res.saved && res.saved.hasSaved) {
+                        currentTrack = res.saved.track;
+                        selectedSubjects = {
+                            "2-1": res.saved["2-1"],
+                            "2-2": res.saved["2-2"],
+                            "3-1": res.saved["3-1"],
+                            "3-2": res.saved["3-2"]
+                        };
+                        document.getElementById('track-btn-human').classList.toggle('active', currentTrack === '인문');
+                        document.getElementById('track-btn-nature').classList.toggle('active', currentTrack === '자연');
+                        changeSem("2-1"); // 과거 데이터 그대로 얹어서 강제 로딩 및 동기화
+                    } else {
+                        // 저장 데이터 없는 생초짜 학생은 기존처럼 인문 디폴트 세팅
+                        changeTrack('인문');
+                    }
                 } else {
                     alert("등록되지 않은 학번입니다. 명단을 확인해 주세요! 잉? 😿");
                     document.getElementById('db-status').innerText = "DB 연결 완료 ✨";
@@ -606,7 +607,6 @@
             });
         }
 
-        // 🧭 [대학 탭] 1단계: 권역 드롭다운 채우기
         function initRegionDropdown() {
             const regionSelect = document.getElementById('region-select');
             regionSelect.innerHTML = '<option value="">[1단계] 권역 선택 🗺️</option>';
@@ -615,7 +615,6 @@
             });
         }
 
-        // 🧭 [대학 탭] 1단계 바뀔 때 ➔ 2단계 대학 목록 실시간 연동
         function onRegionChange() {
             const region = document.getElementById('region-select').value;
             const collegeSelect = document.getElementById('college-select');
@@ -633,7 +632,6 @@
             });
         }
 
-        // 🧭 [대학 탭] 2단계 바뀔 때 ➔ 3단계 학과 실시간 가벼운 fetch 요청
         function onCollegeChange() {
             const college = document.getElementById('college-select').value;
             const deptSelect = document.getElementById('dept-select');
@@ -652,12 +650,10 @@
             .then(res => {
                 globalDepts = res.depts || [];
                 deptSelect.innerHTML = '<option value="">[3단계] 학과 선택 🏫</option>';
-                
                 if(globalDepts.length === 0) {
                     deptSelect.innerHTML = '<option value="">등록된 학과 정보가 없습니다.</option>';
                     return;
                 }
-                
                 globalDepts.forEach((item, index) => {
                     deptSelect.innerHTML += `<option value="${index}">${item.dept}</option>`;
                 });
@@ -667,7 +663,6 @@
             });
         }
 
-        // 🧭 3단계 바뀔 때 ➔ 실시간 대시보드 결과 카드 노출
         function onDeptChange() {
             const idx = document.getElementById('dept-select').value;
             const resultCard = document.getElementById('recommendation-result');
@@ -856,36 +851,27 @@
             }
         }
 
+        // 🔥 [4단 개별 분사 저장 시스템]
         function saveSelection() {
-            let summaryParts = [];
-            let hasSelection = false;
-            
-            for (const sem in selectedSubjects) {
-                if (selectedSubjects[sem].length > 0) {
-                    summaryParts.push(`[${sem}] ${selectedSubjects[sem].join(", ")}`);
-                    hasSelection = true;
-                }
-            }
-            
-            if(!hasSelection) {
-                alert("최소 한 개 이상의 과목을 선택해 주세요! 😿");
-                return;
-            }
-            
-            const subjectsString = summaryParts.join(" | ");
+            const sem21Str = selectedSubjects["2-1"].join(", ");
+            const sem22Str = selectedSubjects["2-2"].join(", ");
+            const sem31Str = selectedSubjects["3-1"].join(", ");
+            const sem32Str = selectedSubjects["3-2"].join(", ");
             
             fetch(WEB_APP_URL, {
                 method: "POST",
                 body: JSON.stringify({
                     action: "save",
-                    sheetName: "수강신청",
                     studentId: globalStudentId,
                     studentName: globalStudentName,
-                    semester: `2~3학년 설계 (${currentTrack}계열)`,
-                    subjects: subjectsString
+                    track: currentTrack + "계열",
+                    sem21: sem21Str,
+                    sem22: sem22Str,
+                    sem31: sem31Str,
+                    sem32: sem32Str
                 })
             }).then(() => {
-                alert(`${currentTrack}계열 기준 4개 학기의 설계가 시트에 안전하게 반영되었습니다! 💖`);
+                alert(`축하합니다! ${currentTrack}계열 기준 4개 학기의 설계가 구글 시트에 학기별로 분리되어 안전하게 백업되었습니다! 💖`);
                 location.reload(); 
             });
         }
