@@ -555,4 +555,108 @@
                 }
 
                 if (isDuplicate) {
-                    alert(`⚠️ '${subName}' 과목은 이미 다른 학기에서 선택했습니다!\n동일한 과목을 중복하여 이수할 수 없습니다. 😿
+                    alert(`⚠️ '${subName}' 과목은 이미 다른 학기에서 선택했습니다!\n동일한 과목을 중복하여 이수할 수 없습니다. 😿`);
+                    cb.checked = false; 
+                } else {
+                    currentChoices.push(subName);
+                }
+            }
+
+            selectedSubjects[currentSemester] = currentChoices;
+            updateCreditStatus();
+        }
+
+        function updateCreditStatus() {
+            const FIRST_YEAR_CREDITS = 84; 
+            const CHANGCHE_CREDITS = 18;   
+            const BASE_TOTAL = FIRST_YEAR_CREDITS + CHANGCHE_CREDITS; 
+            const BASE_NEM = 24; 
+            
+            let addedElective = 0; 
+            let addedNem = 0;      
+            
+            for (const sem in selectedSubjects) {
+                selectedSubjects[sem].forEach(subName => {
+                    const subObj = (subjectDB[sem] || []).find(s => s.name === subName);
+                    if (subObj) {
+                        addedElective += subObj.credits;
+                        if (subObj.type === "국어" || subObj.type === "영어" || subObj.type === "수학") {
+                            addedNem += subObj.credits;
+                        }
+                    }
+                });
+            }
+            
+            const currentSemElectives = selectedSubjects[currentSemester].filter(subName => {
+                const subObj = (subjectDB[currentSemester] || []).find(s => s.name === subName);
+                return subObj && subObj.mandatory !== "학교지정";
+            }).length;
+
+            const targetCount = targetLimits[currentSemester] || 7;
+            
+            const finalTotal = BASE_TOTAL + addedElective;
+            const finalNem = BASE_NEM + addedNem;
+            
+            document.getElementById('total-credits-view').innerText = `${finalTotal} / 192 학점`;
+            document.getElementById('elective-credits-view').innerText = `${addedElective} / 90 학점`;
+            document.getElementById('nem-credits-view').innerText = `${finalNem} / 81 학점`;
+            
+            document.getElementById('current-sem-title').innerText = currentSemester;
+            document.getElementById('sem-choice-view').innerText = `${currentSemElectives} / ${targetCount} 개`;
+
+            if(currentSemElectives === targetCount) {
+                document.getElementById('sem-choice-view').style.color = '#6a5acd';
+            } else {
+                document.getElementById('sem-choice-view').style.color = '#ff69b4';
+            }
+            
+            const warningDiv = document.getElementById('credit-warning');
+            if (finalNem > 81) {
+                warningDiv.style.display = 'block';
+                document.getElementById('nem-credits-view').style.color = '#ff69b4';
+            } else {
+                warningDiv.style.display = 'none';
+                document.getElementById('nem-credits-view').style.color = '#6a5acd';
+            }
+        }
+
+        function saveSelection() {
+            let summaryParts = [];
+            let hasSelection = false;
+            
+            for (const sem in selectedSubjects) {
+                if (selectedSubjects[sem].length > 0) {
+                    summaryParts.push(`[${sem}] ${selectedSubjects[sem].join(", ")}`);
+                    hasSelection = true;
+                }
+            }
+            
+            if(!hasSelection) {
+                alert("최소 한 개 이상의 과목을 선택해 주세요! 😿");
+                return;
+            }
+            
+            const subjectsString = summaryParts.join(" | ");
+            
+            fetch(WEB_APP_URL, {
+                method: "POST",
+                body: JSON.stringify({
+                    action: "save",
+                    sheetName: "수강신청",
+                    studentId: globalStudentId,
+                    studentName: globalStudentName,
+                    semester: `2~3학년 설계 (${currentTrack}계열)`,
+                    subjects: subjectsString
+                })
+            }).then(() => {
+                alert(`${currentTrack}계열 기준 4개 학기의 설계가 시트에 안전하게 반영되었습니다! 💖`);
+                location.reload(); 
+            });
+        }
+
+        document.getElementById('studentId').addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') login();
+        });
+    </script>
+</body>
+</html>
