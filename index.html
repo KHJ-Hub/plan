@@ -62,7 +62,7 @@
             padding: 40px 48px;
         }
 
-        /* 📊 [NEW 대시보드 전용 표준 스타일 세트] 인라인 태그 완전 해방 */
+        /* 📊 대시보드 전용 표준 스타일 세트 */
         .dashboard-box {
             background-color: #fffaf0;
             border: 3px dashed #fce4ec;
@@ -95,6 +95,29 @@
             padding: 3px;
             border-radius: 12px;
             width: 220px;
+        }
+
+        /* 🔒 디자인 패밀리룩 수호: 폰트, 컬러감, 라운딩 비율을 완벽하게 계승한 선택창 스타일 */
+        select {
+            width: 100%;
+            padding: 16px;
+            font-family: 'Hi Melody', cursive, sans-serif;
+            font-size: 24px;
+            color: var(--text-main);
+            background-color: #fffaf0;
+            border: 3px solid #fce4ec;
+            border-radius: 20px;
+            box-sizing: border-box;
+            margin-bottom: 16px;
+            font-weight: bold;
+            outline: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        select:focus {
+            border-color: var(--primary);
+            background-color: var(--surface);
+            box-shadow: 0 0 0 5px rgba(195, 190, 240, 0.3);
         }
 
         /* 과목 아이템 데스크톱용 클래스 */
@@ -253,9 +276,8 @@
             .card { padding: 40px 24px; border-radius: 30px; }
             .card.expanded { padding: 30px 16px; }
 
-            /* 🚨 [대시보드 전용 모바일 최적화 진압 소방관 코딩] */
             .dashboard-box {
-                font-size: 16px; /* 화면에 딱 맞춰 컴팩트하게 다운사이징 */
+                font-size: 16px; 
                 padding: 16px;
                 gap: 12px;
             }
@@ -263,7 +285,7 @@
                 font-size: 16px;
             }
             .track-row {
-                flex-direction: column; /* 좁은 모바일 화면에서는 버튼바를 세로로 예쁘게 적층 */
+                flex-direction: column; 
                 align-items: center;
                 gap: 8px;
                 text-align: center;
@@ -271,10 +293,16 @@
             }
             .track-selector-wrap {
                 width: 100%;
-                max-width: 220px; /* 좌우 찌그러짐 현상 원천 봉쇄 */
+                max-width: 220px; 
             }
             #credit-warning {
                 font-size: 14px !important;
+            }
+
+            select {
+                font-size: 18px;
+                padding: 12px;
+                margin-bottom: 12px;
             }
 
             .status-badge { margin-bottom: 16px; padding: 6px 16px; }
@@ -319,8 +347,6 @@
                 <div class="input-box">
                     <input type="text" id="studentId" placeholder="학번 5자리 입력" maxlength="5" pattern="\d*">
                 </div>
-                <div class="input-box" style="margin-top: 12px; display: none;"> <input type="text" id="studentClass" value="1">
-                </div>
                 <button class="btn-start" onclick="login()">입장하기 ✨</button>
             </div>
 
@@ -335,9 +361,7 @@
                 </div>
 
                 <div id="tab-content1">
-                    
                     <div class="dashboard-box">
-                        
                         <div class="track-row">
                             <span style="font-weight: bold; color: #6a5acd;">🎯 나의 진로 희망 계열</span>
                             <div class="sem-container track-selector-wrap">
@@ -345,7 +369,6 @@
                                 <button type="button" class="sem-pill" id="track-btn-nature" onclick="changeTrack('자연')" style="font-size: 18px; padding: 4px;">자연이공 🔬</button>
                             </div>
                         </div>
-
                         <div class="dashboard-row">
                             <span>🎓 총 이수 학점 (목표: 192)</span>
                             <span id="total-credits-view" style="font-weight: bold; color: #6a5acd;">102 / 192 학점</span>
@@ -354,12 +377,10 @@
                             <span>📝 2·3학년 선택과목 (목표: 90)</span>
                             <span id="elective-credits-view" style="font-weight: bold; color: #6a5acd;">0 / 90 학점</span>
                         </div>
-                        
                         <div class="dashboard-row" style="border-bottom: 1px dashed #fce4ec; padding-bottom: 8px; margin-bottom: 2px; color: #ff69b4; font-weight: bold;">
                             <span>✨ <span id="current-sem-title">2-1</span> 학기 자율 선택 과목 수</span>
                             <span id="sem-choice-view">0 / 7 개</span>
                         </div>
-                        
                         <div class="dashboard-row">
                             <span>⚠️ 국·영·수 총합 (최대: 81)</span>
                             <span id="nem-credits-view" style="font-weight: bold; color: #6a5acd;">24 / 81 학점</span>
@@ -375,20 +396,42 @@
                         <button type="button" class="sem-pill" id="sem-btn-3-1" onclick="changeSem('3-1')">3-1</button>
                         <button type="button" class="sem-pill" id="sem-btn-3-2" onclick="changeSem('3-2')">3-2</button>
                     </div>
-
                     <p class="desc" style="font-size: 20px; margin-bottom: 16px;">해당 학기에 수강할 과목을 선택하세요.</p>
-                    
-                    <div id="subject-list" style="text-align: left; width: 100%; margin: 0 auto 32px auto; line-height: 2;">
-                        </div>
-                    
+                    <div id="subject-list" style="text-align: left; width: 100%; margin: 0 auto 32px auto; line-height: 2;"></div>
                     <button class="btn-start" onclick="saveSelection()">전체 학기 설계 완료 💾</button>
                 </div>
 
                 <div id="tab-content2" style="display: none;">
-                    <p class="desc">목표 대학과 학과의<br>핵심 권장 과목을 조회해 보세요.</p>
-                    <div style="text-align: left; width: 100%; margin: 0 auto 32px auto; font-size: 22px; color: #555555; line-height: 1.6; background-color: #fffaf0; padding: 24px; border-radius: 20px; border: 3px dashed #fce4ec; box-sizing: border-box;">
-                        <p style="margin: 0 0 12px 0; font-weight: bold; color: #6a5acd; font-size: 24px; text-align: center;">부산권/서울권 대학 정보 🔍</p>
-                        <p style="margin: 0; text-align: center; color: #b0b8c1; font-size: 20px;">(여기에 편제표 시트와 연동되어 부산 및 서울 주요 대학의 핵심 과목 정보가 구성될 예정입니다! ✨)</p>
+                    <p class="desc" style="margin-bottom: 20px;">목표 대학과 학과의<br>2028학년도 전형 기준 과목을 조회하세요.</p>
+                    
+                    <select id="region-select" onchange="onRegionChange()">
+                        <option value="">[1단계] 권역 선택 🗺️</option>
+                    </select>
+                    
+                    <select id="college-select" onchange="onCollegeChange()">
+                        <option value="">[2단계] 대학 선택 🏛️</option>
+                    </select>
+                    
+                    <select id="dept-select" onchange="onDeptChange()">
+                        <option value="">[3단계] 학과 선택 🏫</option>
+                    </select>
+                    
+                    <div id="recommendation-result" class="dashboard-box" style="display: none; background-color: #fffaf0; border: 3px dashed #fce4ec; margin-top: 24px;">
+                        <p style="margin: 0 0 12px 0; font-weight: bold; color: #6a5acd; font-size: 26px; text-align: center;" id="result-title">🎯 모집단위명</p>
+                        
+                        <div style="font-size: 20px; margin-bottom: 8px; line-height: 1.5;">
+                            <span style="font-weight: bold; color: #ff69b4; display: block; margin-bottom: 2px;">🔥 필수 핵심 권장과목</span>
+                            <span id="result-core" style="font-weight: bold; color: #555555; padding-left: 4px; white-space: normal; word-break: keep-all;">-</span>
+                        </div>
+                        
+                        <div style="font-size: 20px; margin-bottom: 8px; line-height: 1.5; border-top: 1px dashed #fce4ec; padding-top: 8px;">
+                            <span style="font-weight: bold; color: #6a5acd; display: block; margin-bottom: 2px;">✨ 가급적 권장과목</span>
+                            <span id="result-recommend" style="font-weight: bold; color: #555555; padding-left: 4px; white-space: normal; word-break: keep-all;">-</span>
+                        </div>
+                        
+                        <div id="result-note-box" style="font-size: 16px; color: #777777; line-height: 1.5; border-top: 1px dashed #fce4ec; padding-top: 8px;">
+                            📌 <span id="result-note" style="word-break: keep-all;">-</span>
+                        </div>
                     </div>
                 </div>
 
@@ -412,7 +455,7 @@
         let selectedSubjects = { "2-1": [], "2-2": [], "3-1": [], "3-2": [] };
         const targetLimits = { "2-1": 7, "2-2": 7, "3-1": 9, "3-2": 6 };
 
-        let subjectDB = {
+        let subjectDB = { /* 이전의 초경량 정밀 교과 DB 세트 동일 고정 */
             "2-1": [
                 { name: "스포츠 생활2", credits: 2, type: "체육", category: "융합선택", mandatory: "학교지정" },
                 { name: "미술 창작", credits: 3, type: "예술", category: "진로선택", mandatory: "학교지정" }, 
@@ -445,4 +488,411 @@
                 { name: "지구과학I", credits: 3, type: "과학", category: "일반선택", mandatory: "자연필수" },    
                 { name: "문학과 영상", credits: 3, type: "국어", category: "진로선택", mandatory: "선택" },
                 { name: "미적분 II", credits: 3, type: "수학", category: "일반선택", mandatory: "선택" },
-                { name: "영어 발표와 토론", credits: 3, type: "영어", category: "진
+                { name: "영어 발표와 토론", credits: 3, type: "영어", category: "진로선택", mandatory: "선택" },
+                { name: "미디어 영어", credits: 3, type: "영어", category: "융합선택", mandatory: "선택" },
+                { name: "정치", credits: 3, type: "사회", category: "진로선택", mandatory: "선택" },
+                { name: "경제", credits: 3, type: "사회", category: "진로선택", mandatory: "선택" },
+                { name: "여행 지리", credits: 3, type: "사회", category: "진로선택", mandatory: "선택" },
+                { name: "과학의 역사와 문화", credits: 3, type: "과학", category: "융합선택", mandatory: "선택" },
+                { name: "기후변화와 환경생태", credits: 3, type: "과학", category: "융합선택", mandatory: "선택" }
+            ],
+            "3-1": [
+                { name: "스포츠 문화", credits: 2, type: "체육", category: "진로선택", mandatory: "학교지정" }, 
+                { name: "화법과 언어", credits: 3, type: "국어", category: "일반선택", mandatory: "공통필수" },
+                { name: "주제 탐구 독서", credits: 3, type: "국어", category: "진로선택", mandatory: "선택" },
+                { name: "문학과 영상", credits: 3, type: "국어", category: "진로선택", mandatory: "선택" },
+                { name: "기하", credits: 3, type: "수학", category: "진로선택", mandatory: "선택" },
+                { name: "경제 수학", credits: 3, type: "수학", category: "진로선택", mandatory: "선택" },
+                { name: "수학 과제 탐구", credits: 3, type: "수학", category: "융합선택", mandatory: "선택" },
+                { name: "영어 독해와 작문", credits: 3, type: "영어", category: "일반선택", mandatory: "선택" },
+                { name: "영어 발표와 토론", credits: 3, type: "영어", category: "진로선택", mandatory: "선택" },
+                { name: "미디어 영어", credits: 3, type: "영어", category: "융합선택", mandatory: "선택" },
+                { name: "한국지리 탐구", credits: 3, type: "사회", category: "진로선택", mandatory: "선택" },
+                { name: "법과 사회", credits: 3, type: "사회", category: "진로선택", mandatory: "선택" },
+                { name: "윤리와 사상", credits: 3, type: "사회", category: "진로선택", mandatory: "선택" },
+                { name: "금융과 경제생활", credits: 3, type: "사회", category: "융합선택", mandatory: "선택" },
+                { name: "역학과 에너지", credits: 3, type: "과학", category: "진로선택", mandatory: "선택" },
+                { name: "전자기와 양자", credits: 3, type: "과학", category: "진로선택", mandatory: "선택" },
+                { name: "물질과 에너지", credits: 3, type: "과학", category: "진로선택", mandatory: "선택" },
+                { name: "화학 반응의 세계", credits: 3, type: "과학", category: "진로선택", mandatory: "선택" },
+                { name: "세포와 물질 대사", credits: 3, type: "과학", category: "진로선택", mandatory: "선택" },
+                { name: "생물의 유전", credits: 3, type: "과학", category: "진로선택", mandatory: "선택" },
+                { name: "지구시스템과학", credits: 3, type: "과학", category: "진로선택", mandatory: "선택" },
+                { name: "행성우주과학", credits: 3, type: "과학", category: "진로선택", mandatory: "선택" },
+                { name: "융합과학 탐구", credits: 3, type: "과학", category: "융합선택", mandatory: "선택" },
+                { name: "심화 일본어", credits: 3, type: "제2외국어", category: "진로선택", mandatory: "선택" },
+                { name: "인공지능 기초", credits: 3, type: "기술·가정", category: "융합선택", mandatory: "선택" }
+            ],
+            "3-2": [
+                { name: "스포츠 과학", credits: 2, type: "체육", category: "진로선택", mandatory: "학교지정" }, 
+                { name: "생태와 환경", credits: 2, type: "교양", category: "일반선택", mandatory: "학교지정" }, 
+                { name: "인간과 심리", credits: 3, type: "교양", category: "진로선택", mandatory: "학교지정" }, 
+                { name: "주제 탐구 독서", credits: 3, type: "국어", category: "진로선택", mandatory: "선택" },
+                { name: "독서 토론과 글쓰기", credits: 3, type: "국어", category: "융합선택", mandatory: "선택" },
+                { name: "언어 생활 탐구", credits: 3, type: "국어", category: "융합선택", mandatory: "선택" },
+                { name: "인공 지능 수학", credits: 3, type: "수학", category: "진로선택", mandatory: "선택" },
+                { name: "고급 미적분", credits: 3, type: "수학", category: "진로선택", mandatory: "선택" },
+                { name: "영미 문학 읽기", credits: 3, type: "영어", category: "진로선택", mandatory: "선택" },
+                { name: "심화 영어", credits: 3, type: "영어", category: "진로선택", mandatory: "선택" },
+                { name: "세계 문화와 영어", credits: 3, type: "영어", category: "융합선택", mandatory: "선택" },
+                { name: "국제 관계의 이해", credits: 3, type: "사회", category: "진로선택", mandatory: "선택" },
+                { name: "윤리문제 탐구", credits: 3, type: "사회", category: "융합선택", mandatory: "선택" },
+                { name: "물리학 탐구", credits: 3, type: "과학", category: "융합선택", mandatory: "선택" },
+                { name: "생명과학 탐구", credits: 3, type: "과학", category: "융합선택", mandatory: "선택" },
+                { name: "융합과학 탐구", credits: 3, type: "과학", category: "융합선택", mandatory: "선택" },
+                { name: "일본어 회화", credits: 3, type: "제2외국어", category: "일반선택", mandatory: "선택" },
+                { name: "소프트웨어와 생활", credits: 3, type: "기술·가정", category: "융합선택", mandatory: "선택" }
+            ]
+        };
+
+        // 🏛️ 대형 데이터 연동용 글로벌 사전 저장소
+        let globalRegions = {};
+        let globalDepts = [];
+
+        function login() {
+            const studentId = document.getElementById('studentId').value;
+            if(studentId.length !== 5 || isNaN(studentId)) {
+                alert("학번 5자리를 정확히 입력해주세요. (예: 10101) 잉? 😿");
+                return;
+            }
+
+            document.getElementById('db-status').innerText = "학생 및 대학 데이터 로딩 중... ⏳";
+
+            fetch(WEB_APP_URL, {
+                method: "POST",
+                body: JSON.stringify({ action: "login", studentId: studentId })
+            })
+            .then(res => res.json())
+            .then(res => {
+                if(res.name) {
+                    globalStudentId = studentId;
+                    globalStudentName = res.name;
+                    
+                    if(res.db) {
+                        ["2-1", "2-2", "3-1", "3-2"].forEach(sem => {
+                            if(res.db[sem] && res.db[sem].length > 0) subjectDB[sem] = res.db[sem];
+                        });
+                    }
+
+                    // 🔥 로그인 시 실시간 권역-대학 매핑 상자 장착
+                    globalRegions = res.regions || {};
+                    initRegionDropdown();
+
+                    document.getElementById('login-view').style.display = 'none';
+                    document.getElementById('main-view').style.display = 'block';
+                    document.querySelector('.card').classList.add('expanded');
+                    
+                    document.getElementById('welcome-title').innerText = `${res.name} 학생 환영합니다!`;
+                    document.getElementById('student-badge').innerText = `${studentId} ${res.name} ✨`;
+
+                    changeTrack('인문');
+                } else {
+                    alert("등록되지 않은 학번입니다. 명단을 확인해 주세요! 잉? 😿");
+                    document.getElementById('db-status').innerText = "DB 연결 완료 ✨";
+                }
+            })
+            .catch(err => {
+                globalStudentId = studentId;
+                globalStudentName = "테스트";
+                globalRegions = { "수도권": ["가톨릭대", "서울대"], "부산·울산·경남권": ["부산대", "부경대"] };
+                initRegionDropdown();
+
+                document.getElementById('login-view').style.display = 'none';
+                document.getElementById('main-view').style.display = 'block';
+                document.querySelector('.card').classList.add('expanded');
+                
+                document.getElementById('welcome-title').innerText = `배정고 학생 환영합니다!`;
+                changeTrack('인문');
+            });
+        }
+
+        // 🧭 [대학 탭] 1단계: 권역 드롭다운 채우기
+        function initRegionDropdown() {
+            const regionSelect = document.getElementById('region-select');
+            regionSelect.innerHTML = '<option value="">[1단계] 권역 선택 🗺️</option>';
+            Object.keys(globalRegions).forEach(reg => {
+                regionSelect.innerHTML += `<option value="${reg}">${reg}</option>`;
+            });
+        }
+
+        // 🧭 [대학 탭] 1단계 바뀔 때 ➔ 2단계 대학 목록 실시간 연동
+        function onRegionChange() {
+            const region = document.getElementById('region-select').value;
+            const collegeSelect = document.getElementById('college-select');
+            const deptSelect = document.getElementById('dept-select');
+            document.getElementById('recommendation-result').style.display = 'none';
+            
+            collegeSelect.innerHTML = '<option value="">[2단계] 대학 선택 🏛️</option>';
+            deptSelect.innerHTML = '<option value="">[3단계] 학과 선택 🏫</option>';
+            
+            if(!region) return;
+            
+            const colleges = globalRegions[region] || [];
+            colleges.forEach(col => {
+                collegeSelect.innerHTML += `<option value="${col}">${col}</option>`;
+            });
+        }
+
+        // 🧭 [대학 탭] 2단계 바뀔 때 ➔ 3단계 학과 실시간 가벼운 fetch 요청
+        function onCollegeChange() {
+            const college = document.getElementById('college-select').value;
+            const deptSelect = document.getElementById('dept-select');
+            document.getElementById('recommendation-result').style.display = 'none';
+            
+            deptSelect.innerHTML = '<option value="">[3단계] 학과 선택 🏫</option>';
+            if(!college) return;
+            
+            deptSelect.innerHTML = '<option value="">학과 정보를 읽어오는 중... ⏳</option>';
+            
+            fetch(WEB_APP_URL, {
+                method: "POST",
+                body: JSON.stringify({ action: "getDepartments", college: college })
+            })
+            .then(res => res.json())
+            .then(res => {
+                globalDepts = res.depts || [];
+                deptSelect.innerHTML = '<option value="">[3단계] 학과 선택 🏫</option>';
+                
+                if(globalDepts.length === 0) {
+                    deptSelect.innerHTML = '<option value="">등록된 학과 정보가 없습니다.</option>';
+                    return;
+                }
+                
+                globalDepts.forEach((item, index) => {
+                    deptSelect.innerHTML += `<option value="${index}">${item.dept}</option>`;
+                });
+            })
+            .catch(() => {
+                deptSelect.innerHTML = '<option value="">정보 로딩 실패 (재시도 해주세요)</option>';
+            });
+        }
+
+        // 🧭 3단계 바뀔 때 ➔ 실시간 대시보드 결과 카드 노출
+        function onDeptChange() {
+            const idx = document.getElementById('dept-select').value;
+            const resultCard = document.getElementById('recommendation-result');
+            
+            if(!idx) {
+                resultCard.style.display = 'none';
+                return;
+            }
+            
+            const data = globalDepts[idx];
+            document.getElementById('result-title').innerText = `🎯 ${data.dept}`;
+            document.getElementById('result-core').innerText = data.core;
+            document.getElementById('result-recommend').innerText = data.recommend;
+            
+            const noteBox = document.getElementById('result-note-box');
+            if(data.note && data.note !== "-") {
+                document.getElementById('result-note').innerText = data.note;
+                noteBox.style.display = 'block';
+            } else {
+                noteBox.style.display = 'none';
+            }
+            
+            resultCard.style.display = 'block';
+        }
+
+        function changeTrack(track) {
+            currentTrack = track;
+            document.getElementById('track-btn-human').classList.toggle('active', track === '인문');
+            document.getElementById('track-btn-nature').classList.toggle('active', track === '자연');
+            
+            const semesters = ["2-1", "2-2", "3-1", "3-2"];
+            semesters.forEach(sem => {
+                let pureElectives = (selectedSubjects[sem] || []).filter(subName => {
+                    const subObj = subjectDB[sem].find(s => s.name === subName);
+                    return subObj && subObj.mandatory === "선택";
+                });
+
+                let newMandatories = (subjectDB[sem] || [])
+                    .filter(sub => {
+                        return sub.mandatory === "학교지정" || sub.mandatory === "공통필수" || 
+                               (sub.mandatory === "인문필수" && track === "인문") || 
+                               (sub.mandatory === "자연필수" && track === "자연");
+                    })
+                    .map(sub => sub.name);
+
+                selectedSubjects[sem] = Array.from(new Set([...newMandatories, ...pureElectives]));
+            });
+            
+            changeSem(currentSemester);
+        }
+
+        function changeTab(tabIndex) {
+            if (tabIndex === 1) {
+                document.getElementById('tab-content1').style.display = 'block';
+                document.getElementById('tab-content2').style.display = 'none';
+                document.getElementById('tab-btn1').classList.add('active');
+                document.getElementById('tab-btn2').classList.remove('active');
+            } else {
+                document.getElementById('tab-content1').style.display = 'none';
+                document.getElementById('tab-content2').style.display = 'block';
+                document.getElementById('tab-btn1').classList.remove('active');
+                document.getElementById('tab-btn2').classList.add('active');
+            }
+        }
+
+        function changeSem(sem) {
+            currentSemester = sem;
+            document.querySelectorAll('[id^="sem-btn-"]').forEach(btn => {
+                btn.classList.toggle('active', btn.id === `sem-btn-${sem}`);
+            });
+            renderSubjects();
+            syncSelection();
+        }
+
+        function renderSubjects() {
+            const listDiv = document.getElementById('subject-list');
+            listDiv.innerHTML = "";
+            
+            const subjects = subjectDB[currentSemester] || [];
+            
+            if(subjects.length === 0) {
+                listDiv.innerHTML = `<div style="font-size:20px; color:#b0b8c1; text-align:center; padding: 20px;">과목 데이터가 없습니다. 😿</div>`;
+                return;
+            }
+
+            subjects.forEach(sub => {
+                const isSchoolMandatory = sub.mandatory === "학교지정";
+                const isCommonMandatory = sub.mandatory === "공통필수";
+                const isTrackMandatory = (sub.mandatory === "인문필수" && currentTrack === "인문") || 
+                                         (sub.mandatory === "자연필수" && currentTrack === "자연");
+                
+                const isMandatory = isSchoolMandatory || isCommonMandatory || isTrackMandatory;
+                const isChecked = isMandatory || selectedSubjects[currentSemester].includes(sub.name) ? "checked" : "";
+                const isDisabled = isMandatory ? "disabled" : ""; 
+                
+                const displayCategory = sub.category ? ` [${sub.category}]` : '';
+                const mandatoryLabel = isSchoolMandatory ? ' <span style="color:#b0b8c1; font-weight:bold;">[학교지정]</span>' : (isMandatory ? ' <span style="color:#ff69b4; font-weight:bold;">[필수선택]</span>' : '');
+                
+                listDiv.innerHTML += `
+                    <label class="subject-item ${isMandatory ? 'mandatory' : ''}">
+                        <input type="checkbox" name="user-subject" value="${sub.name}" ${isChecked} ${isDisabled} onchange="syncSelection()" style="width:24px; height:24px; accent-color:#c3bef0; flex-shrink: 0;"> 
+                        <span class="subject-text">${sub.name}${displayCategory}${mandatoryLabel} (${sub.credits}학점)</span>
+                    </label>
+                `;
+            });
+        }
+
+        function syncSelection() {
+            const checkedBoxes = document.querySelectorAll('input[name="user-subject"]:checked');
+            let currentChoices = [];
+
+            for (let cb of checkedBoxes) {
+                let subName = cb.value;
+                let isDuplicate = false;
+
+                for (const sem in selectedSubjects) {
+                    if (sem !== currentSemester && selectedSubjects[sem].includes(subName)) {
+                        isDuplicate = true;
+                        break;
+                    }
+                }
+
+                if (isDuplicate) {
+                    alert(`⚠️ '${subName}' 과목은 이미 다른 학기에서 선택했습니다!\n동일한 과목을 중복하여 이수할 수 없습니다. 😿`);
+                    cb.checked = false; 
+                } else {
+                    currentChoices.push(subName);
+                }
+            }
+
+            selectedSubjects[currentSemester] = currentChoices;
+            updateCreditStatus();
+        }
+
+        function updateCreditStatus() {
+            const FIRST_YEAR_CREDITS = 84; 
+            const CHANGCHE_CREDITS = 18;   
+            const BASE_TOTAL = FIRST_YEAR_CREDITS + CHANGCHE_CREDITS; 
+            const BASE_NEM = 24; 
+            
+            let addedElective = 0; 
+            let addedNem = 0;      
+            
+            for (const sem in selectedSubjects) {
+                selectedSubjects[sem].forEach(subName => {
+                    const subObj = (subjectDB[sem] || []).find(s => s.name === subName);
+                    if (subObj) {
+                        addedElective += subObj.credits;
+                        if (subObj.type === "국어" || subObj.type === "영어" || subObj.type === "수학") {
+                            addedNem += subObj.credits;
+                        }
+                    }
+                });
+            }
+            
+            const currentSemElectives = selectedSubjects[currentSemester].filter(subName => {
+                const subObj = (subjectDB[currentSemester] || []).find(s => s.name === subName);
+                return subObj && subObj.mandatory !== "학교지정";
+            }).length;
+
+            const targetCount = targetLimits[currentSemester] || 7;
+            
+            const finalTotal = BASE_TOTAL + addedElective;
+            const finalNem = BASE_NEM + addedNem;
+            
+            document.getElementById('total-credits-view').innerText = `${finalTotal} / 192 학점`;
+            document.getElementById('elective-credits-view').innerText = `${addedElective} / 90 학점`;
+            document.getElementById('nem-credits-view').innerText = `${finalNem} / 81 학점`;
+            
+            document.getElementById('current-sem-title').innerText = currentSemester;
+            document.getElementById('sem-choice-view').innerText = `${currentSemElectives} / ${targetCount} 개`;
+
+            if(currentSemElectives === targetCount) {
+                document.getElementById('sem-choice-view').style.color = '#6a5acd';
+            } else {
+                document.getElementById('sem-choice-view').style.color = '#ff69b4';
+            }
+            
+            const warningDiv = document.getElementById('credit-warning');
+            if (finalNem > 81) {
+                warningDiv.style.display = 'block';
+                document.getElementById('nem-credits-view').style.color = '#ff69b4';
+            } else {
+                warningDiv.style.display = 'none';
+                document.getElementById('nem-credits-view').style.color = '#6a5acd';
+            }
+        }
+
+        function saveSelection() {
+            let summaryParts = [];
+            let hasSelection = false;
+            
+            for (const sem in selectedSubjects) {
+                if (selectedSubjects[sem].length > 0) {
+                    summaryParts.push(`[${sem}] ${selectedSubjects[sem].join(", ")}`);
+                    hasSelection = true;
+                }
+            }
+            
+            if(!hasSelection) {
+                alert("최소 한 개 이상의 과목을 선택해 주세요! 😿");
+                return;
+            }
+            
+            const subjectsString = summaryParts.join(" | ");
+            
+            fetch(WEB_APP_URL, {
+                method: "POST",
+                body: JSON.stringify({
+                    action: "save",
+                    sheetName: "수강신청",
+                    studentId: globalStudentId,
+                    studentName: globalStudentName,
+                    semester: `2~3학년 설계 (${currentTrack}계열)`,
+                    subjects: subjectsString
+                })
+            }).then(() => {
+                alert(`${currentTrack}계열 기준 4개 학기의 설계가 시트에 안전하게 반영되었습니다! 💖`);
+                location.reload(); 
+            });
+        }
+
+        document.getElementById('studentId').addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') login();
+        });
+    </script>
+</body>
+</html>
