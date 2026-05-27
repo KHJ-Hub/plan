@@ -61,6 +61,7 @@
             padding: 40px 48px;
         }
 
+        /* 🔒 [최고 관리자 전용 울트라 와이드 확장 스타일 마크] 교사 뷰 전환 시 가로 해상도 대폭 개방 */
         .card.admin-giant {
             max-width: 1180px;
             padding: 40px 32px;
@@ -159,6 +160,7 @@
         }
         @keyframes slideDown { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* 🔒 [교사 메뉴 테이블 디자인 폼] 전체 전공 레이아웃 조율 */
         .admin-table-wrapper {
             width: 100%;
             overflow-x: auto;
@@ -300,6 +302,7 @@
             font-size: 24px; 
             color: #6a5acd; 
             font-weight: bold;
+            background-color: #fad0c4;
             background-image: linear-gradient(to top, #fad0c4 0%, #ffd1ff 100%);
             box-sizing: border-box;
             border-radius: 30px 30px 0 0; 
@@ -497,7 +500,6 @@
         let selectedSubjects = { "2-1": [], "2-2": [], "3-1": [], "3-2": [] };
         const targetLimits = { "2-1": 7, "2-2": 7, "3-1": 9, "3-2": 6 };
 
-        // 🏫 내장 예시 설명을 무결점 ""으로 완벽 초기화 완료! 오직 구글 시트 데이터만 투명하게 매핑합니다.
         let subjectDB = {
             "2-1": [
                 { name: "스포츠 생활2", credits: 2, type: "체육", category: "융합선택", mandatory: "학교지정", desc: "" },
@@ -596,7 +598,7 @@
             if (studentId === "00000") {
                 const pass = prompt("👨‍🏫 최고 관리자 비밀번호를 입력하세요:");
                 if (!pass) return;
-                document.getElementById('db-status').innerText = "전체 데이터 추출 중... ⏳";
+                document.getElementById('db-status').innerText = "전체 데이터 긁어모으는 중... ⏳";
                 
                 fetch(WEB_APP_URL, {
                     method: "POST",
@@ -606,16 +608,18 @@
                 .then(res => {
                     if (res.success) {
                         globalTeacherList = res.list || [];
-                        renderTeacherTable();
+                        renderTeacherTable(); 
+                        
                         document.getElementById('login-view').style.display = 'none';
                         document.getElementById('teacher-view').style.display = 'block';
+                        
                         document.querySelector('.card').classList.add('admin-giant');
                     } else {
-                        alert("비밀번호가 일과되지 않습니다! 접근 거부 ❌");
+                        alert("비밀번호가 올바르지 않습니다! 관리자 접근 거부 ❌");
                         document.getElementById('db-status').innerText = "DB 연결 완료 ✨";
                     }
                 })
-                .catch(() => { alert("서버 통신 실패! 재배포 및 버전을 확인해 주세요."); });
+                .catch(() => { alert("서버 통신 실패! 재배포 버전을 확인하세요."); });
                 return;
             }
 
@@ -649,7 +653,7 @@
                     document.getElementById('main-view').style.display = 'block';
                     document.querySelector('.card').classList.add('expanded');
                     
-                    document.getElementById('welcome-title').innerText = `${res.name} 학생 환영합니다!`;
+                    document.getElementById('welcome-title').innerText = `${res.name} Student Welcome!`;
                     document.getElementById('student-badge').innerText = `${studentId} ${res.name} ✨`;
 
                     if(res.saved && res.saved.hasSaved) {
@@ -817,6 +821,7 @@
             updateCreditStatus();
         }
 
+        // 🔥 [이벤트 전파 완전 차단 독립형 무결점 렌더러]
         function renderSubjects() {
             const listDiv = document.getElementById('subject-list');
             listDiv.innerHTML = "";
@@ -836,12 +841,15 @@
                 const hintLabel = hasDesc ? ' <span style="color:#6a5acd; font-size:18px;">[✨ 안내문]</span>' : '';
                 const mandatoryLabel = isSchoolMandatory ? ' <span style="color:#b0b8c1; font-weight:bold;">[학교지정]</span>' : (isMandatory ? ' <span style="color:#ff69b4; font-weight:bold;">[필수선택]</span>' : hintLabel);
                 
+                // 🔒 [대수술 복구 완수] label 전체 클릭 대신, '체크박스'와 '설명문 글씨' 라인의 클릭 판정을 정밀 격리 분리!
                 listDiv.innerHTML += `
                     <div style="margin-bottom: 10px;">
-                        <label class="subject-item ${isMandatory ? 'mandatory' : ''}" ${hasDesc ? `onclick="toggleDrawer('${currentSemester}_${index}')"` : ''}>
-                            <input type="checkbox" name="user-subject" value="${sub.name}" ${isChecked} ${isDisabled} onchange="syncSelection()" style="width:24px; height:24px; accent-color:#c3bef0; flex-shrink: 0;" ${hasDesc ? `onclick="event.stopPropagation()"` : ''}> 
-                            <span class="subject-text">${sub.name}${displayCategory}${mandatoryLabel} (${sub.credits}학점)</span>
-                        </label>
+                        <div class="subject-item ${isMandatory ? 'mandatory' : ''}">
+                            <input type="checkbox" name="user-subject" value="${sub.name}" ${isChecked} ${isDisabled} onchange="syncSelection()" style="width:24px; height:24px; accent-color:#c3bef0; flex-shrink: 0; cursor:pointer;"> 
+                            <span class="subject-text" ${hasDesc ? `onclick="toggleDrawer('${currentSemester}_${index}')"` : ''} style="flex:1; text-align:left; padding-left:14px; cursor:pointer;">
+                                ${sub.name}${displayCategory}${mandatoryLabel} (${sub.credits}학점)
+                            </span>
+                        </div>
                         ${hasDesc ? `<div id="drawer-${currentSemester}_${index}" class="desc-drawer">${sub.desc}</div>` : ''}
                     </div>
                 `;
