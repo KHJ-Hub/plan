@@ -289,7 +289,101 @@
         let currentSemester = "2-1"; 
 
         let selectedSubjects = { "2-1": [], "2-2": [], "3-1": [], "3-2": [] };
-        let subjectDB = { "2-1": [], "2-2": [], "3-1": [], "3-2": [] };
+        
+        // 🏫 이미지 체크리스트 양식을 100% 반영한 임시 내장 백업 DB (시트 로딩 실패 시 자동 작동)
+        let subjectDB = {
+            "2-1": [
+                { name: "스포츠 생활2", credits: 2, type: "체육", category: "융합선택", mandatory: "필수" },
+                { name: "미술 창작", credits: 3, type: "예술", category: "진로선택", mandatory: "필수" },
+                { name: "음악 연주와 창작", credits: 3, type: "예술", category: "진로선택", mandatory: "필수" },
+                { name: "일본어I / 중국어I", credits: 4, type: "제2외국어", category: "일반선택", mandatory: "필수" },
+                { name: "정보", credits: 4, type: "정보", category: "일반선택", mandatory: "필수" },
+                { name: "문학", credits: 3, type: "국어", category: "일반선택", mandatory: "필수" },
+                { name: "대수", credits: 3, type: "수학", category: "일반선택", mandatory: "필수" },
+                { name: "미적분 I", credits: 3, type: "수학", category: "일반선택", mandatory: "필수" },
+                { name: "영어 I", credits: 3, type: "영어", category: "일반선택", mandatory: "필수" },
+                { name: "매체 의사소통", credits: 3, type: "국어", category: "융합선택", mandatory: "선택" },
+                { name: "영미 문학 읽기", credits: 3, type: "영어", category: "진로선택", mandatory: "선택" },
+                { name: "세계 문화와 영어", credits: 3, type: "영어", category: "융합선택", mandatory: "선택" },
+                { name: "세계 시민과 지리", credits: 3, type: "사회", category: "융합선택", mandatory: "선택" },
+                { name: "사회와 문화", credits: 3, type: "사회", category: "일반선택", mandatory: "선택" },
+                { name: "사회문제 탐구", credits: 3, type: "사회", category: "융합선택", mandatory: "선택" },
+                { name: "물리학I", credits: 3, type: "과학", category: "일반선택", mandatory: "선택" },
+                { name: "생명과학I", credits: 3, type: "과학", category: "일반선택", mandatory: "선택" },
+                { name: "과학의 역사와 문화", credits: 3, type: "과학", category: "융합선택", mandatory: "선택" },
+                { name: "기후변화와 환경생태", credits: 3, type: "과학", category: "융합선택", mandatory: "선택" }
+            ],
+            "2-2": [
+                { name: "스포츠 생활1", credits: 2, type: "체육", category: "융합선택", mandatory: "필수" },
+                { name: "미술 창작", credits: 3, type: "예술", category: "진로선택", mandatory: "필수" },
+                { name: "음악 연주와 창작", credits: 3, type: "예술", category: "진로선택", mandatory: "필수" },
+                { name: "일본어I / 중국어I", credits: 4, type: "제2외국어", category: "일반선택", mandatory: "필수" },
+                { name: "정보", credits: 4, type: "정보", category: "일반선택", mandatory: "필수" },
+                { name: "독서와 작문", credits: 3, type: "국어", category: "일반선택", mandatory: "필수" },
+                { name: "확률과 통계", credits: 3, type: "수학", category: "일반선택", mandatory: "필수" },
+                { name: "영어 II", credits: 3, type: "영어", category: "일반선택", mandatory: "필수" },
+                { name: "문학과 영상", credits: 3, type: "국어", category: "진로선택", mandatory: "선택" },
+                { name: "미적분 II", credits: 3, type: "수학", category: "일반선택", mandatory: "선택" },
+                { name: "영어 발표와 토론", credits: 3, type: "영어", category: "진로선택", mandatory: "선택" },
+                { name: "미디어 영어", credits: 3, type: "영어", category: "융합선택", mandatory: "선택" },
+                { name: "세계사", credits: 3, type: "사회", category: "일반선택", mandatory: "선택" },
+                { name: "현대 사회와 윤리", credits: 3, type: "사회", category: "일반선택", mandatory: "선택" },
+                { name: "정치", credits: 3, type: "사회", category: "진로선택", mandatory: "선택" },
+                { name: "경제", credits: 3, type: "사회", category: "진로선택", mandatory: "선택" },
+                { name: "여행 지리", credits: 3, type: "사회", category: "진로선택", mandatory: "선택" },
+                { name: "화학I", credits: 3, type: "과학", category: "일반선택", mandatory: "선택" },
+                { name: "지구과학I", credits: 3, type: "과학", category: "일반선택", mandatory: "선택" },
+                { name: "과학의 역사와 문화", credits: 3, type: "과학", category: "융합선택", mandatory: "선택" },
+                { name: "기후변화와 환경생태", credits: 3, type: "과학", category: "융합선택", mandatory: "선택" }
+            ],
+            "3-1": [
+                { name: "스포츠 문화", credits: 2, type: "체육", category: "진로선택", mandatory: "필수" },
+                { name: "화법과 언어", credits: 3, type: "국어", category: "일반선택", mandatory: "필수" },
+                { name: "주제 탐구 독서", credits: 3, type: "국어", category: "진로선택", mandatory: "선택" },
+                { name: "문학과 영상", credits: 3, type: "국어", category: "진로선택", mandatory: "선택" },
+                { name: "기하", credits: 3, type: "수학", category: "진로선택", mandatory: "선택" },
+                { name: "경제 수학", credits: 3, type: "수학", category: "진로선택", mandatory: "선택" },
+                { name: "수학 과제 탐구", credits: 3, type: "수학", category: "융합선택", mandatory: "선택" },
+                { name: "영어 독해와 작문", credits: 3, type: "영어", category: "일반선택", mandatory: "선택" },
+                { name: "영어 발표와 토론", credits: 3, type: "영어", category: "진로선택", mandatory: "선택" },
+                { name: "미디어 영어", credits: 3, type: "영어", category: "융합선택", mandatory: "선택" },
+                { name: "한국지리 탐구", credits: 3, type: "사회", category: "진로선택", mandatory: "선택" },
+                { name: "법과 사회", credits: 3, type: "사회", category: "진로선택", mandatory: "선택" },
+                { name: "윤리와 사상", credits: 3, type: "사회", category: "진로선택", mandatory: "선택" },
+                { name: "금융과 경제생활", credits: 3, type: "사회", category: "융합선택", mandatory: "선택" },
+                { name: "역학과 에너지", credits: 3, type: "과학", category: "진로선택", mandatory: "선택" },
+                { name: "전자기와 양자", credits: 3, type: "과학", category: "진로선택", mandatory: "선택" },
+                { name: "물질과 에너지", credits: 3, type: "과학", category: "진로선택", mandatory: "선택" },
+                { name: "화학 반응의 세계", credits: 3, type: "과학", category: "진로선택", mandatory: "선택" },
+                { name: "세포와 물질 대사", credits: 3, type: "과학", category: "진로선택", mandatory: "선택" },
+                { name: "생물의 유전", credits: 3, type: "과학", category: "진로선택", mandatory: "선택" },
+                { name: "지구시스템과학", credits: 3, type: "과학", category: "진로선택", mandatory: "선택" },
+                { name: "행성우주과학", credits: 3, type: "과학", category: "진로선택", mandatory: "선택" },
+                { name: "융합과학 탐구", credits: 3, type: "과학", category: "융합선택", mandatory: "선택" },
+                { name: "심화 일본어", credits: 3, type: "제2외국어", category: "진로선택", mandatory: "선택" },
+                { name: "인공지능 기초", credits: 3, type: "기술·가정", category: "융합선택", mandatory: "선택" }
+            ],
+            "3-2": [
+                { name: "스포츠 과학", credits: 2, type: "체육", category: "진로선택", mandatory: "필수" },
+                { name: "생태와 환경", credits: 2, type: "교양", category: "일반선택", mandatory: "필수" },
+                { name: "인간과 심리", credits: 3, type: "교양", category: "진로선택", mandatory: "필수" },
+                { name: "주제 탐구 독서", credits: 3, type: "국어", category: "진로선택", mandatory: "선택" },
+                { name: "독서 토론과 글쓰기", credits: 3, type: "국어", category: "융합선택", mandatory: "선택" },
+                { name: "언어 생활 탐구", credits: 3, type: "국어", category: "융합선택", mandatory: "선택" },
+                { name: "인공 지능 수학", credits: 3, type: "수학", category: "진로선택", mandatory: "선택" },
+                { name: "고급 미적분", credits: 3, type: "수학", category: "진로선택", mandatory: "선택" },
+                { name: "영미 문학 읽기", credits: 3, type: "영어", category: "진로선택", mandatory: "선택" },
+                { name: "심화 영어", credits: 3, type: "영어", category: "진로선택", mandatory: "선택" },
+                { name: "세계 문화와 영어", credits: 3, type: "영어", category: "융합선택", mandatory: "선택" },
+                { name: "국제 관계의 이해", credits: 3, type: "사회", category: "진로선택", mandatory: "선택" },
+                { name: "윤리문제 탐구", credits: 3, type: "사회", category: "융합선택", mandatory: "선택" },
+                { name: "물리학 탐구", credits: 3, type: "과학", category: "융합선택", mandatory: "선택" },
+                { name: "생명과학 탐구", credits: 3, type: "과학", category: "융합선택", mandatory: "선택" },
+                { name: "융합과학 탐구", credits: 3, type: "과학", category: "융합선택", mandatory: "선택" },
+                { name: "일본어 회화", credits: 3, type: "제2외국어", category: "일반선택", mandatory: "선택" },
+                { name: "소프트웨어와 생활", credits: 3, type: "기술·가정", category: "융합선택", mandatory: "선택" }
+            ]
+        };
 
         function login() {
             const studentId = document.getElementById('studentId').value;
@@ -309,7 +403,18 @@
                 if(res.name) {
                     globalStudentId = studentId;
                     globalStudentName = res.name;
-                    subjectDB = res.db; 
+                    
+                    // 만약 구글 편제표 시트에 데이터가 채워져 있다면 시트 우선으로 로딩
+                    if(res.db && res.db["2-1"] && res.db["2-1"].length > 0) {
+                        subjectDB = res.db; 
+                    }
+
+                    // 로그인 성공 직후 전 학년의 모든 '지정필수' 과목들을 바구니에 선탑재
+                    for (const sem in subjectDB) {
+                        selectedSubjects[sem] = subjectDB[sem]
+                            .filter(sub => sub.mandatory === "필수")
+                            .map(sub => sub.name);
+                    }
 
                     document.getElementById('login-view').style.display = 'none';
                     document.getElementById('main-view').style.display = 'block';
@@ -325,8 +430,18 @@
                 }
             })
             .catch(err => {
-                alert("네트워크 연결에 실패했습니다. 다시 시도해 주세요.");
-                document.getElementById('db-status').innerText = "DB 연결 완료 ✨";
+                alert("네트워크 연결에 실패했습니다. 내장 데이터 세트로 접속합니다! ✨");
+                // 네트워크 오류 시 로컬 백업 세션 강제 구동
+                globalStudentId = studentId;
+                globalStudentName = "테스트";
+                for (const sem in subjectDB) {
+                    selectedSubjects[sem] = subjectDB[sem].filter(sub => sub.mandatory === "필수").map(sub => sub.name);
+                }
+                document.getElementById('login-view').style.display = 'none';
+                document.getElementById('main-view').style.display = 'block';
+                document.getElementById('welcome-title').innerText = `배정고 학생 환영합니다!`;
+                changeTab(1);
+                changeSem("2-1");
             });
         }
 
@@ -350,6 +465,7 @@
                 btn.classList.toggle('active', btn.id === `sem-btn-${sem}`);
             });
             renderSubjects();
+            syncSelection();
         }
 
         function renderSubjects() {
@@ -359,20 +475,22 @@
             const subjects = subjectDB[currentSemester] || [];
             
             if(subjects.length === 0) {
-                listDiv.innerHTML = `<div style="font-size:20px; color:#b0b8c1; text-align:center; padding: 20px;">[편제표] 시트에 해당 학기 과목이 없습니다. 😿</div>`;
+                listDiv.innerHTML = `<div style="font-size:20px; color:#b0b8c1; text-align:center; padding: 20px;">과목 데이터가 없습니다. 😿</div>`;
                 return;
             }
 
             subjects.forEach(sub => {
-                const isChecked = selectedSubjects[currentSemester].includes(sub.name) ? "checked" : "";
+                const isMandatory = sub.mandatory === "필수";
+                const isChecked = isMandatory || selectedSubjects[currentSemester].includes(sub.name) ? "checked" : "";
+                const isDisabled = isMandatory ? "disabled" : ""; 
                 
-                // 🔒 디자인 자물쇠 유지: 기존 폰트/구조를 해치지 않고 과목명 옆에 고유 성격을 이쁘게 문자열로 결합
                 const displayCategory = sub.category ? ` [${sub.category}]` : '';
+                const mandatoryLabel = isMandatory ? ' <span style="color:#ff69b4; font-weight:bold;">[지정필수]</span>' : '';
                 
                 listDiv.innerHTML += `
-                    <label style="display: flex; align-items: center; gap: 12px; cursor: pointer; margin-bottom: 8px;">
-                        <input type="checkbox" name="user-subject" value="${sub.name}" ${isChecked} onchange="syncSelection()" style="width:24px; height:24px; accent-color:#c3bef0;"> 
-                        <span>${sub.name}${displayCategory} (${sub.credits}학점)</span>
+                    <label style="display: flex; align-items: center; gap: 12px; cursor: pointer; margin-bottom: 8px; ${isMandatory ? 'color: #999999;' : ''}">
+                        <input type="checkbox" name="user-subject" value="${sub.name}" ${isChecked} ${isDisabled} onchange="syncSelection()" style="width:24px; height:24px; accent-color:#c3bef0;"> 
+                        <span>${sub.name}${displayCategory}${mandatoryLabel} (${sub.credits}학점)</span>
                     </label>
                 `;
             });
