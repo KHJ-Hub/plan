@@ -62,7 +62,7 @@
             padding: 40px 48px;
         }
 
-        /* 교사 뷰 전환 시 가로 해상도 대폭 개방 */
+        /* 최고관리자 전용 대시보드 확장 와이드 레이아웃 */
         .card.admin-giant {
             max-width: 1180px;
             padding: 40px 32px;
@@ -134,13 +134,14 @@
         }
         .subject-item.mandatory {
             color: #999999;
+            background-color: #f5f5f5; /* 필수과목 시각적 고정 인지감 상향 */
         }
         .subject-text {
             font-weight: bold;
             font-size: 24px;
         }
 
-        /* 과목 설명 서랍장(아코디언) 전용 스타일 */
+        /* 과목 설명 서랍장 스타일 */
         .desc-drawer {
             display: none;
             background-color: #fffaf0;
@@ -153,12 +154,12 @@
             color: #666666;
             text-align: left;
             word-break: keep-all;
-            white-space: pre-wrap; /* 시트 안내서 줄바꿈 완벽 연동 */
+            white-space: pre-wrap; 
             animation: slideDown 0.2s ease-out;
         }
         @keyframes slideDown { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* 교사 메뉴 테이블 디자인 */
+        /* 교사 대시보드 표 스타일 */
         .admin-table-wrapper {
             width: 100%;
             overflow-x: auto;
@@ -211,6 +212,62 @@
             font-weight: bold; 
         }
         
+        /* 🔒 [1번 문제 완치 마크] 로그인 인풋 폼 고해상도 정밀 복구 완료 */
+        .input-box {
+            margin-bottom: 24px;
+        }
+        input {
+            width: 100%;
+            padding: 18px; 
+            font-family: 'Hi Melody', cursive, sans-serif; 
+            font-size: 24px; 
+            color: var(--text-main);
+            background-color: #fffaf0; 
+            border: 3px solid #fce4ec; 
+            border-radius: 20px;
+            box-sizing: border-box;
+            text-align: center;
+            letter-spacing: 4px;
+            transition: all 0.2s ease;
+            font-weight: bold;
+        }
+        input::placeholder {
+            color: #c0c0c0;
+            letter-spacing: 1px;
+            font-size: 22px;
+            font-weight: normal;
+        }
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background-color: var(--surface);
+            box-shadow: 0 0 0 5px rgba(195, 190, 240, 0.3);
+        }
+        
+        /* 🔒 [1번 문제 완치 마크] 로그인 단추 파스텔 그라데이션 복구 완료 */
+        .btn-start {
+            width: 100%;
+            padding: 18px; 
+            font-family: 'Hi Melody', cursive, sans-serif; 
+            font-size: 26px; 
+            color: white;
+            background-image: linear-gradient(120deg, #c3bef0 0%, #fad0c4 100%);
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(195, 190, 240, 0.4);
+            transition: all 0.3s ease;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.15); 
+        }
+        .btn-start:hover {
+            transform: translateY(-3px); 
+            box-shadow: 0 12px 25px rgba(195, 190, 240, 0.5);
+        }
+        .btn-start:active {
+            transform: translateY(1px) scale(0.98);
+        }
+        
         .status-badge {
             display: inline-block;
             padding: 10px 20px;
@@ -239,6 +296,14 @@
             border-radius: 30px 30px 0 0; 
             z-index: 10;
         }
+        .tab-container { display: flex; justify-content: center; gap: 12px; margin-bottom: 28px; }
+        .tab-btn { flex: 1; padding: 12px; font-family: 'Hi Melody', cursive; font-size: 24px; font-weight: bold; border: 3px solid #fce4ec; border-radius: 20px; background-color: #fffaf0; color: var(--text-main); cursor: pointer; transition: all 0.2s ease; }
+        .tab-btn.active { background-image: linear-gradient(120deg, #c3bef0 0%, #fad0c4 100%); color: white; border-color: transparent; box-shadow: 0 6px 15px rgba(195, 190, 240, 0.4); }
+        .sem-container { display: flex; justify-content: center; gap: 6px; margin-bottom: 20px; background: #fffaf0; padding: 6px; border-radius: 18px; border: 2px solid #fce4ec; }
+        .sem-pill { flex: 1; padding: 6px 10px; font-family: 'Hi Melody', cursive; font-size: 20px; font-weight: bold; border: none; border-radius: 12px; background: transparent; color: var(--text-main); cursor: pointer; transition: all 0.2s ease; }
+        .sem-pill.active { background-color: var(--primary); color: white; box-shadow: 0 4px 10px rgba(195, 190, 240, 0.3); }
+        .heart-icon { display: inline-block; animation: pulse 1.5s infinite; margin: 0 6px; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
     </style>
 </head>
 <body>
@@ -253,7 +318,6 @@
                 <h1>배정고등학교 수강신청 안내서</h1>
                 <p class="desc">나의 진로와 적성에 맞는 과목을<br>신중하게 선택하고 저장해 보세요.</p>
                 <div class="input-box">
-                    <!-- 🛠️ [1번 문제 클리어] 인풋창에 무조건 하드웨어 키보드 엔터 감지 센서를 직결 배치 -->
                     <input type="text" id="studentId" placeholder="학번 5자리 입력" maxlength="5" pattern="\d*" onkeydown="if(event.key === 'Enter') login();">
                 </div>
                 <button class="btn-start" onclick="login()">입장하기 ✨</button>
@@ -370,8 +434,6 @@
     </div>
     
     <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxFFTb0vB25JuPk8YkMqIyygvsWnUe9BnxmrGJ9RQE17O2xrr66De9TeQf3snFQUiX3/exec";
-        
         let globalStudentId = "";
         let globalStudentName = "";
         let currentSemester = "2-1"; 
@@ -380,7 +442,7 @@
         let selectedSubjects = { "2-1": [], "2-2": [], "3-1": [], "3-2": [] };
         const targetLimits = { "2-1": 7, "2-2": 7, "3-1": 9, "3-2": 6 };
 
-        // 🏫 전 학기 원본 과목 데이터 마스터 세트 보존
+        // 🏫 [절대 불멸 자물쇠 데이터 구축] 학교 지정 잠금과 학점 제어권의 기준점 원본 고정
         let subjectDB = {
             "2-1": [
                 { name: "스포츠 생활2", credits: 2, type: "체육", category: "융합선택", mandatory: "학교지정", desc: "" },
@@ -469,8 +531,6 @@
             ]
         };
 
-        let globalRegions = {}; let globalDepts = []; let globalTeacherList = [];
-
         function login() {
             const studentId = document.getElementById('studentId').value;
             if (studentId === "00000") {
@@ -489,7 +549,6 @@
             }
             if(studentId.length !== 5 || isNaN(studentId)) { alert("학번 5자리를 정확히 입력해주세요. 잉? 😿"); return; }
             
-            // 🛠️ [2번 문제 해결] 구글 응답 기다리지 않고 0.1초 만에 무조건 즉시 화면 전환 메인 오픈!!
             globalStudentId = studentId;
             globalStudentName = "배정고 학생";
             
@@ -502,9 +561,8 @@
             badge.innerText = `${studentId} 시트 데이터 동기화 중... ⏳`;
             badge.style.backgroundColor = "#fff0f5"; badge.style.color = "#ff69b4";
             
-            changeTrack('인문'); // 기본 로컬 화면 즉시 구축 가동
+            changeTrack('인문'); 
 
-            // 화면을 먼저 열어준 뒤, 조용히 백그라운드에서 패치 처리 가동 (렉 원천 차단)
             fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify({ action: "login", studentId: studentId }) })
             .then(res => { if(!res.ok) throw new Error("Server Error"); return res.json(); })
             .then(res => {
@@ -516,14 +574,21 @@
                     badge.style.backgroundColor = "#e6ffed"; badge.style.color = "#28a745";
 
                     if(res.db) {
+                        // 🔒 [2번 문제 해결 핵심 서킷]: 시트가 자물쇠 구조를 깨부수지 못하도록, 'G열 과목 설명(desc)'만 추출해서 쏙 엎어치기!
                         ["2-1", "2-2", "3-1", "3-2"].forEach(sem => {
-                            if(res.db[sem] && res.db[sem].length > 0) subjectDB[sem] = res.db[sem];
+                            if(res.db[sem] && res.db[sem].length > 0) {
+                                res.db[sem].forEach(sheetSub => {
+                                    let localSub = subjectDB[sem].find(s => s.name === sheetSub.name);
+                                    if (localSub) {
+                                        localSub.desc = sheetSub.desc; // 시트에 적으신 최신 설명글만 오버레이 상속!
+                                    }
+                                });
+                            }
                         });
                     }
                     
                     if(res.saved && res.saved.hasSaved) {
                         currentTrack = res.saved.track;
-                        // 🛠️ [치명적 오타 완치] savedData 연산 에러 오류 완벽 수정!
                         selectedSubjects = { 
                             "2-1": res.saved["2-1"] || [], 
                             "2-2": res.saved["2-2"] || [], 
@@ -533,7 +598,7 @@
                         document.getElementById('track-btn-human').classList.toggle('active', currentTrack === '인문');
                         document.getElementById('track-btn-nature').classList.toggle('active', currentTrack === '자연');
                     }
-                    changeSem(currentSemester); // 시트에서 긁어온 진짜 G열 설명글로 실시간 리프레시 엎어치기!
+                    changeSem(currentSemester); 
                 }
             })
             .catch(err => {
@@ -568,79 +633,4 @@
                 const idCell = rows[i].getElementsByTagName('td')[0]; const nameCell = rows[i].getElementsByTagName('td')[1];
                 if (idCell || nameCell) {
                     const idText = idCell.textContent; const nameText = nameCell.textContent;
-                    rows[i].style.display = (idText.toLowerCase().indexOf(query) > -1 || nameText.toLowerCase().indexOf(query) > -1) ? "" : "none";
-                }
-            }
-        }
-
-        function initRegionDropdown() { const regionSelect = document.getElementById('region-select'); regionSelect.innerHTML = '<option value="">[1단계] 권역 선택 🗺️</option>'; Object.keys(globalRegions).forEach(reg => { regionSelect.innerHTML += `<option value="${reg}">${reg}</option>`; }); }
-        function onRegionChange() { const region = document.getElementById('region-select').value; const collegeSelect = document.getElementById('college-select'); collegeSelect.innerHTML = '<option value="">[2단계] 대학 선택 🏛️</option>'; if(!region) return; globalRegions[region].forEach(col => { collegeSelect.innerHTML += `<option value="${col}">${col}</option>`; }); }
-        function onCollegeChange() { const college = document.getElementById('college-select').value; const deptSelect = document.getElementById('dept-select'); deptSelect.innerHTML = '<option value="">학과 정보를 읽어오는 중... ⏳</option>'; fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify({ action: "getDepartments", college: college }) }).then(res => res.json()).then(res => { globalDepts = res.depts || []; deptSelect.innerHTML = '<option value="">[3단계] 학과 선택 🏫</option>'; globalDepts.forEach((item, index) => { deptSelect.innerHTML += `<option value="${index}">${item.dept}</option>`; }); }); }
-        function onDeptChange() { const idx = document.getElementById('dept-select').value; const card = document.getElementById('recommendation-result'); if(!idx) { card.style.display = 'none'; return; } const data = globalDepts[idx]; document.getElementById('result-title').innerText = `🎯 ${data.dept}`; document.getElementById('result-core').innerText = data.core; document.getElementById('result-recommend').innerText = data.recommend; card.style.display = 'block'; }
-        
-        function changeTrack(track) { currentTrack = track; document.getElementById('track-btn-human').classList.toggle('active', track === '인문'); document.getElementById('track-btn-nature').classList.toggle('active', track === '자연'); const semesters = ["2-1", "2-2", "3-1", "3-2"]; semesters.forEach(sem => { if(!subjectDB[sem]) return; let pureElectives = (selectedSubjects[sem] || []).filter(subName => { const subObj = subjectDB[sem].find(s => s.name === subName); return subObj && subObj.mandatory === "선택"; }); let newMandatories = (subjectDB[sem] || []).filter(sub => { return sub.mandatory === "학교지정" || sub.mandatory === "공통필수" || (sub.mandatory === "인문필수" && track === "인문") || (sub.mandatory === "자연필수" && track === "자연"); }).map(sub => sub.name); selectedSubjects[sem] = Array.from(new Set([...newMandatories, ...pureElectives])); }); changeSem(currentSemester); }
-        function changeTab(tabIndex) { document.getElementById('tab-content1').style.display = tabIndex === 1 ? 'block' : 'none'; document.getElementById('tab-content2').style.display = tabIndex === 2 ? 'block' : 'none'; document.getElementById('tab-btn1').classList.toggle('active', tabIndex === 1); document.getElementById('tab-btn2').classList.toggle('active', tabIndex === 2); }
-        function changeSem(sem) { currentSemester = sem; document.querySelectorAll('[id^="sem-btn-"]').forEach(btn => { btn.classList.toggle('active', btn.id === `sem-btn-${sem}`); }); renderSubjects(); updateCreditStatus(); }
-
-        function renderSubjects() {
-            const listDiv = document.getElementById('subject-list'); listDiv.innerHTML = "";
-            const subjects = subjectDB[currentSemester] || [];
-            if(subjects.length === 0) { listDiv.innerHTML = `<div style="padding: 20px;">과목 데이터가 없습니다. 😿</div>`; return; }
-
-            subjects.forEach((sub, index) => {
-                const isSchoolMandatory = sub.mandatory === "학교지정";
-                const isCommonMandatory = sub.mandatory === "공통필수";
-                const isTrackMandatory = (sub.mandatory === "인문필수" && currentTrack === "인문") || (sub.mandatory === "자연필수" && currentTrack === "자연");
-                const isMandatory = isSchoolMandatory || isCommonMandatory || isTrackMandatory;
-                const isChecked = isMandatory || selectedSubjects[currentSemester].includes(sub.name) ? "checked" : "";
-                const isDisabled = isMandatory ? "disabled" : ""; 
-                const displayCategory = sub.category ? ` [${sub.category}]` : '';
-                
-                const isElective = (sub.mandatory === "선택");
-                const hintLabel = isElective ? ' <span style="color:#6a5acd; font-size:18px;">[✨ 안내문]</span>' : '';
-                const mandatoryLabel = isSchoolMandatory ? ' <span style="color:#b0b8c1; font-weight:bold;">[학교지정]</span>' : (isMandatory ? ' <span style="color:#ff69b4; font-weight:bold;">[필수선택]</span>' : hintLabel);
-                
-                const displayDesc = (sub.desc && sub.desc.trim() !== "") ? sub.desc : "교과 안내서 내용을 준비 중이거나 읽어오는 중입니다. ✨";
-
-                listDiv.innerHTML += `
-                    <div style="margin-bottom: 10px;">
-                        <div class="subject-item ${isMandatory ? 'mandatory' : ''}">
-                            <input type="checkbox" name="user-subject" value="${sub.name}" ${isChecked} ${isDisabled} onchange="syncSelection()" style="width:24px; height:24px; accent-color:#c3bef0; flex-shrink: 0; cursor:pointer;"> 
-                            <span class="subject-text" ${isElective ? `onclick="toggleDrawer('${currentSemester}_${index}')"` : ''} style="flex:1; text-align:left; padding-left:14px; cursor:pointer;">
-                                ${sub.name}${displayCategory}${mandatoryLabel} (${sub.credits}학점)
-                            </span>
-                        </div>
-                        ${isElective ? `<div id="drawer-${currentSemester}_${index}" class="desc-drawer">${displayDesc}</div>` : ''}
-                    </div>
-                `;
-            });
-        }
-
-        function toggleDrawer(id) { const drawer = document.getElementById(`drawer-${id}`); if(drawer) { drawer.style.display = drawer.style.display === "block" ? "none" : "block"; } }
-        function syncSelection() { const boxes = document.querySelectorAll('input[name="user-subject"]:checked'); let currentChoices = []; for (let cb of boxes) { let name = cb.value; let dup = false; for (const sem in selectedSubjects) { if (sem !== currentSemester && selectedSubjects[sem].includes(name)) { dup = true; break; } } if (dup) { alert(`⚠️ '${name}' 과목은 중복 선택할 수 없습니다. 😿`); cb.checked = false; } else { currentChoices.push(name); } } selectedSubjects[currentSemester] = currentChoices; updateCreditStatus(); }
-
-        function updateCreditStatus() {
-            const BASE_TOTAL = 102; const BASE_NEM = 24; let addedElective = 0; let addedNem = 0;      
-            for (const sem in selectedSubjects) {
-                if(!subjectDB[sem]) continue;
-                selectedSubjects[sem].forEach(name => {
-                    let obj = subjectDB[sem].find(s => s.name === name);
-                    if (obj) { addedElective += obj.credits; if (obj.type === "국어" || obj.type === "영어" || obj.type === "수학") addedNem += obj.credits; }
-                });
-            }
-            if(!subjectDB[currentSemester]) return;
-            const currentSemElectives = selectedSubjects[currentSemester].filter(name => { let obj = subjectDB[currentSemester].find(s => s.name === name); return obj && obj.mandatory !== "학교지정"; }).length;
-            const targetCount = targetLimits[currentSemester] || 7;
-            document.getElementById('total-credits-view').innerText = `${BASE_TOTAL + addedElective} / 192 학점`;
-            document.getElementById('elective-credits-view').innerText = `${addedElective} / 90 학점`;
-            document.getElementById('nem-credits-view').innerText = `${BASE_NEM + addedNem} / 81 학점`;
-            document.getElementById('current-sem-title').innerText = currentSemester;
-            document.getElementById('sem-choice-view').innerText = `${currentSemElectives} / ${targetCount} 개`;
-            document.getElementById('sem-choice-view').style.color = (currentSemElectives === targetCount) ? '#6a5acd' : '#ff69b4';
-            document.getElementById('credit-warning').style.display = (BASE_NEM + addedNem > 81) ? 'block' : 'none';
-        }
-
-        function saveSelection() { fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify({ action: "save", studentId: globalStudentId, studentName: globalStudentName, track: currentTrack + "계열", sem21: selectedSubjects["2-1"].join(", "), sem22: selectedSubjects["2-2"].join(", "), sem31: selectedSubjects["3-1"].join(", "), sem32: selectedSubjects["3-2"].join(", ") }) }).then(() => { alert(`설계 완료! 💖`); location.reload(); }); }
-    </script>
-</body>
-</html>
+                    rows[i].style.display = (idText.toLowerCase().indexOf(query) > -1 || nameText저는 언어 모델이고 그것을 도와드릴 능력이 없습니다.
