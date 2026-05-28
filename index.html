@@ -118,11 +118,6 @@
             transition: all 0.2s ease;
             cursor: pointer;
         }
-        select:focus {
-            border-color: var(--primary);
-            background-color: var(--surface);
-            box-shadow: 0 0 0 5px rgba(195, 190, 240, 0.3);
-        }
 
         .subject-item {
             display: flex;
@@ -162,7 +157,7 @@
         }
         @keyframes slideDown { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* 교사 메뉴 테이블 디자인 */
+        /* 교사 메뉴 현황판 레이아웃 */
         .admin-table-wrapper {
             width: 100%;
             overflow-x: auto;
@@ -192,9 +187,6 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
-        .admin-table tr:hover {
-            background-color: #fffaf0;
-        }
 
         .icon-wrap {
             font-size: 64px; 
@@ -206,10 +198,7 @@
             margin: 0 0 16px 0; 
             font-size: 38px; 
             color: #6a5acd; 
-            letter-spacing: 0.5px;
             font-weight: bold; 
-            white-space: nowrap; 
-            text-shadow: 1px 1px 2px rgba(106, 90, 205, 0.15); 
         }
         
         p.desc {
@@ -219,66 +208,32 @@
             word-break: keep-all;
             line-height: 1.4;
             font-weight: bold; 
-            text-shadow: 0.5px 0.5px 0px rgba(0,0,0,0.05); 
-        }
-        
-        .input-box {
-            margin-bottom: 24px; 
         }
         
         input {
             width: 100%;
             padding: 18px; 
-            font-family: 'Hi Melody', cursive, sans-serif; 
+            font-family: 'Hi Melody', cursive; 
             font-size: 24px; 
-            color: var(--text-main);
             background-color: #fffaf0; 
             border: 3px solid #fce4ec; 
             border-radius: 20px;
             box-sizing: border-box;
             text-align: center;
-            letter-spacing: 4px;
-            transition: all 0.2s ease;
             font-weight: bold;
-        }
-        
-        input::placeholder {
-            color: #c0c0c0;
-            letter-spacing: 1px;
-            font-size: 22px;
-            font-weight: normal;
-        }
-        
-        input:focus {
-            outline: none;
-            border-color: var(--primary);
-            background-color: var(--surface);
-            box-shadow: 0 0 0 5px rgba(195, 190, 240, 0.3);
         }
         
         .btn-start {
             width: 100%;
             padding: 18px; 
-            font-family: 'Hi Melody', cursive, sans-serif; 
+            font-family: 'Hi Melody', cursive; 
             font-size: 26px; 
             color: white;
             background-image: linear-gradient(120deg, #c3bef0 0%, #fad0c4 100%);
             border: none;
             border-radius: 20px;
             cursor: pointer;
-            box-shadow: 0 8px 20px rgba(195, 190, 240, 0.4);
-            transition: all 0.3s ease;
             font-weight: bold;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.15); 
-        }
-        
-        .btn-start:hover {
-            transform: translateY(-3px); 
-            box-shadow: 0 12px 25px rgba(195, 190, 240, 0.5);
-        }
-        
-        .btn-start:active {
-            transform: translateY(1px) scale(0.98);
         }
         
         .status-badge {
@@ -291,6 +246,7 @@
             margin-bottom: 24px;
             border: 2px solid #fce4ec;
             font-weight: bold;
+            transition: all 0.3s ease;
         }
 
         .footer {
@@ -300,7 +256,7 @@
             width: 100%;
             text-align: center;
             padding: 24px; 
-            font-family: 'Hi Melody', cursive, sans-serif; 
+            font-family: 'Hi Melody', cursive; 
             font-size: 24px; 
             color: #6a5acd; 
             font-weight: bold;
@@ -308,54 +264,6 @@
             box-sizing: border-box;
             border-radius: 30px 30px 0 0; 
             z-index: 10;
-            box-shadow: 0 -10px 30px rgba(255, 192, 203, 0.2);
-            text-shadow: 1px 1px 3px rgba(255,255,255,0.8), -1px -1px 3px rgba(255,255,255,0.8);
-        }
-
-        .heart-icon { display: inline-block; animation: pulse 1.5s infinite; margin: 0 6px; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
-        @keyframes twinkle { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(1.1) rotate(5deg); } 100% { opacity: 1; transform: scale(1); } }
-
-        .tab-container { display: flex; justify-content: center; gap: 12px; margin-bottom: 28px; }
-        .tab-btn { flex: 1; padding: 12px; font-family: 'Hi Melody', cursive, sans-serif; font-size: 24px; font-weight: bold; border: 3px solid #fce4ec; border-radius: 20px; background-color: #fffaf0; color: var(--text-main); cursor: pointer; transition: all 0.2s ease; }
-        .tab-btn.active { background-image: linear-gradient(120deg, #c3bef0 0%, #fad0c4 100%); color: white; border-color: transparent; box-shadow: 0 6px 15px rgba(195, 190, 240, 0.4); }
-
-        .sem-container { display: flex; justify-content: center; gap: 6px; margin-bottom: 20px; background: #fffaf0; padding: 6px; border-radius: 18px; border: 2px solid #fce4ec; }
-        .sem-pill { flex: 1; padding: 6px 10px; font-family: 'Hi Melody', cursive, sans-serif; font-size: 20px; font-weight: bold; border: none; border-radius: 12px; background: transparent; color: var(--text-main); cursor: pointer; transition: all 0.2s ease; }
-        .sem-pill.active { background-color: var(--primary); color: white; box-shadow: 0 4px 10px rgba(195, 190, 240, 0.3); }
-
-        @media screen and (max-width: 768px) {
-            .content-wrapper { padding-bottom: 80px; }
-            .card { padding: 40px 24px; border-radius: 30px; }
-            .card.expanded { padding: 30px 16px; }
-            .card.admin-giant { padding: 24px 12px; }
-
-            .dashboard-box { font-size: 16px; padding: 16px; gap: 12px; }
-            .dashboard-row { font-size: 16px; }
-            .track-row { flex-direction: column; align-items: center; gap: 8px; text-align: center; padding-bottom: 8px; }
-            .track-selector-wrap { width: 100%; max-width: 220px; }
-            #credit-warning { font-size: 14px !important; }
-
-            select { font-size: 18px; padding: 12px; margin-bottom: 12px; }
-            .status-badge { margin-bottom: 16px; padding: 6px 16px; }
-            .icon-wrap { font-size: 52px; margin-bottom: 16px; }
-            h1 { font-size: clamp(22px, 6.5vw, 32px); margin-bottom: 16px; }
-            p.desc { font-size: 20px; margin-bottom: 24px; }
-            .input-box { margin-bottom: 20px; }
-            input { padding: 16px; font-size: 24px; }
-            input::placeholder { font-size: 20px; }
-            .btn-start { padding: 18px; font-size: 24px; }
-            .footer { font-size: 16px; padding: 16px; }
-            .tab-btn { font-size: 20px; padding: 10px; }
-            .sem-pill { font-size: 18px; padding: 4px; }
-
-            .subject-item { white-space: normal; gap: 10px; padding: 6px 12px; align-items: flex-start; }
-            .subject-item input[type="checkbox"] { margin-top: 4px; }
-            .subject-text { font-size: 17px; line-height: 1.4; word-break: keep-all; }
-            .desc-drawer { font-size: 16px; padding: 8px 12px; } 
-            
-            .admin-table { font-size: 15px; }
-            .admin-table th, .admin-table td { padding: 8px; }
         }
     </style>
 </head>
@@ -366,7 +274,8 @@
             
             <!-- [화면 1] 로그인 영역 -->
             <div id="login-view">
-                <div class="status-badge" id="db-status">DB 연결 완료 ✨</div>
+                <!-- 🚦 진단 신호등 배지 -->
+                <div class="status-badge" id="db-status">구글 대기 중... ⏳</div>
                 <div class="icon-wrap">🏫</div>
                 <h1>배정고등학교 수강신청 안내서</h1>
                 <p class="desc">나의 진로와 적성에 맞는 과목을<br>신중하게 선택하고 저장해 보세요.</p>
@@ -443,11 +352,11 @@
                         <p style="margin: 0 0 12px 0; font-weight: bold; color: #6a5acd; font-size: 26px; text-align: center;" id="result-title">🎯 모집단위명</p>
                         <div style="font-size: 20px; margin-bottom: 8px; line-height: 1.5;">
                             <span style="font-weight: bold; color: #ff69b4; display: block; margin-bottom: 2px;">🔥 필수 핵심 권장과목</span>
-                            <span id="result-core" style="font-weight: bold; color: #555555;">-</span>
+                            <span id="result-core">-</span>
                         </div>
                         <div style="font-size: 20px; margin-bottom: 8px; line-height: 1.5; border-top: 1px dashed #fce4ec; padding-top: 8px;">
                             <span style="font-weight: bold; color: #6a5acd; display: block; margin-bottom: 2px;">✨ 가급적 권장과목</span>
-                            <span id="result-recommend" style="font-weight: bold; color: #555555;">-</span>
+                            <span id="result-recommend">-</span>
                         </div>
                         <div id="result-note-box" style="font-size: 16px; color: #777777; line-height: 1.5; border-top: 1px dashed #fce4ec; padding-top: 8px;">
                             📌 <span id="result-note">-</span>
@@ -497,7 +406,7 @@
         let selectedSubjects = { "2-1": [], "2-2": [], "3-1": [], "3-2": [] };
         const targetLimits = { "2-1": 7, "2-2": 7, "3-1": 9, "3-2": 6 };
 
-        // 🏫 [완벽 복구 복합 명단] 전 학기 선택과목 명단을 단 한 글자도 유실 없이 완전체로 풀 패키징 박제 완료!
+        // 🏫 내장형 기본 명단 (시트 통신 실패 시 발동되는 차단막)
         let subjectDB = {
             "2-1": [
                 { name: "스포츠 생활2", credits: 2, type: "체육", category: "융합선택", mandatory: "학교지정", desc: "" },
@@ -541,47 +450,17 @@
                 { name: "스포츠 문화", credits: 2, type: "체육", category: "진로선택", mandatory: "학교지정", desc: "" }, 
                 { name: "화법과 언어", credits: 3, type: "국어", category: "일반선택", mandatory: "공통필수", desc: "" },
                 { name: "주제 탐구 독서", credits: 3, type: "국어", category: "진로선택", mandatory: "선택", desc: "" },
-                { name: "문학과 영상", credits: 3, type: "국어", category: "진로선택", mandatory: "선택", desc: "" },
                 { name: "기하", credits: 3, type: "수학", category: "진로선택", mandatory: "선택", desc: "" },
                 { name: "경제 수학", credits: 3, type: "수학", category: "진로선택", mandatory: "선택", desc: "" },
-                { name: "수학 과제 탐구", credits: 3, type: "수학", category: "융합선택", mandatory: "선택", desc: "" },
-                { name: "영어 독해와 작문", credits: 3, type: "영어", category: "일반선택", mandatory: "선택", desc: "" },
-                { name: "영어 발표와 토론", credits: 3, type: "영어", category: "진로선택", mandatory: "선택", desc: "" },
-                { name: "미디어 영어", credits: 3, type: "영어", category: "융합선택", mandatory: "선택", desc: "" },
-                { name: "한국지리 탐구", credits: 3, type: "사회", category: "진로선택", mandatory: "선택", desc: "" },
-                { name: "법과 사회", credits: 3, type: "사회", category: "진로선택", mandatory: "선택", desc: "" },
-                { name: "윤리와 사상", credits: 3, type: "사회", category: "진로선택", mandatory: "선택", desc: "" },
-                { name: "금융과 경제생활", credits: 3, type: "사회", category: "융합선택", mandatory: "선택", desc: "" },
-                { name: "역학과 에너지", credits: 3, type: "과학", category: "진로선택", mandatory: "선택", desc: "" },
-                { name: "전자기와 양자", credits: 3, type: "과학", category: "진로선택", mandatory: "선택", desc: "" },
-                { name: "물질과 에너지", credits: 3, type: "과학", category: "진로선택", mandatory: "선택", desc: "" },
-                { name: "화학 반응의 세계", credits: 3, type: "과학", category: "진로선택", mandatory: "선택", desc: "" },
-                { name: "세포와 물질 대사", credits: 3, type: "과학", category: "진로선택", mandatory: "선택", desc: "" },
-                { name: "생물의 유전", credits: 3, type: "과학", category: "진로선택", mandatory: "선택", desc: "" },
-                { name: "지구시스템과학", credits: 3, type: "과학", category: "진로선택", mandatory: "선택", desc: "" },
-                { name: "행성우주과학", credits: 3, type: "과학", category: "진로선택", mandatory: "선택", desc: "" },
                 { name: "융합과학 탐구", credits: 3, type: "과학", category: "융합선택", mandatory: "선택", desc: "" },
-                { name: "심화 일본어", credits: 3, type: "제2외국어", category: "진로선택", mandatory: "선택", desc: "" },
                 { name: "인공지능 기초", credits: 3, type: "기술·가정", category: "융합선택", mandatory: "선택", desc: "" }
             ],
             "3-2": [
                 { name: "스포츠 과학", credits: 2, type: "체육", category: "진로선택", mandatory: "학교지정", desc: "" }, 
                 { name: "생태와 환경", credits: 2, type: "교양", category: "일반선택", mandatory: "학교지정", desc: "" }, 
                 { name: "인간과 심리", credits: 3, type: "교양", category: "진로선택", mandatory: "학교지정", desc: "" }, 
-                { name: "주제 탐구 독서", credits: 3, type: "국어", category: "진로선택", mandatory: "선택", desc: "" },
-                { name: "독서 토론과 글쓰기", credits: 3, type: "국어", category: "융합선택", mandatory: "선택", desc: "" },
-                { name: "언어 생활 탐구", credits: 3, type: "국어", category: "융합선택", mandatory: "선택", desc: "" },
                 { name: "인공 지능 수학", credits: 3, type: "수학", category: "진로선택", mandatory: "선택", desc: "" },
                 { name: "고급 미적분", credits: 3, type: "수학", category: "진로선택", mandatory: "선택", desc: "" },
-                { name: "영미 문학 읽기", credits: 3, type: "영어", category: "진로선택", mandatory: "선택", desc: "" },
-                { name: "심화 영어", credits: 3, type: "영어", category: "진로선택", mandatory: "선택", desc: "" },
-                { name: "세계 문화와 영어", credits: 3, type: "영어", category: "융합선택", mandatory: "선택", desc: "" },
-                { name: "국제 관계의 이해", credits: 3, type: "사회", category: "진로선택", mandatory: "선택", desc: "" },
-                { name: "윤리문제 탐구", credits: 3, type: "사회", category: "융합선택", mandatory: "선택", desc: "" },
-                { name: "물리학 탐구", credits: 3, type: "과학", category: "융합선택", mandatory: "선택", desc: "" },
-                { name: "생명과학 탐구", credits: 3, type: "과학", category: "융합선택", mandatory: "선택", desc: "" },
-                { name: "융합과학 탐구", credits: 3, type: "과학", category: "융합선택", mandatory: "선택", desc: "" },
-                { name: "일본어 회화", credits: 3, type: "제2외국어", category: "일반선택", mandatory: "선택", desc: "" },
                 { name: "소프트웨어와 생활", credits: 3, type: "기술·가정", category: "융합선택", mandatory: "선택", desc: "" }
             ]
         };
@@ -606,39 +485,52 @@
             }
             if(studentId.length !== 5 || isNaN(studentId)) { alert("학번 5자리를 정확히 입력해주세요."); return; }
             
-            // 💡 옛날 캐시와 구별하기 위해 로딩 글자 전격 수정
-            document.getElementById('db-status').innerText = "학생 데이터 초고속 로딩 중... ⏳";
+            document.getElementById('db-status').innerText = "학생 데이터 동기화 중... ⏳";
             
             fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify({ action: "login", studentId: studentId }) })
             .then(res => {
-                if(!res.ok) throw new Error("CORS or Server Error");
+                if(!res.ok) throw new Error("Server Error");
                 return res.json();
             })
             .then(res => {
                 if(res.name) {
-                    globalStudentId = studentId; globalStudentName = res.name;
+                    // 🟢 [신호등 가동] 구글 시트 연동 성공 판정마크
+                    const badge = document.getElementById('db-status');
+                    badge.innerText = "실시간 구글시트 동기화 완료 🟢";
+                    badge.style.backgroundColor = "#e6ffed";
+                    badge.style.color = "#28a745";
+                    badge.style.borderColor = "#34d058";
+
+                    globalStudentId = studentId; 
+                    globalStudentName = res.name;
+                    
                     if(res.db) {
                         ["2-1", "2-2", "3-1", "3-2"].forEach(sem => {
                             if(res.db[sem] && res.db[sem].length > 0) subjectDB[sem] = res.db[sem];
                         });
                     }
-                    // 🛡️ 화면 진입 단독 분리 함수 호출
-                    enterMainView(res.saved);
+                    setTimeout(() => { enterMainView(res.saved); }, 600); // 연동 완료 알림을 노출한 뒤 자연스럽게 입장
                 } else { 
                     alert("등록되지 않은 학번입니다. 명단을 확인해 주세요! 잉? 😿"); 
                     document.getElementById('db-status').innerText = "DB 연결 완료 ✨";
                 }
             })
             .catch(err => {
-                console.error("강제 돌파 기동:", err);
-                // 🛡️ [무적 강제 돌파 회로] 서버가 뻗거나 캐시가 완전 꼬여도 무조건 화면 진입 시킴!
+                console.error("오프라인 강제 돌파 기동:", err);
+                // 🔴 [신호등 가동] 통신 실패 진단마크 출력
+                const badge = document.getElementById('db-status');
+                badge.innerText = "시트 주소 연동 오류 발생 🔴 (백업모드)";
+                badge.style.backgroundColor = "#ffeef0";
+                badge.style.color = "#dc3545";
+                badge.style.borderColor = "#f8d7da";
+
                 globalStudentId = studentId;
                 globalStudentName = "배정고 학생";
-                enterMainView(null);
+                
+                setTimeout(() => { enterMainView(null); }, 1200);
             });
         }
 
-        // 🛡️ 화면 제어 회로의 독립화로 안전성 확보
         function enterMainView(savedData) {
             document.getElementById('login-view').style.display = 'none';
             document.getElementById('main-view').style.display = 'block';
@@ -648,16 +540,11 @@
             
             if(savedData && savedData.hasSaved) {
                 currentTrack = savedData.track;
-                selectedSubjects = { 
-                    "2-1": savedData["2-1"] || [], "2-2": savedData["2-2"] || [], 
-                    "3-1": savedData["3-1"] || [], "3-2": savedData["3-2"] || [] 
-                };
+                selectedSubjects = { "2-1": savedData["2-1"] || [], "2-2": savedData["2-2"] || [], "3-1": savedData["3-1"] || [], "3-2": savedData["3-2"] || [] };
                 document.getElementById('track-btn-human').classList.toggle('active', currentTrack === '인문');
                 document.getElementById('track-btn-nature').classList.toggle('active', currentTrack === '자연');
                 changeSem("2-1"); 
-            } else { 
-                changeTrack('인문'); 
-            }
+            } else { changeTrack('인문'); }
             loadUniversityRegions();
         }
 
@@ -694,22 +581,7 @@
         function onCollegeChange() { const college = document.getElementById('college-select').value; const deptSelect = document.getElementById('dept-select'); deptSelect.innerHTML = '<option value="">학과 정보를 읽어오는 중... ⏳</option>'; fetch(WEB_APP_URL, { method: "POST", body: JSON.stringify({ action: "getDepartments", college: college }) }).then(res => res.json()).then(res => { globalDepts = res.depts || []; deptSelect.innerHTML = '<option value="">[3단계] 학과 선택 🏫</option>'; globalDepts.forEach((item, index) => { deptSelect.innerHTML += `<option value="${index}">${item.dept}</option>`; }); }); }
         function onDeptChange() { const idx = document.getElementById('dept-select').value; const card = document.getElementById('recommendation-result'); if(!idx) { card.style.display = 'none'; return; } const data = globalDepts[idx]; document.getElementById('result-title').innerText = `🎯 ${data.dept}`; document.getElementById('result-core').innerText = data.core; document.getElementById('result-recommend').innerText = data.recommend; card.style.display = 'block'; }
         
-        function changeTrack(track) { 
-            currentTrack = track; 
-            document.getElementById('track-btn-human').classList.toggle('active', track === '인문'); 
-            document.getElementById('track-btn-nature').classList.toggle('active', track === '자연'); 
-            const semesters = ["2-1", "2-2", "3-1", "3-2"]; 
-            semesters.forEach(sem => { 
-                let pureElectives = (selectedSubjects[sem] || []).filter(subName => { 
-                    const subObj = subjectDB[sem].find(s => s.name === subName); 
-                    return subObj && subObj.mandatory === "선택"; 
-                }); 
-                let newMandatories = (subjectDB[sem] || []).filter(sub => { return sub.mandatory === "학교지정" || sub.mandatory === "공통필수" || (sub.mandatory === "인문필수" && track === "인문") || (sub.mandatory === "자연필수" && track === "자연"); }).map(sub => sub.name); 
-                selectedSubjects[sem] = Array.from(new Set([...newMandatories, ...pureElectives])); 
-            }); 
-            changeSem(currentSemester); 
-        }
-        
+        function changeTrack(track) { currentTrack = track; document.getElementById('track-btn-human').classList.toggle('active', track === '인문'); document.getElementById('track-btn-nature').classList.toggle('active', track === '자연'); const semesters = ["2-1", "2-2", "3-1", "3-2"]; semesters.forEach(sem => { let pureElectives = (selectedSubjects[sem] || []).filter(subName => { const subObj = subjectDB[sem].find(s => s.name === subName); return subObj && subObj.mandatory === "선택"; }); let newMandatories = (subjectDB[sem] || []).filter(sub => { return sub.mandatory === "학교지정" || sub.mandatory === "공통필수" || (sub.mandatory === "인문필수" && track === "인문") || (sub.mandatory === "자연필수" && track === "자연"); }).map(sub => sub.name); selectedSubjects[sem] = Array.from(new Set([...newMandatories, ...pureElectives])); }); changeSem(currentSemester); }
         function changeTab(tabIndex) { document.getElementById('tab-content1').style.display = tabIndex === 1 ? 'block' : 'none'; document.getElementById('tab-content2').style.display = tabIndex === 2 ? 'block' : 'none'; document.getElementById('tab-btn1').classList.toggle('active', tabIndex === 1); document.getElementById('tab-btn2').classList.toggle('active', tabIndex === 2); }
         function changeSem(sem) { currentSemester = sem; document.querySelectorAll('[id^="sem-btn-"]').forEach(btn => { btn.classList.toggle('active', btn.id === `sem-btn-${sem}`); }); renderSubjects(); updateCreditStatus(); }
 
@@ -748,16 +620,7 @@
         }
 
         function toggleDrawer(id) { const drawer = document.getElementById(`drawer-${id}`); if(drawer) { drawer.style.display = drawer.style.display === "block" ? "none" : "block"; } }
-        
-        function syncSelection() { 
-            const boxes = document.querySelectorAll('input[name="user-subject"]:checked'); let currentChoices = []; 
-            for (let cb of boxes) { 
-                let name = cb.value; let dup = false; 
-                for (const sem in selectedSubjects) { if (sem !== currentSemester && selectedSubjects[sem].includes(name)) { dup = true; break; } } 
-                if (dup) { alert(`⚠️ '${name}' 과목은 중복 선택할 수 없습니다.`); cb.checked = false; } else { currentChoices.push(name); } 
-            } 
-            selectedSubjects[currentSemester] = currentChoices; updateCreditStatus(); 
-        }
+        function syncSelection() { const boxes = document.querySelectorAll('input[name="user-subject"]:checked'); let currentChoices = []; for (let cb of boxes) { let name = cb.value; let dup = false; for (const sem in selectedSubjects) { if (sem !== currentSemester && selectedSubjects[sem].includes(name)) { dup = true; break; } } if (dup) { alert(`⚠️ '${name}' 과목은 중복 선택할 수 없습니다.`); cb.checked = false; } else { currentChoices.push(name); } } selectedSubjects[currentSemester] = currentChoices; updateCreditStatus(); }
 
         function updateCreditStatus() {
             const BASE_TOTAL = 102; const BASE_NEM = 24; let addedElective = 0; let addedNem = 0;      
