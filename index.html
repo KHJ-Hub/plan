@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>배정고 수강신청 안내서 💖</title>
     
+    <!-- 🏫 인터넷 창 탭에 학교 이모지가 나오게 하는 마법의 코드 -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏫</text></svg>">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -210,7 +211,6 @@
             font-weight: bold; 
         }
         
-        /* 🔒 [1번 피드백 완치] 원본 감성 대형 인문 폰트 입력창 완벽 복구 */
         .input-box {
             margin-bottom: 24px;
         }
@@ -242,7 +242,6 @@
             box-shadow: 0 0 0 5px rgba(195, 190, 240, 0.3);
         }
         
-        /* 🔒 [1번 피드백 완치] 그라데이션 파스텔톤 버튼 및 그림자 원본 100% 동기화 */
         .btn-start {
             width: 100%;
             padding: 18px; 
@@ -309,6 +308,7 @@
     <div class="content-wrapper">
         <div class="card">
             
+            <!-- [화면 1] 로그인 영역 -->
             <div id="login-view">
                 <div class="status-badge" id="db-status">시스템 정상 가동 중 ✨</div>
                 <div class="icon-wrap">🏫</div>
@@ -320,6 +320,7 @@
                 <button class="btn-start" onclick="login()">입장하기 ✨</button>
             </div>
 
+            <!-- [화면 2] 학생 통합 시스템 영역 -->
             <div id="main-view" style="display: none;">
                 <div class="status-badge" id="student-badge">배정고등학교 수강신청 ⏳</div>
                 <div class="icon-wrap">📚💖</div>
@@ -399,6 +400,7 @@
                 </div>
             </div>
 
+            <!-- [화면 3] 교사 마스터 현황판 -->
             <div id="teacher-view" style="display: none;">
                 <div class="status-badge" style="background-color: #6a5acd; color: white;">최고 관리자 모드 👑</div>
                 <div class="icon-wrap">👨‍🏫💖</div>
@@ -439,7 +441,6 @@
         let selectedSubjects = { "2-1": [], "2-2": [], "3-1": [], "3-2": [] };
         const targetLimits = { "2-1": 7, "2-2": 7, "3-1": 9, "3-2": 6 };
 
-        // 🏫 [원본 자물쇠 잠금 마스터 데이터 완전 복구] 필수 여부 규칙 완벽 고정 적용
         let subjectDB = {
             "2-1": [
                 { name: "스포츠 생활2", credits: 2, type: "체육", category: "융합선택", mandatory: "학교지정", desc: "" },
@@ -548,7 +549,6 @@
             }
             if(studentId.length !== 5 || isNaN(studentId)) { alert("학번 5자리를 정확히 입력해주세요. 잉? 😿"); return; }
             
-            // 🔒 [초고속 강제 돌파 서킷] 딜레이 없이 0.1초 만에 무조건 즉시 화면 전환 메인 오픈!!
             globalStudentId = studentId;
             globalStudentName = "배정고 학생";
             
@@ -574,8 +574,6 @@
                     badge.style.backgroundColor = "#e6ffed"; badge.style.color = "#28a745";
 
                     if(res.db) {
-                        // 🔒 [2번 피드백 버그 완치] 시트 연동 시 자물쇠 잠금이 깨지는 버그 차단!
-                        // 오직 시트의 'G열 과목 설명(desc)' 데이터만 상속받고 로컬의 mandatory 잠금 규칙은 철저히 수호함!
                         ["2-1", "2-2", "3-1", "3-2"].forEach(sem => {
                             if(res.db[sem] && res.db[sem].length > 0) {
                                 res.db[sem].forEach(sheetSub => {
@@ -608,6 +606,23 @@
                 badge.style.backgroundColor = "#fffaf0"; badge.style.color = "#856404";
             });
             
+            loadUniversityRegions();
+        }
+
+        function enterMainView(savedData) {
+            document.getElementById('login-view').style.display = 'none';
+            document.getElementById('main-view').style.display = 'block';
+            document.querySelector('.card').classList.add('expanded');
+            document.getElementById('welcome-title').innerText = `${globalStudentName} 학생 환영합니다!`;
+            document.getElementById('student-badge').innerText = `${globalStudentId} ${globalStudentName} ✨`;
+            
+            if(savedData && savedData.hasSaved) {
+                currentTrack = savedData.track;
+                selectedSubjects = { "2-1": savedData["2-1"] || [], "2-2": savedData["2-2"] || [], "3-1": savedData["3-1"] || [], "3-2": savedData["3-2"] || [] };
+                document.getElementById('track-btn-human').classList.toggle('active', currentTrack === '인문');
+                document.getElementById('track-btn-nature').classList.toggle('active', currentTrack === '자연');
+                changeSem("2-1"); 
+            } else { changeTrack('인문'); }
             loadUniversityRegions();
         }
 
@@ -696,10 +711,11 @@
             }
             if(!subjectDB[currentSemester]) return;
             
-            // 🔒 [2번 피드백 버그 완치] 순수 자율선택교과(선택) 항목만 카운팅되도록 계산기 수리 완료
+            // 🔒 [2번 피드백 버그 완전 초기화] 오직 순수 [학교지정] 항목만 카운트에서 정밀 제외!
+            // 필수선택(공통필수, 트랙필수)과 자율선택 과목들이 모두 분모의 '자율 선택 과목 수'에 정상 집계됩니다.
             const currentSemElectives = selectedSubjects[currentSemester].filter(name => { 
                 let obj = subjectDB[currentSemester].find(s => s.name === name); 
-                return obj && obj.mandatory === "선택"; 
+                return obj && obj.mandatory !== "학교지정"; 
             }).length;
             
             const targetCount = targetLimits[currentSemester] || 7;
