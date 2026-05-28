@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>배정고 수강신청 안내서 💖</title>
     
-    <!-- 🏫 인터넷 창 탭에 학교 이모지가 나오게 하는 마법의 코드 -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏫</text></svg>">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -308,7 +307,6 @@
     <div class="content-wrapper">
         <div class="card">
             
-            <!-- [화면 1] 로그인 영역 -->
             <div id="login-view">
                 <div class="status-badge" id="db-status">시스템 정상 가동 중 ✨</div>
                 <div class="icon-wrap">🏫</div>
@@ -320,7 +318,6 @@
                 <button class="btn-start" onclick="login()">입장하기 ✨</button>
             </div>
 
-            <!-- [화면 2] 학생 통합 시스템 영역 -->
             <div id="main-view" style="display: none;">
                 <div class="status-badge" id="student-badge">배정고등학교 수강신청 ⏳</div>
                 <div class="icon-wrap">📚💖</div>
@@ -393,7 +390,6 @@
                             <span style="font-weight: bold; color: #6a5acd; display: block; margin-bottom: 2px;">✨ 가급적 권장과목</span>
                             <span id="result-recommend">-</span>
                         </div>
-                        <!-- 🔒 [가독성 리포맷 완수 마크] 압정 옆 타이틀 생성 및 아랫줄 자동 정렬 배치 구현 완료 -->
                         <div id="result-note-box" style="font-size: 20px; line-height: 1.5; border-top: 1px dashed #fce4ec; padding-top: 8px; text-align:left;">
                             <span style="font-weight: bold; color: #6a5acd; display: block; margin-bottom: 4px;">📌 참고사항</span>
                             <span id="result-note" style="color: #555555; white-space: pre-wrap; font-weight: bold; padding-left: 4px;">-</span>
@@ -402,7 +398,6 @@
                 </div>
             </div>
 
-            <!-- [화면 3] 교사 마스터 현황판 -->
             <div id="teacher-view" style="display: none;">
                 <div class="status-badge" style="background-color: #6a5acd; color: white;">최고 관리자 모드 👑</div>
                 <div class="icon-wrap">👨‍🏫💖</div>
@@ -433,8 +428,6 @@
     </div>
     
     <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxFFTb0vB25JuPk8YkMqIyygvsWnUe9BnxmrGJ9RQE17O2xrr66De9TeQf3snFQUiX3/exec";
-        
         let globalStudentId = "";
         let globalStudentName = "";
         let currentSemester = "2-1"; 
@@ -531,8 +524,6 @@
             ]
         };
 
-        let globalRegions = {}; let globalDepts = []; let globalTeacherList = [];
-
         function login() {
             const studentId = document.getElementById('studentId').value;
             if (studentId === "00000") {
@@ -580,9 +571,7 @@
                             if(res.db[sem] && res.db[sem].length > 0) {
                                 res.db[sem].forEach(sheetSub => {
                                     let localSub = subjectDB[sem].find(s => s.name === sheetSub.name);
-                                    if (localSub) {
-                                        localSub.desc = sheetSub.desc; 
-                                    }
+                                    if (localSub) { localSub.desc = sheetSub.desc; }
                                 });
                             }
                         });
@@ -590,12 +579,7 @@
                     
                     if(res.saved && res.saved.hasSaved) {
                         currentTrack = res.saved.track;
-                        selectedSubjects = { 
-                            "2-1": res.saved["2-1"] || [], 
-                            "2-2": res.saved["2-2"] || [], 
-                            "3-1": res.saved["3-1"] || [], 
-                            "3-2": res.saved["3-2"] || [] 
-                        };
+                        selectedSubjects = { "2-1": res.saved["2-1"] || [], "2-2": res.saved["2-2"] || [], "3-1": res.saved["3-1"] || [], "3-2": res.saved["3-2"] || [] };
                         document.getElementById('track-btn-human').classList.toggle('active', currentTrack === '인문');
                         document.getElementById('track-btn-nature').classList.toggle('active', currentTrack === '자연');
                     }
@@ -671,7 +655,7 @@
                 listDiv.innerHTML += `
                     <div style="margin-bottom: 10px;">
                         <div class="subject-item ${isMandatory ? 'mandatory' : ''}">
-                            <input type="checkbox" name="user-subject" value="${sub.name}" ${isChecked} ${isDisabled} onchange="syncSelection()" style="width:24px; height:24px; accent-color:#c3bef0; flex-shrink: 0; cursor:pointer;"> 
+                            <input type="checkbox" name="user-subject" value="${sub.name}" ${isChecked} ${isDisabled} onchange="syncSelection(this)" style="width:24px; height:24px; accent-color:#c3bef0; flex-shrink: 0; cursor:pointer;"> 
                             <span class="subject-text" ${isElective ? `onclick="toggleDrawer('${currentSemester}_${index}')"` : ''} style="flex:1; text-align:left; padding-left:14px; cursor:pointer;">
                                 ${sub.name}${displayCategory}${mandatoryLabel} (${sub.credits}학점)
                             </span>
@@ -683,7 +667,42 @@
         }
 
         function toggleDrawer(id) { const drawer = document.getElementById(`drawer-${id}`); if(drawer) { drawer.style.display = drawer.style.display === "block" ? "none" : "block"; } }
-        function syncSelection() { const boxes = document.querySelectorAll('input[name="user-subject"]:checked'); let currentChoices = []; for (let cb of boxes) { let name = cb.value; let dup = false; for (const sem in selectedSubjects) { if (sem !== currentSemester && selectedSubjects[sem].includes(name)) { dup = true; break; } } if (dup) { alert(`⚠️ '${name}' 과목은 중복 선택할 수 없습니다. 😿`); cb.checked = false; } else { currentChoices.push(name); } } selectedSubjects[currentSemester] = currentChoices; updateCreditStatus(); }
+        
+        // 🔒 [초과 선택 제어 가로막기 엔진 주입 완료]
+        function syncSelection(inputNode) {
+            const targetCount = targetLimits[currentSemester] || 7;
+            
+            // 필수선택과 현재 새로 체크하려는 체크박스들의 총합을 동적 실시간 계산
+            const checkedBoxes = document.querySelectorAll('input[name="user-subject"]:checked');
+            let tempChoices = [];
+            for (let cb of checkedBoxes) {
+                tempChoices.push(cb.value);
+            }
+            
+            // 현재 학기 전체 과목 중 '학교지정'만 빼고 카운트
+            let electiveCount = tempChoices.filter(name => {
+                let obj = subjectDB[currentSemester].find(s => s.name === name);
+                return obj && obj.mandatory !== "학교지정";
+            }).length;
+
+            // 🚨 한도를 초과하려 할 때 퓨즈 작동 차단
+            if (electiveCount > targetCount && inputNode && inputNode.checked) {
+                alert(`⚠️ 아차! ${currentSemester} 학기는 최대 ${targetCount}개까지만 자율 선택할 수 있도록 구성되어 있습니다! 더 고르려면 기존 선택과목을 체크 해제한 후 다시 눌러주세요. 😿`);
+                inputNode.checked = false; // 강제로 체크 취소 튕겨내기
+                return;
+            }
+
+            let currentChoices = [];
+            const boxes = document.querySelectorAll('input[name="user-subject"]:checked');
+            for (let cb of boxes) {
+                let name = cb.value; let dup = false;
+                for (const sem in selectedSubjects) { if (sem !== currentSemester && selectedSubjects[sem].includes(name)) { dup = true; break; } }
+                if (dup) { alert(`⚠️ '${name}' 과목은 중복 선택할 수 없습니다. 😿`); cb.checked = false; } 
+                else { currentChoices.push(name); }
+            }
+            selectedSubjects[currentSemester] = currentChoices;
+            updateCreditStatus();
+        }
 
         function updateCreditStatus() {
             const BASE_TOTAL = 102; const BASE_NEM = 24; let addedElective = 0; let addedNem = 0;      
@@ -696,6 +715,7 @@
             }
             if(!subjectDB[currentSemester]) return;
             
+            // 자율 선택 과목 수 연산 시 필수선택(공통필수, 계열필수)과 순수 선택을 포함하고 '학교지정'만 깔끔하게 공제
             const currentSemElectives = selectedSubjects[currentSemester].filter(name => { 
                 let obj = subjectDB[currentSemester].find(s => s.name === name); 
                 return obj && obj.mandatory !== "학교지정"; 
