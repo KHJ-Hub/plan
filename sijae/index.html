@@ -6,8 +6,8 @@
 <meta name="theme-color" content="#7AAA25">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="시재금 계산기">
-<title>시재금 계산기</title>
+<meta name="apple-mobile-web-app-title" content="POS 준비금">
+<title>POS 준비금</title>
 <link rel="manifest" href="./manifest.webmanifest">
 <link rel="icon" href="./icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="./icon.svg">
@@ -18,8 +18,8 @@
 </head>
 <body>
 <div class="app">
-<div class="top"><img class="logo" src="./icon.svg" alt=""><div class="title"><h1>시재금 계산기</h1><div class="sub">송금 후 시재금 83,000원을 정확히 맞춰요</div></div></div>
-<div class="card"><div class="target"><div><div class="small">목표 시재금</div><strong>83,000원</strong></div><span class="pill">만원권 시재 제외</span></div></div>
+<div class="top"><img class="logo" src="./icon.svg" alt=""><div class="title"><h1>POS 준비금</h1><div class="sub">송금 후 POS 준비금 83,000원을 정확히 맞춰요</div></div></div>
+<div class="card"><div class="target"><div><div class="small">목표 POS 준비금</div><strong>83,000원</strong></div><span class="pill">만원권 준비금 제외</span></div></div>
 <div class="card"><h2>현재 보유 수량</h2><div id="rows"></div><div class="actions"><button type="button" class="reset" id="resetBtn">초기화</button><button type="button" class="calc" id="calcBtn">83,000원 맞추기</button></div></div>
 <div class="card"><h2>계산 결과</h2><div class="summary"><div class="metric"><span>현재 현금 총액</span><strong id="total">0원</strong></div><div class="metric"><span>송금 대상액</span><strong id="send">-</strong></div></div><div id="results"></div><div id="exchangeBox" class="notice warn" style="display:none"></div><div id="status" class="notice warn" aria-live="polite">수량을 입력한 뒤 계산해 주세요.</div></div>
 <div class="foot">동전은 가능한 한 적게 빼고, 필요한 경우 만원권 환전도 안내해요.</div>
