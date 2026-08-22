@@ -1,0 +1,13 @@
+{
+  "name": "시재금 계산기",
+  "short_name": "시재금",
+  "description": "송금 후 시재금 83,000원을 정확히 맞추는 계산기",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f7f8f5",
+  "theme_color": "#7AAA25",
+  "icons": [
+    {"src":"./icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}
+  ]
+}
