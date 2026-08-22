@@ -1,7 +1,7 @@
 {
-  "name": "시재금 계산기",
-  "short_name": "시재금",
-  "description": "송금 후 시재금 83,000원을 정확히 맞추는 계산기",
+  "name": "POS 준비금",
+  "short_name": "POS 준비금",
+  "description": "송금 후 POS 준비금 83,000원을 정확히 맞추는 계산기",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
