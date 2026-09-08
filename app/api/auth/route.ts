@@ -7,9 +7,9 @@ export async function POST(request: Request) {
     const configured = getRuntimeEnv().ADMIN_PASSWORD;
     const local = new URL(request.url).hostname === 'localhost' || new URL(request.url).hostname === '127.0.0.1';
     if ((!configured && !(local && body.password === '00000')) || (configured && body.password !== configured)) {
-      return json({ error: configured ? '비밀번호가 맞지 않습니다.' : '관리자 비밀번호가 아직 설정되지 않았습니다.' }, { status: configured ? 403 : 503 });
+      return json({ error: configured ? '비밀번호가 맞지 않습니다.' : '선생님 로그인 설정이 아직 완료되지 않았습니다.' }, { status: configured ? 403 : 503 });
     }
-    return json({ token: await createSession({ role: 'admin', actor: '관리자' }), role: 'admin', setupWarning: !configured });
+    return json({ token: await createSession({ role: 'admin', actor: '선생님' }), role: 'admin', setupWarning: !configured });
   }
 
   const entranceYear = Number(body.entranceYear);
