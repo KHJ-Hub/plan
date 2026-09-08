@@ -1,6 +1,7 @@
 import { getDatabase } from '@/db';
 import { normalizeCourseName } from '@/lib/domain.mjs';
 import { id, json, now, requireSession } from '@/lib/server';
+import { changeTeacherPassword } from '@/lib/teacher-auth';
 
 export async function POST(request: Request) {
   const session = await requireSession(request);
@@ -79,6 +80,12 @@ export async function POST(request: Request) {
       db.prepare(`INSERT INTO audit_logs(id,actor,action,details_json,created_at) VALUES(?,?,?,?,?)`).bind(id('audit'), session.actor, status === 'confirmed' ? '담임 확인 완료' : '수정 요청', JSON.stringify({ planId: body.planId, comment: body.comment || '' }), time),
     ]);
     return json({ ok: true });
+  }
+  if (body.action === 'changeTeacherPassword') {
+    const result = await changeTeacherPassword(String(body.currentPassword || ''), String(body.newPassword || ''), session.actor);
+    if (!result.ok) return json({ error: result.error }, { status: 403 });
+    await db.prepare(`INSERT INTO audit_logs(id,actor,action,details_json,created_at) VALUES(?,?,?,?,?)`).bind(id('audit'), session.actor, '선생님 로그인 비밀번호 변경', JSON.stringify({ sessionVersion: result.sessionVersion }), time).run();
+    return json({ ok: true, sessionVersion: result.sessionVersion });
   }
   if (body.action === 'saveCurriculum') {
     const c = body.course || {};

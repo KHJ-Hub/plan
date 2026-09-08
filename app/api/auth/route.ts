@@ -1,15 +1,13 @@
-import { getDatabase, getRuntimeEnv } from '@/db';
+import { getDatabase } from '@/db';
 import { createSession, json } from '@/lib/server';
+import { verifyTeacherPassword } from '@/lib/teacher-auth';
 
 export async function POST(request: Request) {
   const body = await request.json() as Record<string, unknown>;
   if (body.role === 'admin') {
-    const configured = getRuntimeEnv().ADMIN_PASSWORD;
-    const local = new URL(request.url).hostname === 'localhost' || new URL(request.url).hostname === '127.0.0.1';
-    if ((!configured && !(local && body.password === '00000')) || (configured && body.password !== configured)) {
-      return json({ error: configured ? '비밀번호가 맞지 않습니다.' : '선생님 로그인 설정이 아직 완료되지 않았습니다.' }, { status: configured ? 403 : 503 });
-    }
-    return json({ token: await createSession({ role: 'admin', actor: '선생님' }), role: 'admin', setupWarning: !configured });
+    const verified = await verifyTeacherPassword(String(body.password || ''));
+    if (!verified.valid) return json({ error: '선생님 로그인 설정이 아직 완료되지 않았거나 비밀번호가 맞지 않습니다.' }, { status: 403 });
+    return json({ token: await createSession({ role: 'admin', actor: '선생님', authVersion: verified.sessionVersion }), role: 'admin' });
   }
 
   const entranceYear = Number(body.entranceYear);

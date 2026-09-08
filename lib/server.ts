@@ -1,4 +1,5 @@
 import { getRuntimeEnv } from '@/db';
+import { getTeacherSessionVersion } from '@/lib/teacher-auth';
 
 const encoder = new TextEncoder();
 
@@ -24,7 +25,7 @@ function secret() {
   return env.SESSION_SECRET || env.ADMIN_PASSWORD || 'local-development-session-only';
 }
 
-export type Session = { role: 'admin' | 'student'; actor: string; studentId?: string; exp: number };
+export type Session = { role: 'admin' | 'student'; actor: string; studentId?: string; authVersion?: number; exp: number };
 
 export async function createSession(payload: Omit<Session, 'exp'>) {
   const body = base64url(JSON.stringify({ ...payload, exp: Date.now() + 8 * 60 * 60 * 1000 }));
@@ -44,6 +45,7 @@ export async function readSession(request: Request): Promise<Session | null> {
 export async function requireSession(request: Request, role?: Session['role']) {
   const session = await readSession(request);
   if (!session || (role && session.role !== role)) throw new Response('로그인이 필요합니다.', { status: 401 });
+  if (session.role === 'admin' && session.authVersion !== await getTeacherSessionVersion()) throw new Response('선생님 로그인 세션이 만료되었습니다. 다시 로그인해주세요.', { status: 401 });
   return session;
 }
 

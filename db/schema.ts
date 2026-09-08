@@ -226,6 +226,18 @@ export const courseDescriptionImportRows = sqliteTable('course_description_impor
   createdAt: text('created_at').notNull(),
 }, (t) => [index('idx_course_description_import_rows_batch').on(t.batchId, t.matchStatus)]);
 
+// 초기 비밀번호는 운영 환경 비밀값으로만 두고, 선생님이 변경한 뒤에는 평문 대신
+// PBKDF2 해시와 세션 버전만 저장합니다. 버전을 올리면 기존 로그인 토큰을 모두 무효화합니다.
+export const teacherAuthState = sqliteTable('teacher_auth_state', {
+  id: text('id').primaryKey(),
+  passwordHash: text('password_hash'),
+  passwordSalt: text('password_salt'),
+  passwordIterations: integer('password_iterations'),
+  sessionVersion: integer('session_version').notNull().default(0),
+  updatedBy: text('updated_by').notNull().default(''),
+  updatedAt: text('updated_at').notNull(),
+});
+
 export const universityRequirements = sqliteTable('university_requirements', {
   id: text('id').primaryKey(),
   admissionsYear: integer('admissions_year').notNull(),

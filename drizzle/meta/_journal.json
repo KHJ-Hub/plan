@@ -15,6 +15,13 @@
       "when": 1788869320081,
       "tag": "0001_huge_meltdown",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1788906636750,
+      "tag": "0002_zippy_bishop",
+      "breakpoints": true
     }
   ]
 }
