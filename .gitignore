@@ -1,0 +1,12 @@
+/node_modules
+/.vinext
+/.next
+/dist
+/.wrangler
+/.env*
+!/.env.example
+/coverage
+/outputs
+/work
+next-env.d.ts
+npm-debug.log*
