@@ -1,7 +1,8 @@
 import { getDatabase, getRuntimeEnv } from '@/db';
 
 const encoder = new TextEncoder();
-const PBKDF2_ITERATIONS = 210_000;
+// Cloudflare Workers WebCrypto는 PBKDF2 반복 횟수를 100,000 이하로 제한합니다.
+const PBKDF2_ITERATIONS = 100_000;
 const DEFAULT_STATE_ID = 'teacher-login';
 
 type TeacherAuthRow = {
