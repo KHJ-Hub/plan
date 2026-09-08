@@ -1,4 +1,5 @@
 import { getDatabase } from '@/db';
+import { normalizeCourseName } from '@/lib/domain.mjs';
 import { id, json, now, requireSession } from '@/lib/server';
 
 export async function POST(request: Request) {
@@ -83,6 +84,51 @@ export async function POST(request: Request) {
     const c = body.course || {};
     await db.prepare(`INSERT INTO curricula(id,entrance_year,target_grade,target_semester,area,course_name,selection_type,offered,note,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(entrance_year,target_grade,target_semester,course_name) DO UPDATE SET area=excluded.area,selection_type=excluded.selection_type,offered=excluded.offered,note=excluded.note,updated_at=excluded.updated_at`).bind(id('course'), Number(c.entranceYear), Number(c.targetGrade), Number(c.targetSemester), String(c.area || '').trim(), String(c.courseName || '').trim(), c.selectionType || 'general', c.offered === false ? 0 : 1, String(c.note || ''), time, time).run();
     return json({ ok: true });
+  }
+  if (body.action === 'saveCourseDescription') {
+    const d = body.description || {};
+    const entranceYear = Number(d.entranceYear);
+    const courseName = normalizeCourseName(d.courseName);
+    if (!entranceYear || !courseName) return json({ error: '입학년도와 과목명을 입력해주세요.' }, { status: 400 });
+    const existing = await db.prepare(`SELECT id FROM course_description_sources WHERE entrance_year=? AND course_name=? AND source_kind='manual' ORDER BY updated_at DESC LIMIT 1`).bind(entranceYear, courseName).first<{ id: string }>();
+    const sourceId = existing?.id || id('course_desc');
+    const selectionType = ['general', 'career', 'convergence'].includes(d.selectionType) ? d.selectionType : null;
+    const grade = [2, 3].includes(Number(d.recommendedGrade)) ? Number(d.recommendedGrade) : null;
+    const semester = [1, 2].includes(Number(d.recommendedSemester)) ? Number(d.recommendedSemester) : null;
+    await db.batch([
+      db.prepare(`INSERT INTO course_description_sources(id,entrance_year,course_name,overview,learning_content,course_nature,related_careers,recommended_grade,recommended_semester,selection_type,note,source_kind,source_name,source_year,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET overview=excluded.overview,learning_content=excluded.learning_content,course_nature=excluded.course_nature,related_careers=excluded.related_careers,recommended_grade=excluded.recommended_grade,recommended_semester=excluded.recommended_semester,selection_type=excluded.selection_type,note=excluded.note,source_name=excluded.source_name,source_year=excluded.source_year,updated_at=excluded.updated_at`).bind(sourceId, entranceYear, courseName, String(d.overview || '').trim(), String(d.learningContent || '').trim(), String(d.courseNature || '').trim(), String(d.relatedCareers || '').trim(), grade, semester, selectionType, String(d.note || '').trim(), 'manual', String(d.sourceName || '선생님 직접 입력').trim(), Number(d.sourceYear) || null, time, time),
+      db.prepare(`INSERT INTO course_description_selections(id,entrance_year,course_name,selected_source_id,display_mode,updated_by,updated_at) VALUES(?,?,?,?,?,?,?) ON CONFLICT(entrance_year,course_name) DO UPDATE SET selected_source_id=excluded.selected_source_id,display_mode=excluded.display_mode,updated_by=excluded.updated_by,updated_at=excluded.updated_at`).bind(id('course_desc_selection'), entranceYear, courseName, sourceId, 'manual', session.actor, time),
+      db.prepare(`INSERT INTO audit_logs(id,actor,action,entrance_year,details_json,created_at) VALUES(?,?,?,?,?,?)`).bind(id('audit'), session.actor, '과목 설명 저장', entranceYear, JSON.stringify({ courseName, sourceKind: 'manual' }), time),
+    ]);
+    return json({ ok: true, sourceId });
+  }
+  if (body.action === 'selectCourseDescriptionSource') {
+    const entranceYear = Number(body.entranceYear); const courseName = normalizeCourseName(body.courseName);
+    const displayMode = ['manual', 'official', 'merged'].includes(body.displayMode) ? body.displayMode : null;
+    if (!entranceYear || !courseName || !displayMode || !body.sourceId) return json({ error: '설명 선택 정보를 확인해주세요.' }, { status: 400 });
+    const source = await db.prepare(`SELECT id,source_kind FROM course_description_sources WHERE id=? AND entrance_year=? AND course_name=?`).bind(String(body.sourceId), entranceYear, courseName).first<{ id: string; source_kind: string }>();
+    if (!source || source.source_kind !== displayMode) return json({ error: '선택할 수 없는 과목 설명입니다.' }, { status: 409 });
+    await db.prepare(`INSERT INTO course_description_selections(id,entrance_year,course_name,selected_source_id,display_mode,updated_by,updated_at) VALUES(?,?,?,?,?,?,?) ON CONFLICT(entrance_year,course_name) DO UPDATE SET selected_source_id=excluded.selected_source_id,display_mode=excluded.display_mode,updated_by=excluded.updated_by,updated_at=excluded.updated_at`).bind(id('course_desc_selection'), entranceYear, courseName, source.id, displayMode, session.actor, time).run();
+    return json({ ok: true });
+  }
+  // 공식 자료 파일을 읽는 UI가 추가되면 정규화된 행을 이 작업으로 전달합니다. 이름이
+  // 완전히 같은 경우만 exact_match이며, 그 외에는 어떤 경우도 자동 적용하지 않습니다.
+  if (body.action === 'previewCourseDescriptionImport') {
+    const entranceYear = Number(body.entranceYear); const rows = Array.isArray(body.rows) ? body.rows : [];
+    if (!entranceYear || !String(body.sourceName || '').trim()) return json({ error: '입학년도와 자료 출처를 입력해주세요.' }, { status: 400 });
+    const knownRows = await db.prepare(`SELECT course_name FROM curricula WHERE entrance_year=? UNION SELECT course_name FROM course_description_sources WHERE entrance_year=?`).bind(entranceYear, entranceYear).all<{ course_name: string }>();
+    const known = new Set((knownRows.results || []).map((row) => normalizeCourseName(row.course_name)));
+    const batchId = id('course_desc_import');
+    const statements: D1PreparedStatement[] = [db.prepare(`INSERT INTO course_description_import_batches(id,entrance_year,source_name,source_year,uploaded_by,status,created_at) VALUES(?,?,?,?,?,?,?)`).bind(batchId, entranceYear, String(body.sourceName).trim(), Number(body.sourceYear) || null, session.actor, 'preview', time)];
+    const preview = rows.map((row: any) => {
+      const incomingCourseName = String(row.courseName || ''); const normalized = normalizeCourseName(incomingCourseName);
+      const matchStatus = normalized && known.has(normalized) ? 'exact_match' : 'needs_confirmation';
+      const rowId = id('course_desc_import_row');
+      statements.push(db.prepare(`INSERT INTO course_description_import_rows(id,batch_id,incoming_course_name,normalized_course_name,payload_json,match_status,matched_course_name,decision,created_at) VALUES(?,?,?,?,?,?,?,?,?)`).bind(rowId, batchId, incomingCourseName, normalized, JSON.stringify(row), matchStatus, matchStatus === 'exact_match' ? normalized : null, 'pending', time));
+      return { id: rowId, incomingCourseName, normalizedCourseName: normalized, matchStatus, matchedCourseName: matchStatus === 'exact_match' ? normalized : null };
+    });
+    await db.batch(statements);
+    return json({ ok: true, batchId, preview });
   }
   if (body.action === 'resolveIssue') {
     await db.prepare(`UPDATE matching_issues SET resolution=?,admin_memo=?,updated_at=? WHERE id=?`).bind(body.resolution, String(body.memo || ''), time, body.issueId).run();

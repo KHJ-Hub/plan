@@ -167,6 +167,65 @@ export const curricula = sqliteTable('curricula', {
   ...timestamps,
 }, (t) => [uniqueIndex('uq_curriculum_course').on(t.entranceYear, t.targetGrade, t.targetSemester, t.courseName)]);
 
+// 과목 설명의 원문은 출처별로 보존합니다. 수동 입력과 공식 자료를 한 행에 섞지 않아
+// 향후 공식 자료를 가져와도 선생님이 기존 설명을 안전하게 비교·선택할 수 있습니다.
+export const courseDescriptionSources = sqliteTable('course_description_sources', {
+  id: text('id').primaryKey(),
+  entranceYear: integer('entrance_year').notNull(),
+  courseName: text('course_name').notNull(),
+  overview: text('overview').notNull().default(''),
+  learningContent: text('learning_content').notNull().default(''),
+  courseNature: text('course_nature').notNull().default(''),
+  relatedCareers: text('related_careers').notNull().default(''),
+  recommendedGrade: integer('recommended_grade'),
+  recommendedSemester: integer('recommended_semester'),
+  selectionType: text('selection_type', { enum: ['general', 'career', 'convergence'] }),
+  note: text('note').notNull().default(''),
+  sourceKind: text('source_kind', { enum: ['manual', 'official', 'merged'] }).notNull(),
+  sourceName: text('source_name').notNull().default(''),
+  sourceYear: integer('source_year'),
+  ...timestamps,
+}, (t) => [
+  index('idx_course_description_sources_course').on(t.entranceYear, t.courseName, t.sourceKind),
+]);
+
+// 학생에게 우선 표시할 설명을 명시적으로 선택합니다. 기본값은 수동 입력일 수 있고,
+// 공식 자료 수입 뒤에는 공식 설명 또는 병합 설명으로 안전하게 전환할 수 있습니다.
+export const courseDescriptionSelections = sqliteTable('course_description_selections', {
+  id: text('id').primaryKey(),
+  entranceYear: integer('entrance_year').notNull(),
+  courseName: text('course_name').notNull(),
+  selectedSourceId: text('selected_source_id').notNull().references(() => courseDescriptionSources.id),
+  displayMode: text('display_mode', { enum: ['manual', 'official', 'merged'] }).notNull(),
+  updatedBy: text('updated_by').notNull(),
+  updatedAt: text('updated_at').notNull(),
+}, (t) => [uniqueIndex('uq_course_description_selection').on(t.entranceYear, t.courseName)]);
+
+// 공식 안내 자료 수입 시 원본 행과 매칭 결과를 별도 보관합니다. 완전 일치하지 않는
+// 과목명은 needs_confirmation으로만 기록하며, 유사도 기반 자동 병합을 하지 않습니다.
+export const courseDescriptionImportBatches = sqliteTable('course_description_import_batches', {
+  id: text('id').primaryKey(),
+  entranceYear: integer('entrance_year').notNull(),
+  sourceName: text('source_name').notNull(),
+  sourceYear: integer('source_year'),
+  uploadedBy: text('uploaded_by').notNull(),
+  status: text('status', { enum: ['preview', 'applied', 'cancelled'] }).notNull().default('preview'),
+  createdAt: text('created_at').notNull(),
+});
+
+export const courseDescriptionImportRows = sqliteTable('course_description_import_rows', {
+  id: text('id').primaryKey(),
+  batchId: text('batch_id').notNull().references(() => courseDescriptionImportBatches.id),
+  incomingCourseName: text('incoming_course_name').notNull(),
+  normalizedCourseName: text('normalized_course_name').notNull(),
+  payloadJson: text('payload_json').notNull(),
+  matchStatus: text('match_status', { enum: ['exact_match', 'needs_confirmation', 'new_course'] }).notNull(),
+  matchedCourseName: text('matched_course_name'),
+  decision: text('decision', { enum: ['pending', 'keep_existing', 'replace_official', 'merge', 'skip'] }).notNull().default('pending'),
+  appliedSourceId: text('applied_source_id'),
+  createdAt: text('created_at').notNull(),
+}, (t) => [index('idx_course_description_import_rows_batch').on(t.batchId, t.matchStatus)]);
+
 export const universityRequirements = sqliteTable('university_requirements', {
   id: text('id').primaryKey(),
   admissionsYear: integer('admissions_year').notNull(),

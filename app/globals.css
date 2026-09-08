@@ -126,6 +126,15 @@ tr.attention td { background: #fff9ed; }
 .semester-result h3 { margin: 0 0 9px; color: #5b4d97; font-size: 1rem; }
 .chips { display: flex; flex-wrap: wrap; gap: 7px; }
 .course-chip { padding: 7px 10px; border-radius: 10px; background: white; border: 1px solid var(--line); font-size: .88rem; }
+.course-description { padding: 0; min-width: 150px; }
+.course-description summary { display: flex; align-items: center; flex-wrap: wrap; gap: 5px; padding: 7px 10px; cursor: pointer; font-weight: 700; list-style: none; }
+.course-description summary::-webkit-details-marker { display: none; }
+.course-help { margin-left: auto; color: #876ab2; font-size: .75rem; font-weight: 700; }
+.course-description-body { max-width: 380px; padding: 4px 10px 10px; border-top: 1px dashed var(--line); color: #5f5967; line-height: 1.55; }
+.course-description-body p { margin: 7px 0; }
+.course-description-body strong { display: block; color: #5e4e98; font-size: .78rem; }
+.course-source { color: #897c90; font-size: .78rem; }
+.description-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; margin-top: 14px; }
 .empty { padding: 28px; color: var(--muted); text-align: center; border: 2px dashed var(--line); border-radius: 18px; background: var(--pink-50); }
 .split { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .upload-drop { display: grid; place-items: center; min-height: 150px; padding: 20px; border: 3px dashed var(--pink-300); border-radius: 20px; background: var(--pink-50); text-align: center; }
@@ -159,7 +168,7 @@ tr.attention td { background: #fff9ed; }
   .side-nav { grid-template-columns: repeat(2,1fr); }
   .side-nav button { font-size: .86rem; }
   .page-head, .panel { padding: 18px; }
-  .form-grid, .split, .course-list, .file-settings, .diff-grid { grid-template-columns: 1fr; }
+  .form-grid, .split, .course-list, .file-settings, .diff-grid, .description-list { grid-template-columns: 1fr; }
   .grid-cards { grid-template-columns: 1fr 1fr; gap: 8px; }
   .metric { padding: 13px; }
   .metric strong { font-size: 1.3rem; }

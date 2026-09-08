@@ -18,8 +18,9 @@ export async function GET(request: Request) {
     const reviews = await all(db, `SELECT rh.* FROM review_history rh JOIN plans p ON p.id=rh.plan_id WHERE p.student_id=? ORDER BY rh.created_at DESC`, session.studentId);
     const official = await all<Record<string, unknown>>(db, `SELECT r.id result_id, r.round_number, r.target_grade, r.target_semester, c.course_name FROM official_results r JOIN upload_files f ON f.id=r.file_id AND f.active=1 LEFT JOIN official_result_courses c ON c.result_id=r.id WHERE r.student_id=? ORDER BY r.round_number, r.target_grade, r.target_semester`, session.studentId);
     const curriculum = student ? await all(db, `SELECT * FROM curricula WHERE entrance_year=? AND offered=1 ORDER BY target_grade,target_semester,area,course_name`, (student as { entrance_year: number }).entrance_year) : [];
+    const courseDescriptions = student ? await all(db, `SELECT s.*, sel.display_mode FROM course_description_selections sel JOIN course_description_sources s ON s.id=sel.selected_source_id WHERE sel.entrance_year=? ORDER BY s.course_name`, (student as { entrance_year: number }).entrance_year) : [];
     const requirements = await all(db, `SELECT ur.* FROM university_requirements ur JOIN student_preferences sp ON sp.student_id=? AND sp.admissions_year=ur.admissions_year AND sp.university=ur.university AND sp.department=ur.department ORDER BY ur.university, ur.department`, session.studentId);
-    return json({ student, profile, preferences, rounds, plans, reviews, official, curriculum, requirements });
+    return json({ student, profile, preferences, rounds, plans, reviews, official, curriculum, courseDescriptions, requirements });
   }
 
   const url = new URL(request.url);
@@ -31,6 +32,7 @@ export async function GET(request: Request) {
   const audit = await all(db, `SELECT * FROM audit_logs WHERE entrance_year=? OR entrance_year IS NULL ORDER BY created_at DESC LIMIT 100`, entranceYear);
   const rounds = await all(db, `SELECT * FROM rounds WHERE entrance_year=? ORDER BY round_number`, entranceYear);
   const curriculum = await all(db, `SELECT * FROM curricula WHERE entrance_year=? ORDER BY target_grade,target_semester,area,course_name`, entranceYear);
+  const courseDescriptions = await all(db, `SELECT s.*, sel.display_mode FROM course_description_selections sel JOIN course_description_sources s ON s.id=sel.selected_source_id WHERE sel.entrance_year=? ORDER BY s.course_name`, entranceYear);
 
   const officialRows = await all<{ student_id: string; round_number: number; target_grade: number; target_semester: number; course_name: string | null; current_class: number; current_number: number; student_name: string }>(db, `SELECT r.student_id,r.round_number,r.target_grade,r.target_semester,r.current_class,r.current_number,r.student_name,c.course_name FROM official_results r JOIN upload_files f ON f.id=r.file_id AND f.active=1 LEFT JOIN official_result_courses c ON c.result_id=r.id WHERE r.entrance_year=?`, entranceYear);
   const approvedRows = await all<{ plan_id: string; student_id: string; round_number: number; target_grade: number; target_semester: number; course_name: string | null; current_class: number; current_number: number; name: string }>(db, `SELECT p.id plan_id,p.student_id,r.round_number,pc.target_grade,pc.target_semester,pc.course_name,s.current_class,s.current_number,s.name FROM plans p JOIN rounds r ON r.id=p.round_id JOIN students s ON s.id=p.student_id LEFT JOIN plan_courses pc ON pc.plan_id=p.id WHERE s.entrance_year=? AND p.status='confirmed'`, entranceYear);
@@ -71,5 +73,5 @@ export async function GET(request: Request) {
     const key = `${plan.studentId}:${plan.round}:${plan.targetGrade}:${plan.targetSemester}`;
     if (!grouped.has(key)) validations.push({ ...plan, approvedCourses: plan.courses, officialCourses: [], validationStatus: '실제 결과 없음', reviewStatus: verificationMap.get(key)?.status || 'unreviewed' });
   }
-  return json({ entranceYear, students, plans, issues, files, rounds, curriculum, audit, comparisons, validations });
+  return json({ entranceYear, students, plans, issues, files, rounds, curriculum, courseDescriptions, audit, comparisons, validations });
 }
