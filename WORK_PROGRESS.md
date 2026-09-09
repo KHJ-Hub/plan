@@ -19,13 +19,13 @@
 
 ## 진행 중
 
-- 기준자료 관리 기능 구현 완료, GitHub push·운영 배포 대기.
+- 기준자료 관리 기능 구현·GitHub push·운영 배포 완료.
 - 마지막 수정 파일: `app/api/reference-import/route.ts`, `app/api/overview/route.ts`, `app/planner-app.tsx`.
 
 ## 남은 작업
 
 - 실제 2028학년도 기준자료 엑셀을 받아 열 제목 별칭을 필요하면 보완.
-- GitHub push와 운영 배포 확인.
+- 선택 사항: 업로드 이력에서 원본 엑셀 자체를 다시 내려받아야 한다면 R2 파일 보관을 별도 검토.
 
 ## 중요 결정사항
 
@@ -53,13 +53,14 @@
 
 ## 테스트 상태
 
-- 기준자료 관리: 운영 빌드 통과, 자동 테스트 5건 통과, lint 통과, `git diff --check` 통과.
+- 기준자료 관리: 운영 빌드 통과, 자동 테스트 5건 통과, lint 통과, `git diff --check` 통과, 운영 배포 성공.
 
 ## Git 상태
 
-- 마지막 커밋: `a47fcce docs: record verification grouping deployment`
-- 현재 미커밋 변경: 기준자료 관리 구현 및 진행 기록 갱신.
+- 마지막 기능 커밋: `e43d825 feat: add reference material upload management`
+- GitHub `main` push 및 운영 사이트 배포 완료.
+- 현재 미커밋 변경: 배포 완료 상태 기록 갱신.
 
 ## 다음 작업 시작점
 
-기준자료 관리 변경을 커밋·push한 뒤 운영 사이트에 배포하고, 선생님 페이지에서 로그인 후 기준자료 관리 탭이 보이는지 확인한다.
+다음 요청이 오면 실제 2028학년도 엑셀 파일의 열 제목을 확인하고, 업로드 미리보기 결과를 기준으로 필요한 별칭만 보완한다.
