@@ -263,6 +263,7 @@ export const trackRequirements = sqliteTable('track_requirements', {
   track: text('track').notNull(),
   departmentGroup: text('department_group').notNull(),
   courseName: text('course_name').notNull(),
+  recommendationType: text('recommendation_type', { enum: ['core', 'recommended'] }).notNull().default('recommended'),
   note: text('note').notNull().default(''),
   sourceUploadId: text('source_upload_id'),
   ...timestamps,

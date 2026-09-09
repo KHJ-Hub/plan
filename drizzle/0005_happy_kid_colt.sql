@@ -1,0 +1,1 @@
+ALTER TABLE `track_requirements` ADD `recommendation_type` text DEFAULT 'recommended' NOT NULL;
