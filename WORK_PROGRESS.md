@@ -15,7 +15,7 @@
 
 ## 진행 중
 
-- 결과 검증 그룹화 구현 완료, 테스트·빌드 완료.
+- 결과 검증 그룹화 구현·운영 배포 완료.
 - 마지막 수정 파일: `app/planner-app.tsx`, `app/globals.css`.
 
 ## 남은 작업
@@ -49,10 +49,10 @@
 
 ## Git 상태
 
-- 마지막 커밋: `106001c docs: add work resume protocol`
-- GitHub `main` push 완료.
-- 현재 미커밋 변경: `AGENTS.md`, `WORK_PROGRESS.md` 생성 작업 중.
+- 마지막 커밋: `af32b19 feat: group verification results by student`
+- GitHub `main` push 및 운영 배포 완료.
+- 현재 미커밋 변경: 진행 기록 완료 상태 갱신 중.
 
 ## 다음 작업 시작점
 
-진행 기록 갱신 → 결과 검증 그룹화 작업 commit → push → 운영 배포한다.
+기준자료 관리의 대학별 핵심·권장과목 자료와 학교 공식 과목 안내자료 업로드 구조를 분석·구현한다.
