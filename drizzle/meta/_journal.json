@@ -43,6 +43,13 @@
       "when": 1788935791221,
       "tag": "0005_happy_kid_colt",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1788958037734,
+      "tag": "0006_crazy_squirrel_girl",
+      "breakpoints": true
     }
   ]
 }

@@ -3,17 +3,19 @@ import { normalizeCourseName } from '@/lib/domain.mjs';
 import { id, json, now, requireSession } from '@/lib/server';
 
 type ReferenceType = 'university_regional' | 'university_track' | 'school_course';
-type IncomingRow = Record<string, unknown>;
+type MatrixCourse = { subjectArea?: string; courseName: string; universities?: string; recommendationType?: 'core' | 'recommended' };
+type IncomingRow = Record<string, unknown> & { matrixCourses?: MatrixCourse[] };
 type Body = { action: 'preview' | 'commit' | 'deactivate'; referenceType: ReferenceType; criteriaYear: number; fileName: string; rows: IncomingRow[]; replaceUploadIds?: string[]; uploadId?: string };
 
 const types: ReferenceType[] = ['university_regional', 'university_track', 'school_course'];
 const value = (row: IncomingRow, key: string) => String(row[key] ?? '').trim();
 const splitCourses = (raw: string) => [...new Set(raw.split(/[\n,;/·]+/).map(normalizeCourseName).filter(Boolean))];
+const splitUniversities = (raw: string) => [...new Set(raw.split(/[\n,;/·]+/).map((item) => item.trim()).filter(Boolean))];
 const offered = (raw: string) => !/^(아니오|n|no|x|불가|미개설|0)$/i.test(raw.trim());
 
 function validateRow(type: ReferenceType, row: IncomingRow) {
   if (type === 'school_course') return Boolean(value(row, 'courseName'));
-  if (type === 'university_track') return Boolean(value(row, 'department') && (value(row, 'coreCourses') || value(row, 'recommendedCourses')));
+  if (type === 'university_track') return Boolean(value(row, 'department') && (value(row, 'coreCourses') || value(row, 'recommendedCourses') || row.matrixCourses?.some((item) => item.courseName)));
   return Boolean(value(row, 'university') && value(row, 'department') && (value(row, 'coreCourses') || value(row, 'recommendedCourses')));
 }
 
@@ -36,7 +38,8 @@ export async function POST(request: Request) {
   const invalidRows = rows.map((row, index) => ({ rowNumber: index + 2, valid: validateRow(body.referenceType, row) })).filter((row) => !row.valid);
   const db = getDatabase();
   const existing = await db.prepare(`SELECT id,file_name,row_count,created_at FROM reference_uploads WHERE reference_type=? AND criteria_year=? AND active=1 ORDER BY created_at DESC`).bind(body.referenceType, criteriaYear).all<Record<string, unknown>>();
-  const summary = { totalCount: rows.length, validCount: validRows.length, errorCount: invalidRows.length, sample: validRows.slice(0, 5) };
+  const matrixCourseCount = validRows.reduce((sum, row) => sum + (row.matrixCourses?.length || 0), 0);
+  const summary = { totalCount: rows.length, validCount: validRows.length, errorCount: invalidRows.length, matrixCourseCount, sample: validRows.slice(0, 8) };
   if (body.action === 'preview') return json({ summary, invalidRows: invalidRows.slice(0, 20), existing: existing.results || [] });
   if (!validRows.length) return json({ error: '저장할 수 있는 정상 행이 없습니다.' }, { status: 400 });
   const replaceIds = new Set(body.replaceUploadIds || []);
@@ -46,7 +49,7 @@ export async function POST(request: Request) {
   const timestamp = now(); const uploadId = id('reference');
   const statements: D1PreparedStatement[] = [];
   for (const old of active) statements.push(db.prepare(`UPDATE reference_uploads SET active=0 WHERE id=?`).bind(old.id));
-  statements.push(db.prepare(`INSERT INTO reference_uploads(id,reference_type,criteria_year,file_name,uploaded_by,row_count,active,replaced_upload_id,summary_json,created_at) VALUES(?,?,?,?,?,?,?,?,?,?)`).bind(uploadId, body.referenceType, criteriaYear, body.fileName, session.actor, validRows.length, 1, active[0]?.id || null, JSON.stringify(summary), timestamp));
+  statements.push(db.prepare(`INSERT INTO reference_uploads(id,reference_type,criteria_year,file_name,uploaded_by,row_count,failed_count,active,replaced_upload_id,summary_json,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)`).bind(uploadId, body.referenceType, criteriaYear, body.fileName, session.actor, validRows.length, invalidRows.length, 1, active[0]?.id || null, JSON.stringify(summary), timestamp));
 
   for (const row of validRows) {
     if (body.referenceType === 'school_course') {
@@ -56,11 +59,19 @@ export async function POST(request: Request) {
       if (targetGrade && targetSemester) statements.push(db.prepare(`INSERT INTO curricula(id,entrance_year,target_grade,target_semester,area,course_name,selection_type,offered,note,source_upload_id,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(entrance_year,target_grade,target_semester,course_name) DO UPDATE SET area=excluded.area,selection_type=excluded.selection_type,offered=excluded.offered,note=excluded.note,source_upload_id=excluded.source_upload_id,updated_at=excluded.updated_at`).bind(id('course'), criteriaYear, targetGrade, targetSemester, value(row, 'area'), courseName, value(row, 'selectionType') || 'general', offered(value(row, 'offered')) ? 1 : 0, value(row, 'note'), uploadId, timestamp, timestamp));
     } else if (body.referenceType === 'university_regional') {
       const common = [criteriaYear, value(row, 'track'), value(row, 'region'), value(row, 'university'), value(row, 'department'), value(row, 'note'), uploadId, timestamp, timestamp];
+      statements.push(db.prepare(`INSERT INTO university_reference_entries(id,upload_id,criteria_year,track,region,university,department,core_courses_raw,recommended_courses_raw,note,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)`).bind(id('university_ref'), uploadId, criteriaYear, common[1], common[2], common[3], common[4], value(row, 'coreCourses'), value(row, 'recommendedCourses'), common[5], timestamp));
       for (const courseName of splitCourses(value(row, 'coreCourses'))) statements.push(db.prepare(`INSERT INTO university_requirements(id,admissions_year,track,region,university,department,course_name,recommendation_type,note,source_upload_id,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)`).bind(id('ureq'), common[0], common[1], common[2], common[3], common[4], courseName, 'core', common[5], common[6], common[7], common[8]));
       for (const courseName of splitCourses(value(row, 'recommendedCourses'))) statements.push(db.prepare(`INSERT INTO university_requirements(id,admissions_year,track,region,university,department,course_name,recommendation_type,note,source_upload_id,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)`).bind(id('ureq'), common[0], common[1], common[2], common[3], common[4], courseName, 'recommended', common[5], common[6], common[7], common[8]));
     } else {
-      for (const courseName of splitCourses(value(row, 'coreCourses'))) statements.push(db.prepare(`INSERT INTO track_requirements(id,admissions_year,track,department_group,course_name,recommendation_type,note,source_upload_id,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?)`).bind(id('treq'), criteriaYear, value(row, 'track'), value(row, 'department'), courseName, 'core', value(row, 'note'), uploadId, timestamp, timestamp));
-      for (const courseName of splitCourses(value(row, 'recommendedCourses'))) statements.push(db.prepare(`INSERT INTO track_requirements(id,admissions_year,track,department_group,course_name,recommendation_type,note,source_upload_id,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?)`).bind(id('treq'), criteriaYear, value(row, 'track'), value(row, 'department'), courseName, 'recommended', value(row, 'note'), uploadId, timestamp, timestamp));
+      for (const matrix of row.matrixCourses || []) {
+        const courseName = normalizeCourseName(matrix.courseName);
+        if (!courseName) continue;
+        const recommendationType = matrix.recommendationType === 'core' ? 'core' : 'recommended';
+        statements.push(db.prepare(`INSERT INTO track_reference_entries(id,upload_id,criteria_year,track,department,subject_area,course_name,universities_json,recommendation_type,note,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)`).bind(id('track_ref'), uploadId, criteriaYear, value(row, 'track'), value(row, 'department'), String(matrix.subjectArea || '').trim(), courseName, JSON.stringify(splitUniversities(String(matrix.universities || ''))), recommendationType, value(row, 'note'), timestamp));
+        statements.push(db.prepare(`INSERT INTO track_requirements(id,admissions_year,track,department_group,course_name,recommendation_type,note,source_upload_id,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?)`).bind(id('treq'), criteriaYear, value(row, 'track'), value(row, 'department'), courseName, recommendationType, value(row, 'note'), uploadId, timestamp, timestamp));
+      }
+      for (const courseName of splitCourses(value(row, 'coreCourses'))) { statements.push(db.prepare(`INSERT INTO track_reference_entries(id,upload_id,criteria_year,track,department,subject_area,course_name,universities_json,recommendation_type,note,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)`).bind(id('track_ref'), uploadId, criteriaYear, value(row, 'track'), value(row, 'department'), value(row, 'subjectArea'), courseName, '[]', 'core', value(row, 'note'), timestamp)); statements.push(db.prepare(`INSERT INTO track_requirements(id,admissions_year,track,department_group,course_name,recommendation_type,note,source_upload_id,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?)`).bind(id('treq'), criteriaYear, value(row, 'track'), value(row, 'department'), courseName, 'core', value(row, 'note'), uploadId, timestamp, timestamp)); }
+      for (const courseName of splitCourses(value(row, 'recommendedCourses'))) { statements.push(db.prepare(`INSERT INTO track_reference_entries(id,upload_id,criteria_year,track,department,subject_area,course_name,universities_json,recommendation_type,note,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)`).bind(id('track_ref'), uploadId, criteriaYear, value(row, 'track'), value(row, 'department'), value(row, 'subjectArea'), courseName, '[]', 'recommended', value(row, 'note'), timestamp)); statements.push(db.prepare(`INSERT INTO track_requirements(id,admissions_year,track,department_group,course_name,recommendation_type,note,source_upload_id,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?)`).bind(id('treq'), criteriaYear, value(row, 'track'), value(row, 'department'), courseName, 'recommended', value(row, 'note'), uploadId, timestamp, timestamp)); }
     }
   }
   statements.push(db.prepare(`INSERT INTO audit_logs(id,actor,action,details_json,created_at) VALUES(?,?,?,?,?)`).bind(id('audit'), session.actor, '기준자료 업로드', JSON.stringify({ referenceType: body.referenceType, criteriaYear, fileName: body.fileName, rowCount: validRows.length, replaced: active.map((item) => item.id) }), timestamp));

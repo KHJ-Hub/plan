@@ -278,11 +278,44 @@ export const referenceUploads = sqliteTable('reference_uploads', {
   fileName: text('file_name').notNull(),
   uploadedBy: text('uploaded_by').notNull(),
   rowCount: integer('row_count').notNull(),
+  failedCount: integer('failed_count').notNull().default(0),
   active: integer('active', { mode: 'boolean' }).notNull().default(true),
   replacedUploadId: text('replaced_upload_id'),
   summaryJson: text('summary_json').notNull().default('{}'),
   createdAt: text('created_at').notNull(),
 }, (t) => [index('idx_reference_uploads_scope').on(t.referenceType, t.criteriaYear, t.active)]);
+
+// 대학별 자료의 원문 행은 과목별 정규화 레코드와 분리해 남깁니다. 따라서 추천 조회에는
+// university_requirements를 쓰되, 선생님은 업로드 파일의 원문 핵심·권장 목록도 확인할 수 있습니다.
+export const universityReferenceEntries = sqliteTable('university_reference_entries', {
+  id: text('id').primaryKey(),
+  uploadId: text('upload_id').notNull().references(() => referenceUploads.id),
+  criteriaYear: integer('criteria_year').notNull(),
+  track: text('track').notNull().default(''),
+  region: text('region').notNull().default(''),
+  university: text('university').notNull(),
+  department: text('department').notNull(),
+  coreCoursesRaw: text('core_courses_raw').notNull().default(''),
+  recommendedCoursesRaw: text('recommended_courses_raw').notNull().default(''),
+  note: text('note').notNull().default(''),
+  createdAt: text('created_at').notNull(),
+}, (t) => [index('idx_university_reference_entries_filter').on(t.criteriaYear, t.university, t.department)]);
+
+// 계열별 대표 모집단위 자료는 매트릭스 엑셀도 받아들이기 위해 과목 영역·세부 과목·대학
+// 목록을 한 레코드로 구조화합니다. 대학명이 없는 표도 참고자료로 보존할 수 있습니다.
+export const trackReferenceEntries = sqliteTable('track_reference_entries', {
+  id: text('id').primaryKey(),
+  uploadId: text('upload_id').notNull().references(() => referenceUploads.id),
+  criteriaYear: integer('criteria_year').notNull(),
+  track: text('track').notNull().default(''),
+  department: text('department').notNull(),
+  subjectArea: text('subject_area').notNull().default(''),
+  courseName: text('course_name').notNull(),
+  universitiesJson: text('universities_json').notNull().default('[]'),
+  recommendationType: text('recommendation_type', { enum: ['core', 'recommended'] }).notNull().default('recommended'),
+  note: text('note').notNull().default(''),
+  createdAt: text('created_at').notNull(),
+}, (t) => [index('idx_track_reference_entries_filter').on(t.criteriaYear, t.track, t.department)]);
 
 export const schoolCourseGuides = sqliteTable('school_course_guides', {
   id: text('id').primaryKey(),
