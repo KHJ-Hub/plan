@@ -14,13 +14,19 @@ export async function POST(request: Request) {
       const pendingPlan = await db.prepare(`SELECT id FROM plans WHERE student_id=? AND status='pending' LIMIT 1`).bind(session.studentId).first();
       if (pendingPlan) return json({ error: '담임 확인 대기 중에는 진로 정보와 희망 대학·학과를 수정할 수 없습니다.' }, { status: 409 });
       const existingConfirmed = await db.prepare(`SELECT COUNT(*) count FROM plans WHERE student_id=? AND status='confirmed'`).bind(session.studentId).first<{ count: number }>();
+      const careerGoal = String(body.careerGoal || '').trim();
+      const counselingMemo = String(body.counselingMemo || '').trim();
+      const preferences = (Array.isArray(body.preferences) ? body.preferences : []).slice(0, 3).filter((p: any) => p.university || p.department).map((p: any, rank: number) => ({ rank: rank + 1, university: String(p.university || '').trim(), department: String(p.department || '').trim(), admissionsYear: Number(p.admissionsYear || 2028) }));
+      const currentProfile = await db.prepare(`SELECT career_goal,counseling_memo FROM student_profiles WHERE student_id=?`).bind(session.studentId).first<{ career_goal: string; counseling_memo: string }>();
+      const currentPreferences = (await db.prepare(`SELECT rank,university,department,admissions_year FROM student_preferences WHERE student_id=? ORDER BY rank`).bind(session.studentId).all<{ rank: number; university: string; department: string; admissions_year: number }>()).results || [];
+      const profileChanged = currentProfile?.career_goal !== careerGoal || currentProfile?.counseling_memo !== counselingMemo || JSON.stringify(currentPreferences.map((p) => ({ rank: p.rank, university: p.university, department: p.department, admissionsYear: p.admissions_year }))) !== JSON.stringify(preferences);
       await db.batch([
-        db.prepare(`INSERT INTO student_profiles(student_id,career_goal,counseling_memo,updated_at) VALUES(?,?,?,?) ON CONFLICT(student_id) DO UPDATE SET career_goal=excluded.career_goal,counseling_memo=excluded.counseling_memo,updated_at=excluded.updated_at`).bind(session.studentId, String(body.careerGoal || '').trim(), String(body.counselingMemo || '').trim(), time),
+        db.prepare(`INSERT INTO student_profiles(student_id,career_goal,counseling_memo,updated_at) VALUES(?,?,?,?) ON CONFLICT(student_id) DO UPDATE SET career_goal=excluded.career_goal,counseling_memo=excluded.counseling_memo,updated_at=excluded.updated_at`).bind(session.studentId, careerGoal, counselingMemo, time),
         db.prepare(`DELETE FROM student_preferences WHERE student_id=?`).bind(session.studentId),
-        ...(Array.isArray(body.preferences) ? body.preferences.slice(0, 3).filter((p: any) => p.university || p.department).map((p: any, rank: number) => db.prepare(`INSERT INTO student_preferences(id,student_id,rank,university,department,admissions_year,updated_at) VALUES(?,?,?,?,?,?,?)`).bind(id('pref'), session.studentId, rank + 1, String(p.university || '').trim(), String(p.department || '').trim(), Number(p.admissionsYear || 2028), time)) : []),
-        ...(existingConfirmed?.count ? [db.prepare(`UPDATE plans SET status='recheck_required',revision=revision+1,updated_at=? WHERE student_id=? AND status='confirmed'`).bind(time, session.studentId)] : []),
+        ...preferences.map((p) => db.prepare(`INSERT INTO student_preferences(id,student_id,rank,university,department,admissions_year,updated_at) VALUES(?,?,?,?,?,?,?)`).bind(id('pref'), session.studentId, p.rank, p.university, p.department, p.admissionsYear, time)),
+        ...(existingConfirmed?.count && profileChanged ? [db.prepare(`UPDATE plans SET status='recheck_required',revision=revision+1,updated_at=? WHERE student_id=? AND status='confirmed'`).bind(time, session.studentId)] : []),
       ]);
-      return json({ ok: true, statusChanged: Boolean(existingConfirmed?.count) });
+      return json({ ok: true, statusChanged: Boolean(existingConfirmed?.count && profileChanged) });
     }
     if (body.action === 'savePlan') {
       const round = await db.prepare(`SELECT id,status FROM rounds WHERE id=? AND entrance_year=(SELECT entrance_year FROM students WHERE id=?)`).bind(body.roundId, session.studentId).first<{ id: string; status: string }>();
