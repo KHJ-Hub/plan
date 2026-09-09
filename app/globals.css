@@ -149,6 +149,14 @@ tr.attention td { background: #fff9ed; }
 .recommendation-box.green { background: #f4fcf7; border-color: #ccebd9; }
 .recommendation-box.amber { background: #fffaf0; border-color: #f1dfa9; }
 .plan-actions { display: grid; gap: 12px; }
+.teacher-summary { grid-template-columns: repeat(5,minmax(0,1fr)); }
+.selected-metric { outline: 3px solid rgba(106,90,205,.25); }
+.detail-grid { display:grid; grid-template-columns:minmax(240px,.8fr) minmax(0,1.2fr); gap:16px; }
+.detail-grid > div, .teacher-recommendation, .review-box { padding:16px; border:1px solid var(--line); border-radius:18px; background:var(--pink-50); }
+.detail-grid h3, .teacher-recommendation h3, .review-box h3, .review-history h3 { margin:0 0 10px; color:#554994; font-size:1rem; }
+.teacher-detail { display:grid; gap:16px; }
+.teacher-recommendation { background:#fff; }
+.review-history { display:grid; gap:8px; margin-top:16px; }
 .empty { padding: 28px; color: var(--muted); text-align: center; border: 2px dashed var(--line); border-radius: 18px; background: var(--pink-50); }
 .split { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .upload-drop { display: grid; place-items: center; min-height: 150px; padding: 20px; border: 3px dashed var(--pink-300); border-radius: 20px; background: var(--pink-50); text-align: center; }
@@ -182,7 +190,7 @@ tr.attention td { background: #fff9ed; }
   .side-nav { grid-template-columns: repeat(2,1fr); }
   .side-nav button { font-size: .86rem; }
   .page-head, .panel { padding: 18px; }
-  .form-grid, .split, .course-list, .file-settings, .diff-grid, .description-list, .student-info-grid, .recommendation-grid { grid-template-columns: 1fr; }
+  .form-grid, .split, .course-list, .file-settings, .diff-grid, .description-list, .student-info-grid, .recommendation-grid, .teacher-summary, .detail-grid { grid-template-columns: 1fr; }
   .grid-cards { grid-template-columns: 1fr 1fr; gap: 8px; }
   .metric { padding: 13px; }
   .metric strong { font-size: 1.3rem; }
