@@ -23,7 +23,8 @@
 
 ## 진행 중
 
-- 기준자료 관리 확장 구현 완료. 최종 커밋·push·운영 배포 대기.
+- 기준자료 관리 확장 구현·GitHub push·운영 배포 완료.
+- 기능 커밋 `6fb6430`를 운영 사이트 버전 18로 배포 성공함.
 - 마지막 수정 파일: `app/api/reference-import/route.ts`, `app/api/overview/route.ts`, `app/planner-app.tsx`.
 
 ## 남은 작업
@@ -59,13 +60,14 @@
 
 ## 테스트 상태
 
-- 기준자료 관리 확장: 운영 빌드 통과, 자동 테스트 5건 통과, lint 통과, `git diff --check` 통과.
+- 기준자료 관리 확장: 운영 빌드 통과, 자동 테스트 5건 통과, lint 통과, `git diff --check` 통과, 운영 배포 성공.
 
 ## Git 상태
 
-- 마지막 기능 커밋: `d065f54 fix: preserve core and recommended track references`
-- 현재 미커밋 변경: 기준자료 구조·열 매핑·추천 연동 확장 및 새 마이그레이션.
+- 마지막 기능 커밋: `6fb6430 feat: expand reference material import workflow`
+- GitHub `main` push 및 운영 사이트 배포 완료.
+- 현재 미커밋 변경: 배포 완료 상태 기록 갱신.
 
 ## 다음 작업 시작점
 
-기준자료 확장을 커밋·push한 뒤 운영 사이트에 배포한다. 이후 실제 2028학년도 엑셀 파일을 미리보기로 확인해 필요한 별칭만 보완한다.
+실제 2028학년도 엑셀 파일을 기준자료 관리의 미리보기로 열어 제목 행·열 매핑·오류 표시를 확인하고, 필요한 별칭만 보완한다.
