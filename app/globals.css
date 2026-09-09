@@ -112,6 +112,7 @@ textarea.control { min-height: 86px; resize: vertical; }
 table { width: 100%; border-collapse: collapse; min-width: 760px; background: #fff; }
 th { padding: 12px 13px; background: #fff1f6; color: #66559e; font-size: .86rem; text-align: left; white-space: nowrap; }
 td { padding: 12px 13px; border-top: 1px solid #f7e9ef; vertical-align: top; font-size: .9rem; }
+.table-wrap table th:first-child, .table-wrap table td:first-child { min-width: 154px; width: 154px; word-break: keep-all; white-space: nowrap; }
 tr.attention td { background: #fff9ed; }
 .course-groups { display: grid; gap: 12px; }
 .course-group { overflow: hidden; border: 2px solid var(--line); border-radius: 18px; background: #fff; }
@@ -239,6 +240,7 @@ tr.attention td { background: #fff9ed; }
   .table-wrap td:nth-child(3)::before { content: '차수 · '; color: var(--muted); }
   .table-wrap td:nth-child(5)::before { content: '최근 수정 · '; color: var(--muted); }
   .table-wrap td:last-child .ghost-btn { width: 100%; min-height: 46px; }
+  .table-wrap table th:first-child, .table-wrap table td:first-child { width: auto; min-width: 0; white-space: normal; word-break: keep-all; }
   .toolbar { align-items: stretch; }
   .toolbar .field, .toolbar .control { width: 100%; }
   .detail-grid > div, .teacher-recommendation, .review-box { padding:14px; }
