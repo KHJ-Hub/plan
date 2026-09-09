@@ -211,11 +211,38 @@ tr.attention td { background: #fff9ed; }
   .topbar { top: 6px; padding: 11px 12px; }
   .brand-small strong { font-size: 1.25rem; }
   .user-label { display: none; }
-  .side-nav { display: flex; overflow-x: auto; padding: 8px; }
-  .side-nav button { min-width: max-content; padding: 9px 11px; }
+  .side-nav { display: flex; overflow-x: auto; padding: 8px; scrollbar-width: none; }
+  .side-nav::-webkit-scrollbar { display: none; }
+  .side-nav button { min-width: max-content; min-height: 44px; padding: 10px 13px; }
   .page-head, .panel { padding: 17px; }
   .grid-cards { gap: 8px; }
   .metric { padding: 13px; }
   .metric strong { font-size: 1.35rem; }
+  .topbar { align-items: flex-start; }
+  .top-actions { flex-wrap: wrap; justify-content: flex-end; }
+  .control { min-height: 48px; font-size: 1rem; }
+  .course-row { min-height: 64px; align-items: center; padding: 13px; }
+  .course-row input { width: 24px; height: 24px; flex: 0 0 24px; }
+  .course-name { overflow-wrap: anywhere; }
+  .semester-tabs { display: grid; grid-template-columns: 1fr 1fr; }
+  .semester-tabs button { min-height: 48px; }
+  .plan-actions { position: sticky; bottom: 8px; z-index: 10; box-shadow: 0 12px 28px rgba(92,72,140,.2); }
+  .plan-actions .toolbar { display: grid; grid-template-columns: 1fr 1.2fr; }
+  .plan-actions button { min-height: 52px; }
+  .table-wrap { overflow: visible; border: 0; }
+  .table-wrap table { min-width: 0; }
+  .table-wrap thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+  .table-wrap tbody { display: grid; gap: 10px; }
+  .table-wrap tr { display: grid; gap: 7px; padding: 14px; border: 1px solid var(--line); border-radius: 16px; background: #fff; }
+  .table-wrap td { display: block; padding: 0; border: 0; font-size: .92rem; }
+  .table-wrap td:nth-child(1)::before { content: '입학년도 · '; color: var(--muted); }
+  .table-wrap td:nth-child(3)::before { content: '차수 · '; color: var(--muted); }
+  .table-wrap td:nth-child(5)::before { content: '최근 수정 · '; color: var(--muted); }
+  .table-wrap td:last-child .ghost-btn { width: 100%; min-height: 46px; }
+  .toolbar { align-items: stretch; }
+  .toolbar .field, .toolbar .control { width: 100%; }
+  .detail-grid > div, .teacher-recommendation, .review-box { padding:14px; }
+  .review-box .toolbar { display:grid; grid-template-columns:1fr 1fr; }
+  .review-box button { min-height:52px; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; } }
