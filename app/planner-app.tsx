@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { BookOpen, ClipboardCheck, Database, FileSpreadsheet, GraduationCap, Home, LogOut, Settings, Sparkles, Upload, Users } from 'lucide-react';
-import { defaultCurriculum, type CurriculumCourse } from '@/lib/default-curriculum';
+import { type CurriculumCourse } from '@/lib/default-curriculum';
 import { parseOfficialWorkbook, type ParsedOfficialFile } from '@/lib/excel';
 import { compareCourseSets } from '@/lib/domain.mjs';
 
@@ -11,7 +11,7 @@ type Session = { token: string; role: Role; label: string };
 type Notice = { type: 'error' | 'warn' | 'success'; text: string } | null;
 
 const statusLabels: Record<string, string> = {
-  draft: '작성 중', pending: '담임 확인 대기', revision_requested: '수정 요청', confirmed: '확인 완료', recheck_required: '재확인 필요',
+  draft: '작성 중', pending: '담임 확인 대기', revision_requested: '수정 필요', confirmed: '담임 확인 완료', recheck_required: '재확인 필요',
   open: '진행 중', closed: '마감', unreviewed: '미확인',
 };
 const statusTone = (status: string) => status === 'confirmed' || status === '변경 없음' || status === '일치' ? 'green' : status === 'pending' || status === '과목 추가' ? 'purple' : status === 'draft' ? 'gray' : status.includes('확인') || status.includes('없음') || status.includes('등장') ? 'amber' : 'red';
@@ -132,7 +132,9 @@ function PlanEditor({ data, session, reload }: { data: any; session: Session; re
   const planRows = (data.plans || []).filter((p: any) => p.round_id === openRound?.id);
   const existingPlan = planRows[0];
   const initialCourses = planRows.filter((p: any) => p.course_name).map((p: any) => ({ targetGrade: p.target_grade, targetSemester: p.target_semester, courseName: p.course_name }));
-  const curriculum: CurriculumCourse[] = data.curriculum?.length ? data.curriculum.map((c: any) => ({ targetGrade: c.target_grade, targetSemester: c.target_semester, area: c.area, courseName: c.course_name, selectionType: c.selection_type })) : defaultCurriculum;
+  // 학생에게는 선생님이 해당 입학년도 교육과정에 실제 개설로 등록한 과목만 보여줍니다.
+  // 예시 교육과정은 선생님 설정 화면의 초기 등록 보조용으로만 남겨 둡니다.
+  const curriculum: CurriculumCourse[] = (data.curriculum || []).map((c: any) => ({ targetGrade: c.target_grade, targetSemester: c.target_semester, area: c.area, courseName: c.course_name, selectionType: c.selection_type }));
   const [semester, setSemester] = useState('2-1');
   const [selected, setSelected] = useState<Array<{ targetGrade: number; targetSemester: number; courseName: string }>>(initialCourses);
   const [careerGoal, setCareerGoal] = useState(data.profile?.career_goal || '');
@@ -154,21 +156,53 @@ function PlanEditor({ data, session, reload }: { data: any; session: Session; re
   };
   useEffect(() => { if (!touched.current || locked) return; if (timer.current) clearTimeout(timer.current); timer.current = setTimeout(() => saveDraft(true), 900); return () => { if (timer.current) clearTimeout(timer.current); }; }, [selected, memo]);
   const toggle = (course: CurriculumCourse) => { if (locked) return; if (currentStatus === 'confirmed' && !window.confirm('담임 확인이 완료된 신청안입니다. 수정하면 기존 확인이 취소되고 다시 확인을 받아야 합니다. 수정하시겠습니까?')) return; touched.current = true; setSelected((items) => items.some((x) => x.targetGrade === course.targetGrade && x.targetSemester === course.targetSemester && x.courseName === course.courseName) ? items.filter((x) => !(x.targetGrade === course.targetGrade && x.targetSemester === course.targetSemester && x.courseName === course.courseName)) : [...items, { targetGrade: course.targetGrade, targetSemester: course.targetSemester, courseName: course.courseName }]); };
-  const saveProfile = async () => { if (currentStatus === 'confirmed' && !window.confirm('진로 또는 희망 대학·학과를 수정하면 담임 재확인이 필요합니다. 계속할까요?')) return; try { const result = await api('/api/action', session.token, { method: 'POST', body: JSON.stringify({ action: 'saveProfile', careerGoal, counselingMemo: memo, preferences }) }); setNotice({ type: result.statusChanged ? 'warn' : 'success', text: result.statusChanged ? '진로 정보가 바뀌어 신청안이 재확인 필요 상태가 되었습니다.' : '진로와 희망 대학·학과를 저장했습니다.' }); await reload(); } catch (e) { setNotice({ type: 'error', text: e instanceof Error ? e.message : '저장하지 못했습니다.' }); } };
-  const submit = async () => { const savedPlanId = planId || existingPlan?.plan_id || await saveDraft(true); if (!savedPlanId) return; try { await api('/api/action', session.token, { method: 'POST', body: JSON.stringify({ action: 'submitPlan', planId: savedPlanId, snapshot: { selected, careerGoal, preferences } }) }); setNotice({ type: 'success', text: '담임 확인을 요청했습니다. 이제 신청안은 잠깁니다.' }); await reload(); } catch (e) { setNotice({ type: 'error', text: e instanceof Error ? e.message : '제출하지 못했습니다.' }); } };
+  const saveProfile = async (quiet = false) => {
+    if (locked) return false;
+    if (currentStatus === 'confirmed' && !window.confirm('담임 확인이 완료된 신청안입니다. 진로 정보를 수정하면 기존 확인이 취소되고 다시 확인을 받아야 합니다. 수정하시겠습니까?')) return false;
+    try {
+      const result = await api('/api/action', session.token, { method: 'POST', body: JSON.stringify({ action: 'saveProfile', careerGoal, counselingMemo: memo, preferences }) });
+      if (!quiet) setNotice({ type: result.statusChanged ? 'warn' : 'success', text: result.statusChanged ? '진로 정보가 바뀌어 신청안이 재확인 필요 상태가 되었습니다.' : '진로와 희망 대학·학과를 저장했습니다.' });
+      return true;
+    } catch (e) { setNotice({ type: 'error', text: e instanceof Error ? e.message : '저장하지 못했습니다.' }); return false; }
+  };
+  const saveAll = async () => { const profileSaved = await saveProfile(true); if (!profileSaved) return; await saveDraft(false); await reload(); };
+  const submit = async () => { const profileSaved = await saveProfile(true); if (!profileSaved) return; const savedPlanId = planId || existingPlan?.plan_id || await saveDraft(true); if (!savedPlanId) return; try { await api('/api/action', session.token, { method: 'POST', body: JSON.stringify({ action: 'submitPlan', planId: savedPlanId, snapshot: { selected, careerGoal, preferences } }) }); setNotice({ type: 'success', text: '담임 확인을 요청했습니다. 이제 신청안은 잠깁니다.' }); await reload(); } catch (e) { setNotice({ type: 'error', text: e instanceof Error ? e.message : '제출하지 못했습니다.' }); } };
   const [grade, term] = semester.split('-').map(Number); const visible = curriculum.filter((c) => c.targetGrade === grade && c.targetSemester === term); const areas = [...new Set(visible.map((c) => c.area))];
+  const selectedCourses = selected.map((course) => course.courseName);
   return <>
-    <section className="surface panel"><div className="panel-head"><div><h2>진로와 희망 대학·학과</h2><p className="panel-sub">최소 한 곳만 입력해도 됩니다. 최대 세 곳까지 저장할 수 있어요.</p></div><Badge tone={statusTone(currentStatus)}>{statusLabels[currentStatus] || '작성 중'}</Badge></div>
-      <div className="field"><label>진로희망</label><input className="control" value={careerGoal} onChange={(e) => setCareerGoal(e.target.value)} placeholder="예: 생명과학 연구원" /></div>
-      <div className="form-grid" style={{marginTop:12}}>{preferences.map((p, i) => <div className="field full" key={i}><label>{i + 1}순위 희망</label><div className="split"><input className="control" value={p.university} onChange={(e) => setPreferences(preferences.map((x, n) => n === i ? {...x, university:e.target.value}:x))} placeholder="대학명" /><input className="control" value={p.department} onChange={(e) => setPreferences(preferences.map((x, n) => n === i ? {...x, department:e.target.value}:x))} placeholder="학과 또는 모집단위" /></div></div>)}</div>
-      <div className="field" style={{marginTop:12}}><label>학생 메모·상담 참고사항 (선택)</label><textarea className="control" value={memo} onChange={(e) => { touched.current = true; setMemo(e.target.value); }} /></div>
-      <button className="secondary-btn" onClick={saveProfile} style={{marginTop:12}}>진로 정보 저장</button>
+    <section className="surface panel"><div className="panel-head"><div><h2>내 기본정보</h2><p className="panel-sub">신청안은 학교 공식 수강신청 결과와 별도로 저장됩니다.</p></div><Badge tone={statusTone(currentStatus)}>{statusLabels[currentStatus] || '작성 중'}</Badge></div>
+      <div className="student-info-grid"><div><span>입학년도</span><strong>{data.student?.entrance_year}년</strong></div><div><span>반 · 번호</span><strong>{data.student?.current_class}반 {data.student?.current_number}번</strong></div><div><span>이름</span><strong>{data.student?.name}</strong></div><div><span>현재 수강신청 차수</span><strong>{openRound ? `${openRound.round_number}차` : '준비 중'}</strong></div><div><span>현재 상태</span><strong>{statusLabels[currentStatus] || '작성 중'}</strong></div></div>
+    </section>
+    <section className="surface panel"><div className="panel-head"><div><h2>진로와 희망 대학·학과</h2><p className="panel-sub">관심 진로와 1순위만 입력해도 저장하고 담임 확인을 요청할 수 있어요.</p></div></div>
+      <div className="field"><label>관심 진로</label><input className="control" disabled={locked} value={careerGoal} onChange={(e) => { touched.current = true; setCareerGoal(e.target.value); }} placeholder="예: 생명과학 연구원" /></div>
+      <div className="form-grid" style={{marginTop:12}}>{preferences.map((p, i) => <div className="field full" key={i}><label>{i === 0 ? '1순위 희망 대학·학과' : `${i + 1}순위 희망 대학·학과 (선택)`}</label><div className="split"><input className="control" disabled={locked} value={p.university} onChange={(e) => { touched.current = true; setPreferences(preferences.map((x, n) => n === i ? {...x, university:e.target.value}:x)); }} placeholder="희망 대학" /><input className="control" disabled={locked} value={p.department} onChange={(e) => { touched.current = true; setPreferences(preferences.map((x, n) => n === i ? {...x, department:e.target.value}:x)); }} placeholder="희망 학과 또는 모집단위" /></div></div>)}</div>
+      <div className="field" style={{marginTop:12}}><label>학생 메모·상담 참고사항 (선택)</label><textarea className="control" disabled={locked} value={memo} onChange={(e) => { touched.current = true; setMemo(e.target.value); }} /></div>
+      {locked && <div className="message warn">담임교사 검토가 진행 중이거나 신청 기간이 마감되어 지금은 신청안을 수정할 수 없습니다.</div>}
     </section>
     <section className="surface panel"><div className="panel-head"><div><h2>{openRound ? `${openRound.round_number}차 학생 신청안` : '학생 신청안'}</h2><p className="panel-sub">과목은 교과 영역별로 확인할 수 있습니다. 핵심·권장과목 미선택은 제출을 막지 않고 알려드립니다.</p></div>{saving && <Badge tone="purple">자동 저장 중</Badge>}</div>
       {!openRound ? <div className="empty">선생님이 아직 신청 차수를 열지 않았습니다.</div> : <><div className="semester-tabs">{['2-1','2-2','3-1','3-2'].map((s) => <button key={s} className={semester === s ? 'active' : ''} onClick={() => setSemester(s)}>{s.replace('-', '학년 ')}학기</button>)}</div>
-      <div className="course-groups" style={{marginTop:14}}>{areas.map((area) => <details className="course-group" key={area} open><summary>{area} 영역 <span>{visible.filter((c) => c.area === area).length}과목</span></summary><div className="course-list">{visible.filter((c) => c.area === area).map((course) => { const checked = selected.some((x) => x.targetGrade === grade && x.targetSemester === term && x.courseName === course.courseName); const reqs = requirementMap.get(course.courseName) || []; const coreCount = new Set(reqs.filter((r) => r.recommendation_type === 'core').map((r) => r.university)).size; const recommendedCount = new Set(reqs.filter((r) => r.recommendation_type === 'recommended').map((r) => r.university)).size; return <label className="course-row" key={course.courseName} title={reqs.map((r) => `${r.university} ${r.department} - ${r.recommendation_type === 'core' ? '핵심과목' : '권장과목'}`).join('\n')}><input type="checkbox" checked={checked} disabled={locked} onChange={() => toggle(course)} /><span className="course-main"><span className="course-name">{course.courseName}</span><span className="course-meta"><Badge tone="gray">{{general:'일반선택',career:'진로선택',convergence:'융합선택'}[course.selectionType]}</Badge>{coreCount > 0 && <Badge tone="pink">핵심과목{coreCount > 1 ? ` · ${coreCount}개 대학` : ''}</Badge>}{!coreCount && recommendedCount > 0 && <Badge tone="purple">권장과목{recommendedCount > 1 ? ` · ${recommendedCount}개 대학` : ''}</Badge>}</span></span></label>; })}</div></details>)}</div>
-      <NoticeBox notice={notice} /><div className="toolbar" style={{marginTop:14}}><button className="secondary-btn" disabled={locked || saving} onClick={() => saveDraft(false)}>임시 저장</button><button className="primary-btn" disabled={locked || saving} onClick={submit}>담임 확인 요청</button></div></>}</section>
+      {!visible.length ? <div className="empty">이 학기에 실제로 선택 가능한 과목이 아직 등록되지 않았습니다.<br />선생님께 교육과정 등록 여부를 확인해주세요.</div> : <div className="course-groups" style={{marginTop:14}}>{areas.map((area) => <details className="course-group" key={area} open><summary>{area} 영역 <span>{visible.filter((c) => c.area === area).length}과목</span></summary><div className="course-list">{visible.filter((c) => c.area === area).map((course) => { const checked = selected.some((x) => x.targetGrade === grade && x.targetSemester === term && x.courseName === course.courseName); const reqs = requirementMap.get(course.courseName) || []; const coreCount = new Set(reqs.filter((r) => r.recommendation_type === 'core').map((r) => r.university)).size; const recommendedCount = new Set(reqs.filter((r) => r.recommendation_type === 'recommended').map((r) => r.university)).size; return <label className="course-row" key={course.courseName} title={reqs.map((r) => `${r.university} ${r.department} - ${r.recommendation_type === 'core' ? '핵심과목' : '권장과목'}`).join('\n')}><input type="checkbox" checked={checked} disabled={locked} onChange={() => toggle(course)} /><span className="course-main"><span className="course-name">{course.courseName}</span><span className="course-meta"><Badge tone="gray">{{general:'일반선택',career:'진로선택',convergence:'융합선택'}[course.selectionType]}</Badge>{coreCount > 0 && <Badge tone="pink">핵심과목{coreCount > 1 ? ` · ${coreCount}개 대학` : ''}</Badge>}{!coreCount && recommendedCount > 0 && <Badge tone="purple">권장과목{recommendedCount > 1 ? ` · ${recommendedCount}개 대학` : ''}</Badge>}</span></span></label>; })}</div></details>)}</div>}</>}
+    </section>
+    <PlanRecommendationAnalysis requirements={data.requirements || []} selectedCourses={selectedCourses} preferences={preferences} />
+    <section className="surface panel plan-actions"><div><h2>신청안 저장·제출</h2><p className="panel-sub">추천 과목을 선택하지 않아도 제출할 수 있으며, 담임교사와 함께 확인할 수 있습니다.</p></div><NoticeBox notice={notice} /><div className="toolbar"><button className="secondary-btn" disabled={locked || saving} onClick={saveAll}>임시 저장</button><button className="primary-btn" disabled={locked || saving} onClick={submit}>담임 확인 요청</button></div></section>
   </>;
+}
+
+function PlanRecommendationAnalysis({ requirements, selectedCourses, preferences }: { requirements: any[]; selectedCourses: string[]; preferences: any[] }) {
+  const selected = new Set(selectedCourses);
+  const core = requirements.filter((item) => item.recommendation_type === 'core');
+  const recommended = requirements.filter((item) => item.recommendation_type === 'recommended');
+  const unique = (items: any[]) => [...new Set(items.map((item) => item.course_name))];
+  const selectedRecommended = unique(requirements.filter((item) => selected.has(item.course_name)));
+  const missing = unique(requirements.filter((item) => !selected.has(item.course_name)));
+  return <section className="surface panel"><div className="panel-head"><div><h2>대학·학과 추천과목 분석</h2><p className="panel-sub">2028학년도에 등록된 자료를 참고로 비교합니다. 과목 선택을 강제하지 않습니다.</p></div></div>
+    {!preferences.some((item) => item.university || item.department) ? <div className="empty">희망 대학 또는 희망 학과를 입력하면 추천과목을 비교해드려요.</div> : !requirements.length ? <div className="message warn">등록된 대학·학과 추천 자료가 없습니다. 담임교사와 확인해주세요.</div> : <div className="recommendation-grid"><RecommendationBox title="핵심과목" tone="pink" courses={unique(core)} /><RecommendationBox title="권장과목" tone="purple" courses={unique(recommended)} /><RecommendationBox title="현재 선택한 추천과목" tone="green" courses={selectedRecommended} /><RecommendationBox title="현재 선택하지 않은 과목" tone="amber" courses={missing} /></div>}
+    {!!missing.length && <div className="message warn">희망 대학/학과 자료 기준으로 확인이 필요한 과목이 있습니다. 담임교사와 함께 확인해보세요.</div>}
+  </section>;
+}
+
+function RecommendationBox({ title, tone, courses }: { title: string; tone: string; courses: string[] }) {
+  return <div className={`recommendation-box ${tone}`}><div><Badge tone={tone}>{title}</Badge><strong>{courses.length}과목</strong></div><p>{courses.length ? courses.join(', ') : '해당 과목이 없습니다.'}</p></div>;
 }
 
 function ReviewView({ data }: { data: any }) { return <section className="surface panel"><div className="panel-head"><div><h2>담임 확인 내용</h2><p className="panel-sub">확인 완료와 수정 요청 기록은 신청안을 다시 수정해도 남아 있습니다.</p></div></div>{data.reviews?.length ? <div className="result-block">{data.reviews.map((r: any) => <div className="semester-result" key={r.id}><div className="panel-head"><strong>{statusLabels[r.action] || ({submitted:'담임 확인 요청',reopened:'재확인 필요'} as any)[r.action] || r.action}</strong><span className="panel-sub">{new Date(r.created_at).toLocaleString('ko-KR')}</span></div>{r.comment && <p>{r.comment}</p>}</div>)}</div> : <div className="empty">아직 담임 확인 기록이 없습니다.</div>}</section>; }

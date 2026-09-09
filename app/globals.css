@@ -95,6 +95,10 @@ textarea.control { min-height: 86px; resize: vertical; }
 .panel-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; margin-bottom: 16px; }
 .panel h2 { margin: 0; color: #544892; font-size: 1.15rem; }
 .panel-sub { margin: 4px 0 0; color: var(--muted); font-size: .9rem; }
+.student-info-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 9px; }
+.student-info-grid > div { padding: 12px; border: 1px solid var(--line); border-radius: 14px; background: var(--pink-50); }
+.student-info-grid span { display: block; color: var(--muted); font-size: .78rem; }
+.student-info-grid strong { display: block; margin-top: 5px; color: #5a4d97; font-size: .94rem; }
 .toolbar { display: flex; flex-wrap: wrap; gap: 9px; align-items: end; }
 .toolbar .control { width: auto; min-width: 130px; }
 .badge { display: inline-flex; align-items: center; gap: 4px; padding: 5px 9px; border-radius: 999px; font-size: .78rem; font-weight: 800; white-space: nowrap; }
@@ -135,6 +139,16 @@ tr.attention td { background: #fff9ed; }
 .course-description-body strong { display: block; color: #5e4e98; font-size: .78rem; }
 .course-source { color: #897c90; font-size: .78rem; }
 .description-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; margin-top: 14px; }
+.recommendation-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.recommendation-box { min-height: 116px; padding: 13px; border: 1px solid var(--line); border-radius: 16px; background: #fff; }
+.recommendation-box > div { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.recommendation-box strong { color: #5b4d97; font-size: .9rem; }
+.recommendation-box p { margin: 10px 0 0; color: #5f5967; font-size: .88rem; line-height: 1.55; }
+.recommendation-box.pink { background: #fff7fb; border-color: #f5cfdf; }
+.recommendation-box.purple { background: #faf9ff; border-color: #dfdbfb; }
+.recommendation-box.green { background: #f4fcf7; border-color: #ccebd9; }
+.recommendation-box.amber { background: #fffaf0; border-color: #f1dfa9; }
+.plan-actions { display: grid; gap: 12px; }
 .empty { padding: 28px; color: var(--muted); text-align: center; border: 2px dashed var(--line); border-radius: 18px; background: var(--pink-50); }
 .split { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .upload-drop { display: grid; place-items: center; min-height: 150px; padding: 20px; border: 3px dashed var(--pink-300); border-radius: 20px; background: var(--pink-50); text-align: center; }
@@ -168,7 +182,7 @@ tr.attention td { background: #fff9ed; }
   .side-nav { grid-template-columns: repeat(2,1fr); }
   .side-nav button { font-size: .86rem; }
   .page-head, .panel { padding: 18px; }
-  .form-grid, .split, .course-list, .file-settings, .diff-grid, .description-list { grid-template-columns: 1fr; }
+  .form-grid, .split, .course-list, .file-settings, .diff-grid, .description-list, .student-info-grid, .recommendation-grid { grid-template-columns: 1fr; }
   .grid-cards { grid-template-columns: 1fr 1fr; gap: 8px; }
   .metric { padding: 13px; }
   .metric strong { font-size: 1.3rem; }

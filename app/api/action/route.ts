@@ -11,6 +11,8 @@ export async function POST(request: Request) {
 
   if (session.role === 'student') {
     if (body.action === 'saveProfile') {
+      const pendingPlan = await db.prepare(`SELECT id FROM plans WHERE student_id=? AND status='pending' LIMIT 1`).bind(session.studentId).first();
+      if (pendingPlan) return json({ error: '담임 확인 대기 중에는 진로 정보와 희망 대학·학과를 수정할 수 없습니다.' }, { status: 409 });
       const existingConfirmed = await db.prepare(`SELECT COUNT(*) count FROM plans WHERE student_id=? AND status='confirmed'`).bind(session.studentId).first<{ count: number }>();
       await db.batch([
         db.prepare(`INSERT INTO student_profiles(student_id,career_goal,counseling_memo,updated_at) VALUES(?,?,?,?) ON CONFLICT(student_id) DO UPDATE SET career_goal=excluded.career_goal,counseling_memo=excluded.counseling_memo,updated_at=excluded.updated_at`).bind(session.studentId, String(body.careerGoal || '').trim(), String(body.counselingMemo || '').trim(), time),
@@ -38,8 +40,9 @@ export async function POST(request: Request) {
       return json({ ok: true, planId, status });
     }
     if (body.action === 'submitPlan') {
-      const plan = await db.prepare(`SELECT p.id,r.status round_status FROM plans p JOIN rounds r ON r.id=p.round_id WHERE p.id=? AND p.student_id=?`).bind(body.planId, session.studentId).first<{ id: string; round_status: string }>();
+      const plan = await db.prepare(`SELECT p.id,p.status,r.status round_status FROM plans p JOIN rounds r ON r.id=p.round_id WHERE p.id=? AND p.student_id=?`).bind(body.planId, session.studentId).first<{ id: string; status: string; round_status: string }>();
       if (!plan || plan.round_status !== 'open') return json({ error: '제출할 수 없는 신청안입니다.' }, { status: 409 });
+      if (plan.status === 'pending') return json({ error: '이미 담임 확인을 요청한 신청안입니다.' }, { status: 409 });
       await db.batch([
         db.prepare(`UPDATE plans SET status='pending',submitted_at=?,updated_at=? WHERE id=?`).bind(time, time, plan.id),
         db.prepare(`INSERT INTO review_history(id,plan_id,action,actor,comment,snapshot_json,created_at) VALUES(?,?,?,?,?,?,?)`).bind(id('review'), plan.id, 'submitted', session.actor, '', JSON.stringify(body.snapshot || {}), time),
