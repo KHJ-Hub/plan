@@ -142,7 +142,7 @@ function PlanEditor({ data, session, reload }: { data: any; session: Session; re
   const [preferences, setPreferences] = useState(Array.from({ length: 3 }, (_, i) => data.preferences?.[i] ? { university: data.preferences[i].university, department: data.preferences[i].department, admissionsYear: data.preferences[i].admissions_year } : { university: '', department: '', admissionsYear: 2028 }));
   const [notice, setNotice] = useState<Notice>(null);
   const [saving, setSaving] = useState(false);
-  const [planId, setPlanId] = useState(existingPlan?.plan_id || '');
+  const [, setPlanId] = useState(existingPlan?.plan_id || '');
   const touched = useRef(false); const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const currentStatus = existingPlan?.status || 'draft';
   const locked = currentStatus === 'pending' || !openRound || openRound.status !== 'open';
