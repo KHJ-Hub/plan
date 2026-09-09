@@ -21,6 +21,7 @@
 
 - 기준자료 관리 기능 구현·GitHub push·운영 배포 완료.
 - 계열별 대표 모집단위 자료에서도 핵심/권장 구분을 보존하도록 보완함.
+- 보완 커밋 `d065f54`를 운영 사이트 버전 17로 재배포 성공함.
 - 마지막 수정 파일: `app/api/reference-import/route.ts`, `app/api/overview/route.ts`, `app/planner-app.tsx`.
 
 ## 남은 작업
@@ -54,11 +55,11 @@
 
 ## 테스트 상태
 
-- 기준자료 관리 보완: 운영 빌드 통과, 자동 테스트 5건 통과, lint 통과, `git diff --check` 통과.
+- 기준자료 관리 보완: 운영 빌드 통과, 자동 테스트 5건 통과, lint 통과, `git diff --check` 통과, 운영 재배포 성공.
 
 ## Git 상태
 
-- 마지막 기능 커밋: `e43d825 feat: add reference material upload management`
+- 마지막 기능 커밋: `d065f54 fix: preserve core and recommended track references`
 - 현재 미커밋 변경: 계열별 핵심/권장 구분 보완 및 새 마이그레이션.
 
 ## 다음 작업 시작점
