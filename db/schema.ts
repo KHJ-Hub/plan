@@ -167,6 +167,8 @@ export const curricula = sqliteTable('curricula', {
   selectionType: text('selection_type', { enum: ['general', 'career', 'convergence'] }).notNull(),
   offered: integer('offered', { mode: 'boolean' }).notNull().default(true),
   note: text('note').notNull().default(''),
+  // null은 선생님이 직접 관리하는 기존 과목, 값이 있으면 기준자료 업로드에서 온 과목입니다.
+  sourceUploadId: text('source_upload_id'),
   ...timestamps,
 }, (t) => [uniqueIndex('uq_curriculum_course').on(t.entranceYear, t.targetGrade, t.targetSemester, t.courseName)]);
 
@@ -251,6 +253,7 @@ export const universityRequirements = sqliteTable('university_requirements', {
   courseName: text('course_name').notNull(),
   recommendationType: text('recommendation_type', { enum: ['core', 'recommended'] }).notNull(),
   note: text('note').notNull().default(''),
+  sourceUploadId: text('source_upload_id'),
   ...timestamps,
 }, (t) => [index('idx_university_requirements_match').on(t.admissionsYear, t.university, t.department)]);
 
@@ -261,8 +264,39 @@ export const trackRequirements = sqliteTable('track_requirements', {
   departmentGroup: text('department_group').notNull(),
   courseName: text('course_name').notNull(),
   note: text('note').notNull().default(''),
+  sourceUploadId: text('source_upload_id'),
   ...timestamps,
 }, (t) => [index('idx_track_requirements_match').on(t.admissionsYear, t.track, t.departmentGroup)]);
+
+// 원본 파일의 바이트는 저장하지 않고(민감한 학생 자료를 불필요하게 보관하지 않기 위해),
+// 기준자료의 출처·적용 상태·이력만 D1에 보존합니다. 같은 기준연도의 교체본도 이력으로 남습니다.
+export const referenceUploads = sqliteTable('reference_uploads', {
+  id: text('id').primaryKey(),
+  referenceType: text('reference_type', { enum: ['university_regional', 'university_track', 'school_course'] }).notNull(),
+  criteriaYear: integer('criteria_year').notNull(),
+  fileName: text('file_name').notNull(),
+  uploadedBy: text('uploaded_by').notNull(),
+  rowCount: integer('row_count').notNull(),
+  active: integer('active', { mode: 'boolean' }).notNull().default(true),
+  replacedUploadId: text('replaced_upload_id'),
+  summaryJson: text('summary_json').notNull().default('{}'),
+  createdAt: text('created_at').notNull(),
+}, (t) => [index('idx_reference_uploads_scope').on(t.referenceType, t.criteriaYear, t.active)]);
+
+export const schoolCourseGuides = sqliteTable('school_course_guides', {
+  id: text('id').primaryKey(),
+  uploadId: text('upload_id').notNull().references(() => referenceUploads.id),
+  criteriaYear: integer('criteria_year').notNull(),
+  courseName: text('course_name').notNull(),
+  area: text('area').notNull().default(''),
+  targetGrade: integer('target_grade'),
+  targetSemester: integer('target_semester'),
+  overview: text('overview').notNull().default(''),
+  offered: integer('offered', { mode: 'boolean' }).notNull().default(true),
+  credits: text('credits').notNull().default(''),
+  note: text('note').notNull().default(''),
+  createdAt: text('created_at').notNull(),
+}, (t) => [index('idx_school_course_guides_upload').on(t.uploadId, t.courseName)]);
 
 export const auditLogs = sqliteTable('audit_logs', {
   id: text('id').primaryKey(),
