@@ -6,6 +6,11 @@ type IncomingStudent = { currentClass: number; currentNumber: number; name: stri
 type IncomingFile = { fileName: string; checksum: string; currentClass: number; targetGrade: number; targetSemester: number; students: IncomingStudent[]; courseCount: number; error?: string; warnings?: string[] };
 type ImportBody = { action: 'preview' | 'commit'; entranceYear: number; roundNumber: number; files: IncomingFile[]; replaceScopes?: string[] };
 
+function currentGradeFromEntranceYear(entranceYear: number) {
+  // 학교 연도 기준 현재 소속 학년이며, 파일명·시트명의 신청 대상 학년과는 독립적입니다.
+  return Math.max(1, new Date().getFullYear() - entranceYear + 1);
+}
+
 function validFile(file: IncomingFile) {
   return !file.error && file.fileName && file.checksum && Number.isInteger(file.currentClass) && file.currentClass > 0 && [2, 3].includes(Number(file.targetGrade)) && [1, 2].includes(Number(file.targetSemester)) && file.students.length > 0;
 }
@@ -66,7 +71,7 @@ export async function POST(request: Request) {
           }
         }
         const studentId = found?.id || id('student');
-        if (!found) statements.push(db.prepare(`INSERT INTO students(id,entrance_year,current_class,current_number,name,external_id,active,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?)`).bind(studentId, entranceYear, student.currentClass, student.currentNumber, cleanName, externalId, 1, createdAt, createdAt));
+        if (!found) statements.push(db.prepare(`INSERT INTO students(id,entrance_year,current_grade,current_class,current_number,name,external_id,active,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?)`).bind(studentId, entranceYear, currentGradeFromEntranceYear(entranceYear), student.currentClass, student.currentNumber, cleanName, externalId, 1, createdAt, createdAt));
         else if (externalId && (found.name !== cleanName || found.current_class !== student.currentClass || found.current_number !== student.currentNumber)) {
           statements.push(db.prepare(`INSERT INTO matching_issues(id,entrance_year,from_round,to_round,student_id,issue_type,details_json,resolution,admin_memo,updated_at,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)`).bind(id('issue'), entranceYear, Math.max(1, roundNumber - 1), roundNumber, studentId, 'identity_changed', JSON.stringify({ previous: found, incoming: student, fileName: item.fileName }), 'pending', '', createdAt, createdAt));
           statements.push(db.prepare(`UPDATE students SET current_class=?,current_number=?,name=?,updated_at=? WHERE id=?`).bind(student.currentClass, student.currentNumber, cleanName, createdAt, studentId));

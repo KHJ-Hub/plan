@@ -8,6 +8,9 @@ const timestamps = {
 export const students = sqliteTable('students', {
   id: text('id').primaryKey(),
   entranceYear: integer('entrance_year').notNull(),
+  // 현재 학년은 학생의 현재 소속 정보입니다. 수강신청 파일의 2·3학년 표기는
+  // target_grade(신청 대상 학년)에만 기록하며 이 값으로 덮어쓰지 않습니다.
+  currentGrade: integer('current_grade').notNull().default(1),
   currentClass: integer('current_class').notNull(),
   currentNumber: integer('current_number').notNull(),
   name: text('name').notNull(),

@@ -1,0 +1,1 @@
+ALTER TABLE `students` ADD `current_grade` integer DEFAULT 1 NOT NULL;
