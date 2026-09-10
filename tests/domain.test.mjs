@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { compareCourseSets, isSelectedMark, makeStudentMatchKey, normalizeCourseName } from '../lib/domain.mjs';
 import { parseOfficialRows } from '../lib/excel-logic.mjs';
+import { compositeHeaders, detectHeaderRange, expandMergedCells, mapHeaderColumns } from '../lib/reference-sheet.mjs';
 
 test('과목명은 앞뒤와 연속 공백만 정리한다', () => {
   assert.equal(normalizeCourseName('  생명과학   I '), '생명과학 I');
@@ -41,4 +42,22 @@ test('집계 행은 건너뛰고 학생별 원 표시 과목만 읽는다', () =
   assert.deepEqual(parsed.students[1].courses, ['물리학Ⅰ']);
   assert.equal(parsed.targetGrade, 2);
   assert.equal(parsed.targetSemester, 1);
+});
+
+test('병합된 다중 헤더에서 핵심·권장과목 열을 분리한다', () => {
+  const aliases = { track:['계열'], region:['지역','권역'], university:['대학명'], department:['모집단위'], coreCourses:['핵심과목'], recommendedCourses:['권장과목'], note:['비고'] };
+  const raw = [
+    ['계열','지역','대학명','모집단위(계열, 단과대, 학과)','반영과목','','비고'],
+    ['','','','','핵심과목','권장과목',''],
+    ['자연','서울','가톨릭대','컴퓨터정보공학부','수학, 물리학','정보',''],
+  ];
+  const rows = expandMergedCells(raw, [{ s:{r:0,c:4}, e:{r:0,c:5} }]);
+  const detected = detectHeaderRange(rows, aliases);
+  const headers = compositeHeaders(rows, detected.start, detected.end);
+  const mapped = mapHeaderColumns(headers, aliases);
+  assert.equal(detected.start, 0);
+  assert.equal(detected.end, 1);
+  assert.equal(mapped.coreCourses, 4);
+  assert.equal(mapped.recommendedCourses, 5);
+  assert.equal(mapped.department, 3);
 });
