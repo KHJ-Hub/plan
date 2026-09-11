@@ -26,6 +26,7 @@ export const students = sqliteTable('students', {
 export const studentProfiles = sqliteTable('student_profiles', {
   studentId: text('student_id').primaryKey().references(() => students.id),
   careerGoal: text('career_goal').notNull().default(''),
+  academicTrack: text('academic_track', { enum: ['humanities', 'science', 'undecided'] }).notNull().default('undecided'),
   counselingMemo: text('counseling_memo').notNull().default(''),
   updatedAt: text('updated_at').notNull(),
 });
@@ -280,6 +281,25 @@ export const trackRequirements = sqliteTable('track_requirements', {
   sourceUploadId: text('source_upload_id'),
   ...timestamps,
 }, (t) => [index('idx_track_requirements_match').on(t.admissionsYear, t.track, t.departmentGroup)]);
+
+// 학교가 직접 정하는 계열별 선택 기준이다. 교육청 PDF나 대학 추천자료에서 자동으로
+// 만들지 않으며, 필수/우선순위는 선생님이 이 기준자료 관리 화면에서만 설정한다.
+export const academicTrackCourseGuides = sqliteTable('academic_track_course_guides', {
+  id: text('id').primaryKey(),
+  entranceYear: integer('entrance_year').notNull(),
+  academicTrack: text('academic_track', { enum: ['humanities', 'science', 'common'] }).notNull(),
+  courseName: text('course_name').notNull(),
+  priority: text('priority', { enum: ['required', '1', '2', '3'] }).notNull(),
+  targetGrade: integer('target_grade'),
+  targetSemester: integer('target_semester'),
+  note: text('note').notNull().default(''),
+  active: integer('active', { mode: 'boolean' }).notNull().default(true),
+  createdBy: text('created_by').notNull(),
+  ...timestamps,
+}, (t) => [
+  uniqueIndex('uq_academic_track_course_guides').on(t.entranceYear, t.academicTrack, t.courseName, t.priority, t.targetGrade, t.targetSemester),
+  index('idx_academic_track_course_guides_lookup').on(t.entranceYear, t.academicTrack, t.active),
+]);
 
 // 원본 파일의 바이트는 저장하지 않고(민감한 학생 자료를 불필요하게 보관하지 않기 위해),
 // 기준자료의 출처·적용 상태·이력만 D1에 보존합니다. 같은 기준연도의 교체본도 이력으로 남습니다.

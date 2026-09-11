@@ -14,10 +14,11 @@ export async function POST(request: Request) {
       const lockedPlan = await db.prepare(`SELECT id FROM plans WHERE student_id=? AND status IN ('submitted','resubmitted','pending','confirmed','recheck_required') LIMIT 1`).bind(session.studentId).first();
       if (lockedPlan) return json({ error: '제출 완료된 신청안은 담임이 수정 요청할 때까지 진로 정보와 희망 대학·학과를 수정할 수 없습니다.' }, { status: 409 });
       const careerGoal = String(body.careerGoal || '').trim();
+      const academicTrack = ['humanities', 'science', 'undecided'].includes(String(body.academicTrack)) ? String(body.academicTrack) : 'undecided';
       const counselingMemo = String(body.counselingMemo || '').trim();
       const preferences = (Array.isArray(body.preferences) ? body.preferences : []).slice(0, 3).filter((p: any) => p.university || p.department).map((p: any, rank: number) => ({ rank: rank + 1, university: String(p.university || '').trim(), department: String(p.department || '').trim(), admissionsYear: Number(p.admissionsYear || 2028) }));
       await db.batch([
-        db.prepare(`INSERT INTO student_profiles(student_id,career_goal,counseling_memo,updated_at) VALUES(?,?,?,?) ON CONFLICT(student_id) DO UPDATE SET career_goal=excluded.career_goal,counseling_memo=excluded.counseling_memo,updated_at=excluded.updated_at`).bind(session.studentId, careerGoal, counselingMemo, time),
+        db.prepare(`INSERT INTO student_profiles(student_id,career_goal,academic_track,counseling_memo,updated_at) VALUES(?,?,?,?,?) ON CONFLICT(student_id) DO UPDATE SET career_goal=excluded.career_goal,academic_track=excluded.academic_track,counseling_memo=excluded.counseling_memo,updated_at=excluded.updated_at`).bind(session.studentId, careerGoal, academicTrack, counselingMemo, time),
         db.prepare(`DELETE FROM student_preferences WHERE student_id=?`).bind(session.studentId),
         ...preferences.map((p) => db.prepare(`INSERT INTO student_preferences(id,student_id,rank,university,department,admissions_year,updated_at) VALUES(?,?,?,?,?,?,?)`).bind(id('pref'), session.studentId, p.rank, p.university, p.department, p.admissionsYear, time)),
       ]);
@@ -95,6 +96,23 @@ export async function POST(request: Request) {
   if (body.action === 'saveCurriculum') {
     const c = body.course || {};
     await db.prepare(`INSERT INTO curricula(id,entrance_year,target_grade,target_semester,area,course_name,selection_type,offered,note,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(entrance_year,target_grade,target_semester,course_name) DO UPDATE SET area=excluded.area,selection_type=excluded.selection_type,offered=excluded.offered,note=excluded.note,updated_at=excluded.updated_at`).bind(id('course'), Number(c.entranceYear), Number(c.targetGrade), Number(c.targetSemester), String(c.area || '').trim(), String(c.courseName || '').trim(), c.selectionType || 'general', c.offered === false ? 0 : 1, String(c.note || ''), time, time).run();
+    return json({ ok: true });
+  }
+  if (body.action === 'saveAcademicTrackGuide') {
+    const guide = body.guide || {};
+    const entranceYear = Number(guide.entranceYear);
+    const academicTrack = ['humanities', 'science', 'common'].includes(String(guide.academicTrack)) ? String(guide.academicTrack) : '';
+    const priority = ['required', '1', '2', '3'].includes(String(guide.priority)) ? String(guide.priority) : '';
+    const courseName = normalizeCourseName(guide.courseName);
+    if (!entranceYear || !academicTrack || !priority || !courseName) return json({ error: '기준학년도, 계열, 과목명, 구분을 확인해주세요.' }, { status: 400 });
+    const grade = [2, 3].includes(Number(guide.targetGrade)) ? Number(guide.targetGrade) : null;
+    const semester = [1, 2].includes(Number(guide.targetSemester)) ? Number(guide.targetSemester) : null;
+    await db.prepare(`INSERT INTO academic_track_course_guides(id,entrance_year,academic_track,course_name,priority,target_grade,target_semester,note,active,created_by,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(entrance_year,academic_track,course_name,priority,target_grade,target_semester) DO UPDATE SET note=excluded.note,active=1,created_by=excluded.created_by,updated_at=excluded.updated_at`).bind(id('track_guide'), entranceYear, academicTrack, courseName, priority, grade, semester, String(guide.note || '').trim(), 1, session.actor, time, time).run();
+    await db.prepare(`INSERT INTO audit_logs(id,actor,action,entrance_year,details_json,created_at) VALUES(?,?,?,?,?,?)`).bind(id('audit'), session.actor, '계열별 과목 선택 기준 저장', entranceYear, JSON.stringify({ academicTrack, courseName, priority, grade, semester }), time).run();
+    return json({ ok: true });
+  }
+  if (body.action === 'deactivateAcademicTrackGuide') {
+    await db.prepare(`UPDATE academic_track_course_guides SET active=0,updated_at=? WHERE id=?`).bind(time, String(body.guideId || '')).run();
     return json({ ok: true });
   }
   if (body.action === 'saveCourseDescription') {
