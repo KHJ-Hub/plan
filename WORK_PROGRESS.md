@@ -180,7 +180,7 @@
 ## 테스트 상태
 
 - 교육청 PDF 파일 선택 UX 수정 뒤 `npm test` 8건, `npm run build`, `npm run lint`, `git diff --check` 통과.
-- 운영 Sites 버전 30 배포 성공: `3d04825612f6def44e988ad61ddb02021314f6ff`. 이 자동화 환경의 In-app Browser 및 Chrome에서 운영 URL이 앱 렌더링 전 `This page couldn’t load`로 차단되어, 실제 파일 선택 UI 점검은 수행하지 못함. 콘솔에서 앱 코드 오류는 수집되지 않음.
+- 운영 Sites 버전 30 배포 성공: `3d04825612f6def44e988ad61ddb02021314f6ff`. Sites 접근 정책은 `public`으로 확인됨. 이 자동화 환경의 In-app Browser 및 Chrome에서 운영 URL이 앱 렌더링 전 `This page couldn’t load`로 차단되어, 실제 파일 선택 UI 점검은 수행하지 못함. 콘솔에서 앱 코드 오류는 수집되지 않음.
 
 - 신청안 점검 UX 개편 뒤 `npm test` 8건, `npm run build`, `npm run lint`, `git diff --check` 통과.
 
