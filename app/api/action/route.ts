@@ -11,47 +11,43 @@ export async function POST(request: Request) {
 
   if (session.role === 'student') {
     if (body.action === 'saveProfile') {
-      const pendingPlan = await db.prepare(`SELECT id FROM plans WHERE student_id=? AND status='pending' LIMIT 1`).bind(session.studentId).first();
-      if (pendingPlan) return json({ error: '담임 확인 대기 중에는 진로 정보와 희망 대학·학과를 수정할 수 없습니다.' }, { status: 409 });
-      const existingConfirmed = await db.prepare(`SELECT COUNT(*) count FROM plans WHERE student_id=? AND status='confirmed'`).bind(session.studentId).first<{ count: number }>();
+      const lockedPlan = await db.prepare(`SELECT id FROM plans WHERE student_id=? AND status IN ('submitted','resubmitted','pending','confirmed','recheck_required') LIMIT 1`).bind(session.studentId).first();
+      if (lockedPlan) return json({ error: '제출 완료된 신청안은 담임이 수정 요청할 때까지 진로 정보와 희망 대학·학과를 수정할 수 없습니다.' }, { status: 409 });
       const careerGoal = String(body.careerGoal || '').trim();
       const counselingMemo = String(body.counselingMemo || '').trim();
       const preferences = (Array.isArray(body.preferences) ? body.preferences : []).slice(0, 3).filter((p: any) => p.university || p.department).map((p: any, rank: number) => ({ rank: rank + 1, university: String(p.university || '').trim(), department: String(p.department || '').trim(), admissionsYear: Number(p.admissionsYear || 2028) }));
-      const currentProfile = await db.prepare(`SELECT career_goal,counseling_memo FROM student_profiles WHERE student_id=?`).bind(session.studentId).first<{ career_goal: string; counseling_memo: string }>();
-      const currentPreferences = (await db.prepare(`SELECT rank,university,department,admissions_year FROM student_preferences WHERE student_id=? ORDER BY rank`).bind(session.studentId).all<{ rank: number; university: string; department: string; admissions_year: number }>()).results || [];
-      const profileChanged = currentProfile?.career_goal !== careerGoal || currentProfile?.counseling_memo !== counselingMemo || JSON.stringify(currentPreferences.map((p) => ({ rank: p.rank, university: p.university, department: p.department, admissionsYear: p.admissions_year }))) !== JSON.stringify(preferences);
       await db.batch([
         db.prepare(`INSERT INTO student_profiles(student_id,career_goal,counseling_memo,updated_at) VALUES(?,?,?,?) ON CONFLICT(student_id) DO UPDATE SET career_goal=excluded.career_goal,counseling_memo=excluded.counseling_memo,updated_at=excluded.updated_at`).bind(session.studentId, careerGoal, counselingMemo, time),
         db.prepare(`DELETE FROM student_preferences WHERE student_id=?`).bind(session.studentId),
         ...preferences.map((p) => db.prepare(`INSERT INTO student_preferences(id,student_id,rank,university,department,admissions_year,updated_at) VALUES(?,?,?,?,?,?,?)`).bind(id('pref'), session.studentId, p.rank, p.university, p.department, p.admissionsYear, time)),
-        ...(existingConfirmed?.count && profileChanged ? [db.prepare(`UPDATE plans SET status='recheck_required',revision=revision+1,updated_at=? WHERE student_id=? AND status='confirmed'`).bind(time, session.studentId)] : []),
       ]);
-      return json({ ok: true, statusChanged: Boolean(existingConfirmed?.count && profileChanged) });
+      return json({ ok: true, statusChanged: false });
     }
     if (body.action === 'savePlan') {
       const round = await db.prepare(`SELECT id,status FROM rounds WHERE id=? AND entrance_year=(SELECT entrance_year FROM students WHERE id=?)`).bind(body.roundId, session.studentId).first<{ id: string; status: string }>();
       if (!round || round.status !== 'open') return json({ error: '현재 신청 기간이 마감되어 있습니다.' }, { status: 409 });
       let plan = await db.prepare(`SELECT id,status FROM plans WHERE student_id=? AND round_id=?`).bind(session.studentId, round.id).first<{ id: string; status: string }>();
-      if (plan && ['pending'].includes(plan.status)) return json({ error: '담임 확인 대기 중에는 수정할 수 없습니다.' }, { status: 409 });
+      if (plan && ['submitted','resubmitted','pending','confirmed','recheck_required'].includes(plan.status)) return json({ error: '제출 완료된 신청안은 담임이 수정 요청할 때까지 수정할 수 없습니다.' }, { status: 409 });
       const planId = plan?.id || id('plan');
-      const requestedEdit = plan?.status === 'confirmed';
-      const status = requestedEdit ? 'recheck_required' : (plan?.status === 'revision_requested' ? 'draft' : plan?.status || 'draft');
+      const status = plan?.status || 'draft';
       const statements: D1PreparedStatement[] = [
-        db.prepare(`INSERT INTO plans(id,student_id,round_id,status,revision,student_memo,submitted_at,confirmed_at,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?) ON CONFLICT(student_id,round_id) DO UPDATE SET status=excluded.status,student_memo=excluded.student_memo,updated_at=excluded.updated_at,revision=CASE WHEN plans.status='confirmed' THEN plans.revision+1 ELSE plans.revision END`).bind(planId, session.studentId, round.id, status, 1, String(body.studentMemo || ''), null, null, time, time),
+        db.prepare(`INSERT INTO plans(id,student_id,round_id,status,revision,student_memo,submitted_at,confirmed_at,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?) ON CONFLICT(student_id,round_id) DO UPDATE SET status=excluded.status,student_memo=excluded.student_memo,updated_at=excluded.updated_at,revision=CASE WHEN plans.status='revision_requested' THEN plans.revision+1 ELSE plans.revision END`).bind(planId, session.studentId, round.id, status, 1, String(body.studentMemo || ''), null, null, time, time),
         db.prepare(`DELETE FROM plan_courses WHERE plan_id=?`).bind(planId),
       ];
       for (const item of Array.isArray(body.courses) ? body.courses : []) statements.push(db.prepare(`INSERT INTO plan_courses(id,plan_id,target_grade,target_semester,course_name) VALUES(?,?,?,?,?)`).bind(id('pc'), planId, Number(item.targetGrade), Number(item.targetSemester), String(item.courseName).trim()));
-      if (requestedEdit) statements.push(db.prepare(`INSERT INTO review_history(id,plan_id,action,actor,comment,snapshot_json,created_at) VALUES(?,?,?,?,?,?,?)`).bind(id('review'), planId, 'reopened', session.actor, '학생이 확인 완료 후 수정을 시작함', JSON.stringify(body.courses || []), time));
       await db.batch(statements);
       return json({ ok: true, planId, status });
     }
     if (body.action === 'submitPlan') {
       const plan = await db.prepare(`SELECT p.id,p.status,r.status round_status FROM plans p JOIN rounds r ON r.id=p.round_id WHERE p.id=? AND p.student_id=?`).bind(body.planId, session.studentId).first<{ id: string; status: string; round_status: string }>();
       if (!plan || plan.round_status !== 'open') return json({ error: '제출할 수 없는 신청안입니다.' }, { status: 409 });
-      if (plan.status === 'pending') return json({ error: '이미 담임 확인을 요청한 신청안입니다.' }, { status: 409 });
+      if (['submitted','resubmitted','pending','confirmed','recheck_required'].includes(plan.status)) return json({ error: '이미 제출 완료된 신청안입니다.' }, { status: 409 });
+      const submissionStatus = plan.status === 'revision_requested' ? 'resubmitted' : 'submitted';
+      const snapshot = body.snapshot || {};
       await db.batch([
-        db.prepare(`UPDATE plans SET status='pending',submitted_at=?,updated_at=? WHERE id=?`).bind(time, time, plan.id),
-        db.prepare(`INSERT INTO review_history(id,plan_id,action,actor,comment,snapshot_json,created_at) VALUES(?,?,?,?,?,?,?)`).bind(id('review'), plan.id, 'submitted', session.actor, '', JSON.stringify(body.snapshot || {}), time),
+        db.prepare(`UPDATE plans SET status=?,submitted_at=?,updated_at=? WHERE id=?`).bind(submissionStatus, time, time, plan.id),
+        db.prepare(`INSERT INTO plan_submission_snapshots(id,plan_id,submission_status,snapshot_json,submitted_at) VALUES(?,?,?,?,?)`).bind(id('submission'), plan.id, submissionStatus, JSON.stringify(snapshot), time),
+        db.prepare(`INSERT INTO review_history(id,plan_id,action,actor,comment,snapshot_json,created_at) VALUES(?,?,?,?,?,?,?)`).bind(id('review'), plan.id, submissionStatus, session.actor, '', JSON.stringify(snapshot), time),
       ]);
       return json({ ok: true });
     }
@@ -81,12 +77,12 @@ export async function POST(request: Request) {
     return json({ ok: true, generatedPlans });
   }
   if (body.action === 'reviewPlan') {
-    const status = body.decision === 'confirmed' ? 'confirmed' : 'revision_requested';
-    if (status === 'revision_requested' && !String(body.comment || '').trim()) return json({ error: '수정 요청 내용을 입력해주세요.' }, { status: 400 });
+    const status = 'revision_requested';
+    if (!String(body.comment || '').trim()) return json({ error: '수정 요청 내용을 입력해주세요.' }, { status: 400 });
     await db.batch([
-      db.prepare(`UPDATE plans SET status=?,confirmed_at=?,updated_at=? WHERE id=?`).bind(status, status === 'confirmed' ? time : null, time, body.planId),
-      db.prepare(`INSERT INTO review_history(id,plan_id,action,actor,comment,snapshot_json,created_at) SELECT ?,id,?,?,?,COALESCE((SELECT json_group_array(json_object('targetGrade',target_grade,'targetSemester',target_semester,'courseName',course_name)) FROM plan_courses WHERE plan_id=plans.id),'[]'),? FROM plans WHERE id=?`).bind(id('review'), status === 'confirmed' ? 'confirmed' : 'revision_requested', session.actor, String(body.comment || ''), time, body.planId),
-      db.prepare(`INSERT INTO audit_logs(id,actor,action,details_json,created_at) VALUES(?,?,?,?,?)`).bind(id('audit'), session.actor, status === 'confirmed' ? '담임 확인 완료' : '수정 요청', JSON.stringify({ planId: body.planId, comment: body.comment || '' }), time),
+      db.prepare(`UPDATE plans SET status=?,confirmed_at=NULL,updated_at=? WHERE id=?`).bind(status, time, body.planId),
+      db.prepare(`INSERT INTO review_history(id,plan_id,action,actor,comment,snapshot_json,created_at) SELECT ?,id,?,?,?,COALESCE((SELECT json_group_array(json_object('targetGrade',target_grade,'targetSemester',target_semester,'courseName',course_name)) FROM plan_courses WHERE plan_id=plans.id),'[]'),? FROM plans WHERE id=?`).bind(id('review'), status, session.actor, String(body.comment || ''), time, body.planId),
+      db.prepare(`INSERT INTO audit_logs(id,actor,action,details_json,created_at) VALUES(?,?,?,?,?)`).bind(id('audit'), session.actor, '수정 요청', JSON.stringify({ planId: body.planId, comment: body.comment || '' }), time),
     ]);
     return json({ ok: true });
   }

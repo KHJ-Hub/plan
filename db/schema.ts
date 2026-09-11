@@ -54,7 +54,9 @@ export const plans = sqliteTable('plans', {
   id: text('id').primaryKey(),
   studentId: text('student_id').notNull().references(() => students.id),
   roundId: text('round_id').notNull().references(() => rounds.id),
-  status: text('status', { enum: ['draft', 'pending', 'revision_requested', 'confirmed', 'recheck_required'] }).notNull().default('draft'),
+  // 이전 승인형 상태는 운영 이력 호환을 위해 남긴다. 새 흐름은 submitted / resubmitted와
+  // revision_requested만 사용하며, 문제가 없는 제출안에 별도 승인 처리는 하지 않는다.
+  status: text('status', { enum: ['draft', 'submitted', 'resubmitted', 'revision_requested', 'pending', 'confirmed', 'recheck_required'] }).notNull().default('draft'),
   revision: integer('revision').notNull().default(1),
   studentMemo: text('student_memo').notNull().default(''),
   submittedAt: text('submitted_at'),
@@ -79,6 +81,16 @@ export const reviewHistory = sqliteTable('review_history', {
   snapshotJson: text('snapshot_json').notNull(),
   createdAt: text('created_at').notNull(),
 }, (t) => [index('idx_review_history_plan').on(t.planId, t.createdAt)]);
+
+// 공식 결과는 학생이 마지막으로 제출한 신청안과 비교한다. 수정 요청 뒤 학생이 다시
+// 편집하는 동안 현재 plans/plan_courses가 바뀌어도 마지막 제출본은 이 테이블에 보존된다.
+export const planSubmissionSnapshots = sqliteTable('plan_submission_snapshots', {
+  id: text('id').primaryKey(),
+  planId: text('plan_id').notNull().references(() => plans.id),
+  submissionStatus: text('submission_status', { enum: ['submitted', 'resubmitted', 'legacy'] }).notNull(),
+  snapshotJson: text('snapshot_json').notNull(),
+  submittedAt: text('submitted_at').notNull(),
+}, (t) => [index('idx_plan_submission_snapshots_plan').on(t.planId, t.submittedAt)]);
 
 export const uploadBatches = sqliteTable('upload_batches', {
   id: text('id').primaryKey(),

@@ -46,7 +46,10 @@ export async function GET(request: Request) {
   const trackReferenceEntries = await all(db, `SELECT tre.* FROM track_reference_entries tre JOIN reference_uploads ru ON ru.id=tre.upload_id WHERE ru.active=1 ORDER BY tre.criteria_year DESC,tre.track,tre.department,tre.course_name`);
 
   const officialRows = await all<{ student_id: string; round_number: number; target_grade: number; target_semester: number; course_name: string | null; current_class: number; current_number: number; student_name: string }>(db, `SELECT r.student_id,r.round_number,r.target_grade,r.target_semester,r.current_class,r.current_number,r.student_name,c.course_name FROM official_results r JOIN upload_files f ON f.id=r.file_id AND f.active=1 LEFT JOIN official_result_courses c ON c.result_id=r.id WHERE r.entrance_year=?`, entranceYear);
-  const approvedRows = await all<{ plan_id: string; student_id: string; round_number: number; target_grade: number; target_semester: number; course_name: string | null; current_class: number; current_number: number; name: string }>(db, `SELECT p.id plan_id,p.student_id,r.round_number,pc.target_grade,pc.target_semester,pc.course_name,s.current_class,s.current_number,s.name FROM plans p JOIN rounds r ON r.id=p.round_id JOIN students s ON s.id=p.student_id LEFT JOIN plan_courses pc ON pc.plan_id=p.id WHERE s.entrance_year=? AND p.status='confirmed'`, entranceYear);
+  // 새 흐름에서는 "승인"이 아니라 마지막 제출본을 공식 결과와 비교한다. 기존
+  // confirmed/pending 데이터는 과거 운영 이력으로 그대로 비교 대상에 포함한다.
+  const approvedRows = await all<{ plan_id: string; student_id: string; round_number: number; target_grade: number; target_semester: number; course_name: string | null; current_class: number; current_number: number; name: string }>(db, `SELECT p.id plan_id,p.student_id,r.round_number,pc.target_grade,pc.target_semester,pc.course_name,s.current_class,s.current_number,s.name FROM plans p JOIN rounds r ON r.id=p.round_id JOIN students s ON s.id=p.student_id LEFT JOIN plan_courses pc ON pc.plan_id=p.id WHERE s.entrance_year=? AND p.status IN ('submitted','resubmitted','confirmed','pending','recheck_required')`, entranceYear);
+  const submissionRows = await all<{ plan_id: string; student_id: string; round_number: number; current_class: number; current_number: number; name: string; snapshot_json: string; submitted_at: string }>(db, `SELECT ps.plan_id,p.student_id,r.round_number,s.current_class,s.current_number,s.name,ps.snapshot_json,ps.submitted_at FROM plan_submission_snapshots ps JOIN plans p ON p.id=ps.plan_id JOIN rounds r ON r.id=p.round_id JOIN students s ON s.id=p.student_id WHERE s.entrance_year=? ORDER BY ps.submitted_at`, entranceYear);
   const reviewRows = await all<any>(db, `SELECT * FROM verification_reviews`);
   const grouped = new Map<string, { studentId: string; round: number; targetGrade: number; targetSemester: number; currentClass: number; currentNumber: number; name: string; courses: string[] }>();
   for (const row of officialRows) {
@@ -71,6 +74,26 @@ export async function GET(request: Request) {
     const item = approved.get(key) || { planId: row.plan_id, studentId: row.student_id, round: row.round_number, targetGrade: row.target_grade, targetSemester: row.target_semester, currentClass: row.current_class, currentNumber: row.current_number, name: row.name, courses: [] };
     if (row.course_name) item.courses.push(row.course_name);
     approved.set(key, item);
+  }
+  // 수정 요청 뒤 편집 중인 신청안은 현재 plan_courses 대신 마지막 제출 스냅샷을 쓴다.
+  // 각 plan의 가장 최신 스냅샷만 적용한다.
+  const latestSubmissions = new Map<string, typeof submissionRows[number]>();
+  for (const row of submissionRows) latestSubmissions.set(row.plan_id, row);
+  for (const row of latestSubmissions.values()) {
+    let snapshot: any = {};
+    try { snapshot = JSON.parse(row.snapshot_json || '{}'); } catch { continue; }
+    const courses = Array.isArray(snapshot.selected) ? snapshot.selected : Array.isArray(snapshot.courses) ? snapshot.courses : [];
+    const bySemester = new Map<string, string[]>();
+    for (const course of courses) {
+      const grade = Number(course.targetGrade); const semester = Number(course.targetSemester); const name = String(course.courseName || '').trim();
+      if (!grade || !semester || !name) continue;
+      const scope = `${grade}:${semester}`; bySemester.set(scope, [...(bySemester.get(scope) || []), name]);
+    }
+    for (const [scope, courseNames] of bySemester) {
+      const [targetGrade, targetSemester] = scope.split(':').map(Number);
+      const key = `${row.student_id}:${row.round_number}:${targetGrade}:${targetSemester}`;
+      approved.set(key, { planId: row.plan_id, studentId: row.student_id, round: row.round_number, targetGrade, targetSemester, currentClass: row.current_class, currentNumber: row.current_number, name: row.name, courses: courseNames });
+    }
   }
   const verificationMap = new Map(reviewRows.map((row: any) => [`${row.student_id}:${row.round_number}:${row.target_grade}:${row.target_semester}`, row]));
   const validations: any[] = [];
