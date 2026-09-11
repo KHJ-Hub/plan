@@ -249,3 +249,10 @@
 - `AGENTS.md`에 Codex/GPT 내부 브라우저를 운영 검증에 사용하지 않는 규칙을 추가함.
 - 앞으로 lint/unit test/build, HTTP 운영 URL 확인, GitHub Pages workflow 확인, Playwright 가능 여부, 사용자 수동 확인 항목을 최종 보고에서 구분함.
 - 현재 프로젝트의 실제 운영 배포는 GitHub Pages가 아닌 Sites이므로 Pages workflow 확인은 해당 프로젝트에 적용되지 않음을 기록함.
+
+## Cloudflare 공개 운영 전환 점검
+
+- 현재 앱은 Vinext + Cloudflare Worker + D1 서버 구조라 GitHub Pages 정적 배포로 기능을 유지할 수 없음을 확인함.
+- 저장소 `KHJ-Hub/plan`에는 GitHub Pages workflow가 없고, `dist/client/index.html`도 생성되지 않아 Pages만으로는 `/api/*`·로그인·D1을 제공할 수 없음.
+- Cloudflare Worker 공개 배포를 위해 `npx wrangler whoami`를 확인했으나 현재 환경은 인증되지 않음. 사용자의 Cloudflare 계정 로그인과 Worker/D1 배포 권한 연결이 다음 시작점임.
+- 새 Cloudflare 계정으로 전환할 경우 기존 Sites D1 데이터는 자동으로 이전되지 않으므로, 기존 데이터 백업/복구 및 새 D1 ID·비밀값 설정을 먼저 확정해야 함.
