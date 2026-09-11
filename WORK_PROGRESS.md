@@ -197,6 +197,7 @@
 - 교육청 PDF 파일 선택 UX 수정 뒤 `npm test` 8건, `npm run build`, `npm run lint`, `git diff --check` 통과.
 - 학교 수강신청 PDF 업로드 흐름 수정 뒤 `npm test` 8건, `npm run build`, `npm run lint`, `git diff --check` 통과.
 - 공통 PDF 읽기·단계별 진단 보완 뒤 `npm test` 8건, `npm run build`, `npm run lint`, `git diff --check` 통과. 제공된 교육청 PDF에서 243쪽 open·본문 텍스트 추출·전용 parser 샘플 인식 확인.
+- 운영 Sites 버전 32 배포 성공: `3fba3cee8e3b40826707a5c1c478cfb38ecf75bc`. 실제 학교 수강신청 PDF 원본은 제공되지 않았고, 이 자동화 환경은 운영 선생님 화면 진입 전에 로딩 오류가 발생해 실제 DB 저장 E2E는 보류함.
 - 운영 Sites 버전 31 배포 성공: `25d392aea07d97d2ef9261ed0fb4fbd45c01498a`. 이 자동화 환경의 In-app Browser는 운영 주소를 앱 로그인 화면 전에 `This page couldn’t load`로 표시해 실제 클릭 검증을 수행하지 못함. 실제 학교 수강신청 PDF는 이번 대화에 첨부되지 않아 D1 저장은 시도하지 않음.
 - 운영 Sites 버전 30 배포 성공: `3d04825612f6def44e988ad61ddb02021314f6ff`. Sites 접근 정책은 `public`으로 확인됨. 이 자동화 환경의 In-app Browser 및 Chrome에서 운영 URL이 앱 렌더링 전 `This page couldn’t load`로 차단되어, 실제 파일 선택 UI 점검은 수행하지 못함. 콘솔에서 앱 코드 오류는 수집되지 않음.
 
@@ -220,6 +221,7 @@
 
 - 교육청 PDF 파일 선택 UX 커밋 `3d04825`를 GitHub `main`에 push하고 Sites 버전 30으로 운영 배포 성공.
 - 학교 수강신청 PDF 업로드 흐름 커밋 `25d392a`를 GitHub `main`에 push하고 Sites 버전 31로 운영 배포 성공.
+- 공통 PDF 읽기·단계별 진단 커밋 `3fba3ce`를 GitHub `main`에 push하고 Sites 버전 32로 운영 배포 성공.
 - 학교 수강신청 안내 PDF 우선 업로드 커밋 `63db01c`을 GitHub `main`에 push하고 Sites 버전 29로 운영 배포 성공.
 
 - 신청안 점검 UX 개편 커밋 `4804d01`을 GitHub `main`에 push하고 Sites 버전 28로 운영 배포 성공.
