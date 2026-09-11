@@ -332,6 +332,36 @@ export const schoolCourseGuides = sqliteTable('school_course_guides', {
   createdAt: text('created_at').notNull(),
 }, (t) => [index('idx_school_course_guides_upload').on(t.uploadId, t.courseName)]);
 
+// 교육청 PDF는 학교 개설 과목표와 별개인 교육과정 참고자료다. PDF에서 확인한
+// 원문과 학생 화면용 핵심 항목을 함께 보존하되, 이 테이블이 curricula를 변경하지는 않는다.
+export const educationOfficeCourseGuides = sqliteTable('education_office_course_guides', {
+  id: text('id').primaryKey(),
+  uploadId: text('upload_id').notNull().references(() => referenceUploads.id),
+  criteriaYear: integer('criteria_year').notNull(),
+  courseName: text('course_name').notNull(),
+  subjectGroup: text('subject_group').notNull().default(''),
+  selectionType: text('selection_type').notNull().default(''),
+  credits: text('credits').notNull().default(''),
+  gradingMethod: text('grading_method').notNull().default(''),
+  csatRelation: text('csat_relation').notNull().default(''),
+  courseNature: text('course_nature').notNull().default(''),
+  coreIdeas: text('core_ideas').notNull().default(''),
+  contentStructure: text('content_structure').notNull().default(''),
+  knowledgeUnderstanding: text('knowledge_understanding').notNull().default(''),
+  processSkills: text('process_skills').notNull().default(''),
+  valuesAttitudes: text('values_attitudes').notNull().default(''),
+  hierarchy: text('hierarchy').notNull().default(''),
+  relatedCareers: text('related_careers').notNull().default(''),
+  relatedDepartments: text('related_departments').notNull().default(''),
+  sourcePage: integer('source_page').notNull(),
+  sourceDocument: text('source_document').notNull(),
+  issuingOrganization: text('issuing_organization').notNull().default('부산광역시교육청'),
+  curriculumName: text('curriculum_name').notNull().default('2022 개정 교육과정'),
+  extractionStatus: text('extraction_status').notNull().default('ok'),
+  rawText: text('raw_text').notNull().default(''),
+  createdAt: text('created_at').notNull(),
+}, (t) => [index('idx_education_office_course_guides_course').on(t.criteriaYear, t.courseName)]);
+
 export const auditLogs = sqliteTable('audit_logs', {
   id: text('id').primaryKey(),
   actor: text('actor').notNull(),

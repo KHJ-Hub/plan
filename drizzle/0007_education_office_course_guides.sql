@@ -1,0 +1,30 @@
+CREATE TABLE `education_office_course_guides` (
+	`id` text PRIMARY KEY NOT NULL,
+	`upload_id` text NOT NULL,
+	`criteria_year` integer NOT NULL,
+	`course_name` text NOT NULL,
+	`subject_group` text DEFAULT '' NOT NULL,
+	`selection_type` text DEFAULT '' NOT NULL,
+	`credits` text DEFAULT '' NOT NULL,
+	`grading_method` text DEFAULT '' NOT NULL,
+	`csat_relation` text DEFAULT '' NOT NULL,
+	`course_nature` text DEFAULT '' NOT NULL,
+	`core_ideas` text DEFAULT '' NOT NULL,
+	`content_structure` text DEFAULT '' NOT NULL,
+	`knowledge_understanding` text DEFAULT '' NOT NULL,
+	`process_skills` text DEFAULT '' NOT NULL,
+	`values_attitudes` text DEFAULT '' NOT NULL,
+	`hierarchy` text DEFAULT '' NOT NULL,
+	`related_careers` text DEFAULT '' NOT NULL,
+	`related_departments` text DEFAULT '' NOT NULL,
+	`source_page` integer NOT NULL,
+	`source_document` text NOT NULL,
+	`issuing_organization` text DEFAULT '부산광역시교육청' NOT NULL,
+	`curriculum_name` text DEFAULT '2022 개정 교육과정' NOT NULL,
+	`extraction_status` text DEFAULT 'ok' NOT NULL,
+	`raw_text` text DEFAULT '' NOT NULL,
+	`created_at` text NOT NULL,
+	FOREIGN KEY (`upload_id`) REFERENCES `reference_uploads`(`id`) ON UPDATE no action ON DELETE no action
+);
+--> statement-breakpoint
+CREATE INDEX `idx_education_office_course_guides_course` ON `education_office_course_guides` (`criteria_year`,`course_name`);

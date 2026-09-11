@@ -2,7 +2,7 @@
 
 ## 작업 목표
 
-계열별 대표 모집단위 반영과목 매트릭스 업로드의 다중 헤더·행 분류·미리보기 표시를 실제 파일 구조에 맞게 보완한다.
+부산광역시교육청 「어떤 과목을 언제 배울까?」 PDF를 교육청 공식 과목 안내 기준자료로 분석·저장·조회할 수 있게 한다.
 
 ## 완료
 
@@ -18,6 +18,11 @@
 - 자동 제외 행(빈 행·주석·반영 대학이 없는 행)과 실제 오류 행(반영 대학은 있으나 모집단위가 없는 행)을 분리해 표시하도록 수정함.
 - 괄호 안 쉼표를 보존하는 대학 목록 분리, 과목 열/과목 셀/과목-대학 관계 수를 각각 표시, 오류 또는 관계 0건이면 최종 저장 비활성화를 추가함.
 - 다중 헤더 계열별 매트릭스 회귀 테스트를 추가해 `npm test` 8건, `npm run build`, `npm run lint`, `git diff --check` 통과.
+
+- 실제 첨부 PDF의 243쪽, 전체 분류표(7~8쪽), 교과별 표지·위계, 개별 과목 상세 페이지 구조를 확인함.
+- 교육청 PDF 전용 업로드, 페이지 단위 진행 표시, 개별 과목 페이지 추출, 저장 전 카드 미리보기를 구현함.
+- 교육청 PDF 안내와 학교 실제 선택 가능 과목을 별도 테이블로 분리했고 PDF 저장은 학생 선택과목 목록을 바꾸지 않음.
+- 자동 테스트 8건, 운영 빌드, 린트, Git 검사 통과.
 
 - 기준자료 업로드에서 병합된 셀의 값을 실제 병합 범위 안에서만 이어받도록 보완함.
 - 연속된 1~3개 헤더 행을 결합해 `반영과목 / 핵심과목`, `반영과목 / 권장과목`을 독립 열로 자동 인식하도록 구현함.
@@ -99,12 +104,14 @@
 - `app/api/overview/route.ts`: 적용 중인 기준자료만 학생 추천·선택 화면에 반환.
 - `app/planner-app.tsx`: 제목 행·열 매핑, 매트릭스 변환, 검색·필터, 미리보기·이력 UI.
 - `db/schema.ts`, `drizzle/0006_crazy_squirrel_girl.sql`: 대학 원문 행·계열 대표 모집단위 구조와 업로드 실패 건수.
+- `app/api/education-guide/route.ts`, `lib/education-guide-pdf.ts`, `drizzle/0007_education_office_course_guides.sql`: 교육청 PDF 분석·저장·원문 보존 구조.
 
 ## DB 변경
 
 - `students.current_grade` 추가 마이그레이션 `drizzle/0003_motionless_sentinels.sql`이 적용 대상이다.
 - `reference_uploads`, `school_course_guides` 테이블 및 `curricula`/대학 추천 자료 테이블의 `source_upload_id` 추가 마이그레이션 `drizzle/0004_sloppy_onslaught.sql` 생성 완료.
 - `university_reference_entries`, `track_reference_entries` 및 `reference_uploads.failed_count` 추가 마이그레이션 `drizzle/0006_crazy_squirrel_girl.sql` 생성 완료.
+- 교육청 PDF 과목 안내를 위한 `education_office_course_guides` 테이블 마이그레이션 `drizzle/0007_education_office_course_guides.sql` 추가.
 
 ## 테스트 상태
 
@@ -122,4 +129,4 @@
 
 ## 다음 작업 시작점
 
-운영 선생님 페이지에서 실제 계열별 대표 모집단위 반영과목 파일을 다시 선택하여 다중 헤더, 자동 제외 행, 10건 미리보기, 저장 전 DB 미변경을 확인한다. 현재 파일은 브라우저에서만 선택되어 있어 코드 배포 후 다시 선택이 필요하다.
+PDF 기준자료 기능을 커밋·푸시·운영 배포한 뒤, 운영 선생님 페이지에서 실제 첨부 PDF를 다시 선택하여 PDF 분석 결과와 요청 과목 샘플을 확인한다. 최종 저장 전에는 DB를 변경하지 않는다.
