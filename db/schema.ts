@@ -364,6 +364,21 @@ export const schoolCourseGuides = sqliteTable('school_course_guides', {
   createdAt: text('created_at').notNull(),
 }, (t) => [index('idx_school_course_guides_upload').on(t.uploadId, t.courseName)]);
 
+// 학교 수강신청 책자(HWP/HWPX)에서 확인한 운영 기준이다. 교육청 PDF·대학 추천과
+// 섞지 않으며, 교육과정 분류와 학교 운영상 필수/선택도 각각 보존한다.
+export const schoolCourseBookEntries = sqliteTable('school_course_book_entries', {
+  id: text('id').primaryKey(), uploadId: text('upload_id').notNull().references(() => referenceUploads.id),
+  academicYear: integer('academic_year').notNull(), entryYear: integer('entry_year').notNull(), currentGrade: integer('current_grade'),
+  targetGrade: integer('target_grade'), targetSemester: integer('target_semester'), subjectGroup: text('subject_group').notNull().default(''),
+  subjectName: text('subject_name').notNull(), curriculumCategory: text('curriculum_category').notNull().default(''),
+  schoolRequirement: text('school_requirement').notNull().default('optional'), selectionGroup: text('selection_group').notNull().default(''),
+  selectionCount: text('selection_count').notNull().default(''), credit: text('credit').notNull().default(''), timing: text('timing').notNull().default(''),
+  selectionConditions: text('selection_conditions').notNull().default(''), concurrentLimit: text('concurrent_limit').notNull().default(''),
+  prerequisite: text('prerequisite').notNull().default(''), subsequent: text('subsequent').notNull().default(''),
+  csatPriority: integer('csat_priority', { mode: 'boolean' }).notNull().default(false), humanitiesPriority: integer('humanities_priority', { mode: 'boolean' }).notNull().default(false), sciencePriority: integer('science_priority', { mode: 'boolean' }).notNull().default(false),
+  sourceLocation: text('source_location').notNull().default(''), adminNote: text('admin_note').notNull().default(''), ...timestamps,
+}, (t) => [index('idx_school_course_book_entries_lookup').on(t.entryYear, t.targetGrade, t.targetSemester, t.subjectName)]);
+
 // 교육청 PDF는 학교 개설 과목표와 별개인 교육과정 참고자료다. PDF에서 확인한
 // 원문과 학생 화면용 핵심 항목을 함께 보존하되, 이 테이블이 curricula를 변경하지는 않는다.
 export const educationOfficeCourseGuides = sqliteTable('education_office_course_guides', {
