@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { compareCourseSets, isSelectedMark, makeStudentMatchKey, normalizeCourseName } from '../lib/domain.mjs';
 import { parseOfficialRows } from '../lib/excel-logic.mjs';
-import { compositeHeaders, detectHeaderRange, expandMergedCells, mapHeaderColumns } from '../lib/reference-sheet.mjs';
+import { compositeHeaders, detectHeaderRange, expandMergedCells, mapHeaderColumns, matrixCoursesFromRow } from '../lib/reference-sheet.mjs';
 
 test('과목명은 앞뒤와 연속 공백만 정리한다', () => {
   assert.equal(normalizeCourseName('  생명과학   I '), '생명과학 I');
@@ -60,4 +60,10 @@ test('병합된 다중 헤더에서 핵심·권장과목 열을 분리한다', (
   assert.equal(mapped.coreCourses, 4);
   assert.equal(mapped.recommendedCourses, 5);
   assert.equal(mapped.department, 3);
+});
+
+test('계열별 매트릭스는 빈 셀과 대시를 건너뛰고 영역과 과목을 분리한다', () => {
+  const headers = ['계열', '모집단위', '수학 / 대수', '수학 / 미적분', '과학 / 물리학'];
+  const courses = matrixCoursesFromRow(headers, { track: 0, department: 1 }, ['공학', '컴퓨터공학', '가톨릭대', '-', '']);
+  assert.deepEqual(courses, [{ courseName: '대수', subjectArea: '수학', universities: '가톨릭대', recommendationType: 'recommended' }]);
 });
