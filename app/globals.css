@@ -187,8 +187,11 @@ tr.attention td { background: #fff9ed; }
 .footer-note { position: fixed; z-index: 20; left: 0; right: 0; bottom: 0; padding: 13px; text-align: center; color: #6653a9; background: linear-gradient(to top,#fad0dd,#ffe4f5); border-radius: 28px 28px 0 0; font: 700 1.2rem 'Hi Melody', sans-serif; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 .class-filter-chips { display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
-.class-filter-chips button { border:1px solid var(--line); background:#fff; color:var(--ink); border-radius:999px; padding:8px 12px; cursor:pointer; white-space:nowrap; }
-.class-filter-chips button.active { background:var(--pink); border-color:var(--pink); color:#fff; }
+.class-filter-chips button { border:1px solid var(--line); background:#fff; color:var(--lavender-500); border-radius:999px; padding:8px 12px; cursor:pointer; white-space:nowrap; font-weight:800; }
+.class-filter-chips button:hover { border-color:var(--lavender-300); background:var(--lavender-100); color:#554994; }
+.class-filter-chips button.active,
+.class-filter-chips button.active:hover,
+.class-filter-chips button.active:focus-visible { background:linear-gradient(120deg,var(--lavender-500),var(--pink-500)); border-color:var(--lavender-500); color:#fff; box-shadow:0 4px 12px rgba(106,90,205,.24); }
 
 @media (max-width: 900px) {
   .grid-cards { grid-template-columns: repeat(2,minmax(0,1fr)); }
