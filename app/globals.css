@@ -262,6 +262,8 @@ tr.attention td { background: #fff9ed; }
   .table-wrap td:nth-child(5)::before { content: '최근 수정 · '; color: var(--muted); }
   .table-wrap td:last-child .ghost-btn { width: 100%; min-height: 46px; }
   .table-wrap table th:first-child, .table-wrap table td:first-child { width: auto; min-width: 0; white-space: normal; word-break: keep-all; }
+  .inspection-table td::before { content: attr(data-label) ' · '; color: var(--muted); font-weight: 600; }
+  .inspection-table td:last-child::before { content: ''; }
   .verification-group > header { display:grid; gap:2px; }
   .toolbar { align-items: stretch; }
   .toolbar .field, .toolbar .control { width: 100%; }
