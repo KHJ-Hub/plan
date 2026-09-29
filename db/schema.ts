@@ -76,7 +76,7 @@ export const planCourses = sqliteTable('plan_courses', {
 export const reviewHistory = sqliteTable('review_history', {
   id: text('id').primaryKey(),
   planId: text('plan_id').notNull().references(() => plans.id),
-  action: text('action', { enum: ['submitted', 'confirmed', 'revision_requested', 'reopened'] }).notNull(),
+  action: text('action', { enum: ['submitted', 'resubmitted', 'confirmed', 'revision_requested', 'reopened'] }).notNull(),
   actor: text('actor').notNull(),
   comment: text('comment').notNull().default(''),
   snapshotJson: text('snapshot_json').notNull(),
@@ -305,7 +305,7 @@ export const academicTrackCourseGuides = sqliteTable('academic_track_course_guid
 // 기준자료의 출처·적용 상태·이력만 D1에 보존합니다. 같은 기준연도의 교체본도 이력으로 남습니다.
 export const referenceUploads = sqliteTable('reference_uploads', {
   id: text('id').primaryKey(),
-  referenceType: text('reference_type', { enum: ['university_regional', 'university_track', 'school_course'] }).notNull(),
+  referenceType: text('reference_type', { enum: ['university_regional', 'university_track', 'school_course', 'school_book', 'education_official'] }).notNull(),
   criteriaYear: integer('criteria_year').notNull(),
   fileName: text('file_name').notNull(),
   uploadedBy: text('uploaded_by').notNull(),

@@ -10,3 +10,5 @@
 /work
 next-env.d.ts
 npm-debug.log*
+test-data/
+wrangler.deploy.jsonc

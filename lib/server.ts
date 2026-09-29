@@ -21,8 +21,11 @@ async function sign(value: string, secret: string) {
 }
 
 function secret() {
-  const env = getRuntimeEnv();
-  return env.SESSION_SECRET || env.ADMIN_PASSWORD || 'local-development-session-only';
+  const value = String(getRuntimeEnv().SESSION_SECRET || '').trim();
+  if (!value || value === 'change-this-to-a-long-random-secret' || value.length < 32) {
+    throw new Error('SESSION_SECRET 환경변수에 32자 이상의 안전한 값을 설정해야 합니다.');
+  }
+  return value;
 }
 
 export type Session = { role: 'admin' | 'student'; actor: string; studentId?: string; authVersion?: number; exp: number };
