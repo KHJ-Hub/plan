@@ -279,3 +279,21 @@ tr.attention td { background: #fff9ed; }
   .review-box button { min-height:52px; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; } }
+
+.divider-label { display:flex; align-items:center; gap:10px; margin:14px 0; color:var(--muted); font-size:.82rem; }
+.divider-label::before, .divider-label::after { content:''; height:1px; flex:1; background:var(--line); }
+.review-toolbar { display:flex; align-items:center; justify-content:space-between; gap:12px; margin:14px 0 10px; }
+.pdf-review-list { grid-template-columns:1fr; }
+.pdf-review-card { padding:0; overflow:hidden; }
+.pdf-review-card > summary { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px; cursor:pointer; list-style:none; background:var(--pink-50); }
+.pdf-review-card > summary::-webkit-details-marker { display:none; }
+.pdf-review-card > summary span { display:grid; gap:3px; }
+.pdf-review-card > summary small { color:var(--muted); font-weight:400; }
+.pdf-review-card[open] > .form-grid { padding:14px; border-top:1px solid var(--line); }
+.pdf-review-card > .message, .pdf-review-card > .panel-sub { margin:0 14px 14px; }
+.pagination { display:flex; align-items:center; justify-content:center; gap:12px; margin-top:14px; color:var(--muted); font-size:.9rem; }
+@media (max-width: 640px) {
+  .review-toolbar { align-items:stretch; flex-direction:column; }
+  .review-toolbar .segmented { display:grid; grid-template-columns:1fr; }
+  .pagination { justify-content:space-between; }
+}

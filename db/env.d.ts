@@ -3,6 +3,7 @@ declare namespace Cloudflare {
     DB: D1Database;
     ADMIN_PASSWORD?: string;
     SESSION_SECRET?: string;
+    PUBLIC_PDF_ALLOWED_HOSTS?: string;
   }
 }
 

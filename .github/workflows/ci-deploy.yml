@@ -88,6 +88,10 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
           SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
+          PUBLIC_PDF_ALLOWED_HOSTS: ${{ secrets.PUBLIC_PDF_ALLOWED_HOSTS }}
         run: |
           printf '%s' "$ADMIN_PASSWORD" | npx wrangler secret put ADMIN_PASSWORD --config wrangler.deploy.jsonc
           printf '%s' "$SESSION_SECRET" | npx wrangler secret put SESSION_SECRET --config wrangler.deploy.jsonc
+          if [[ -n "$PUBLIC_PDF_ALLOWED_HOSTS" ]]; then
+            printf '%s' "$PUBLIC_PDF_ALLOWED_HOSTS" | npx wrangler secret put PUBLIC_PDF_ALLOWED_HOSTS --config wrangler.deploy.jsonc
+          fi

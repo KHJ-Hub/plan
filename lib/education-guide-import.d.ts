@@ -1,0 +1,3 @@
+export type EducationGuideImportRow = Record<string, unknown> & { courseName?: string; subjectGroup?: string; hierarchy?: string; relatedCareers?: string; relatedDepartments?: string; extractionStatus?: string; sourcePage?: number };
+export function isEducationGuidePublishable(row: EducationGuideImportRow): boolean;
+export function normalizeEducationGuideRows(incoming?: EducationGuideImportRow[]): { rows: Array<EducationGuideImportRow & { courseName: string; sourcePage: number; extractionStatus: string }>; invalidRows: Array<{ rowNumber: number; reason: string }>; duplicateCourseNames: string[] };
