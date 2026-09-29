@@ -1,6 +1,6 @@
 # KIRO 작업 보고서
 
-작성일: 2026-09-30  
+작성일: 2026-09-30
 대상: 배정고 수강신청 결과 확인 및 진로 과목 점검 시스템
 
 ## 1. 작업 시작 당시 프로젝트 구조
@@ -42,7 +42,7 @@
 
 실제 교육청 PDF는 5.24MB, 243쪽이며 235쪽에 텍스트가 있었다. 과목별 표/일반 텍스트가 섞이고 일부 과목은 2쪽에 걸친다. PDF.js 읽기 순서상 “관련 과목 및 위계/관련 직업” 헤더가 먼저 나오고 셀 본문이 이어져 기존 단순 marker-between 로직이 필드를 섞었다.
 
-개선 전: 후보 150, 고유명 137, 정상 0, 확인 필요 150, 명백한 제목 오탐 16, 중복 13.  
+개선 전: 후보 150, 고유명 137, 정상 0, 확인 필요 150, 명백한 제목 오탐 16, 중복 13.
 개선 후: 고유 과목 114, 정상 85, 확인 필요 29, 제목 오탐 0, 중복 0.
 
 ## 6. 선택한 데이터 모델
@@ -215,5 +215,6 @@ PDF.js가 브라우저에서 페이지 text item과 y좌표를 읽는다. 첫 �
 - `cd21f54` — `feat: improve student results and course guidance`
 - `24f53aa` — `ops: harden deployment and backups`
 - `d4008a7` — `test: add real data import regressions`
+- `3e7ba90` — `docs: document school operations and findings`
 
 이 커밋들은 로컬 `main`에 생성했으며 자동/수동 push는 수행하지 않았다.
