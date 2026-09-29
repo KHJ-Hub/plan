@@ -38,6 +38,8 @@ npm run dev
 ```dotenv
 ADMIN_PASSWORD=<교사용 초기 비밀번호>
 SESSION_SECRET=<예측 불가능한 32자 이상 문자열>
+# 선택: 기본 교육기관 도메인 외 공개 PDF 호스트
+PUBLIC_PDF_ALLOWED_HOSTS=<files.example.org,cdn.example.org>
 ```
 
 `SESSION_SECRET`이 없거나 예시값이면 세션을 발급하지 않습니다. 실제 비밀값은 커밋하지 마세요. 현재 로컬 D1 상태에 따라 `0003`~`0010` migration이 pending일 수 있으므로 실행 전 migration 목록을 확인할 수 있습니다.
@@ -96,15 +98,18 @@ npx wrangler d1 migrations list DB --local --config wrangler.jsonc
 
 ## 과목 설명 PDF
 
-`기준자료 관리`에서 교육청 PDF 파일을 선택하고 다음 순서로 처리합니다.
+`기준자료 관리`에서 교육기관의 공개 PDF URL을 가져오거나 기기의 PDF 파일을 직접 선택합니다.
 
-1. PDF 선택
+1. 공개 HTTPS URL 입력 후 가져오기 또는 PDF 직접 선택
 2. 페이지 분석
-3. 추출 건수와 최대 10건 미리보기 확인
-4. 정상/확인 필요 건수 확인
-5. 최종 저장
+3. 전체 추출 과목을 10개씩 페이지 이동하며 검수
+4. 과목명·교과군·선택 유형·위계·관련 직업·관련 학과 수정
+5. 학생 공개 가능/확인 필요 상태 확인
+6. 최종 저장
 
-PDF는 20MB 이하이며 `%PDF-` magic bytes를 검사합니다. 실제 교육청 자료의 1~2쪽 과목 설명 구조를 연결해 추출합니다. `needs_confirmation` 자료는 DB에 보존할 수 있지만 교사가 확인하기 전 학생에게 표시하지 않습니다. 현재 공개 PDF URL 가져오기는 구현되지 않았으며 파일 직접 업로드만 지원합니다.
+URL 가져오기는 인증된 관리자만 사용할 수 있습니다. 기본적으로 `.go.kr`, `.edu.kr`, `.ac.kr`, `.school.kr`, `.edu` 교육기관 호스트만 허용하며, 추가 호스트는 `PUBLIC_PDF_ALLOWED_HOSTS`에 쉼표로 등록합니다. HTTPS, redirect 3회, 15초 timeout, 20MB streaming 상한, `application/pdf`, `%PDF-` signature를 검사하고 내부 주소·IPv6 literal·인증정보·비표준 port를 차단합니다. redirect 목적지도 같은 allowlist로 다시 검증합니다.
+
+실제 교육청 자료의 1~2쪽 과목 설명 구조를 연결해 추출합니다. 필수 설명이 없는 행은 관리자가 상태를 바꾸더라도 서버에서 `needs_confirmation`으로 유지하며 학생에게 표시하지 않습니다. 중복 과목명과 잘못된 행이 있으면 최종 저장을 차단합니다.
 
 ## 과목명 정규화
 
@@ -152,7 +157,7 @@ npm run build
 npm run verify
 ```
 
-`tests/real-data.test.mjs`는 로컬 `test-data/`가 있을 때 개인정보 값을 출력하지 않고 실제 Excel/PDF 구조를 검증하며, CI처럼 파일이 없으면 해당 테스트를 skip합니다.
+`tests/real-data.test.mjs`는 로컬 `test-data/`가 있을 때 개인정보 값을 출력하지 않고 실제 Excel/PDF 구조를 검증하며, CI처럼 파일이 없으면 해당 테스트를 skip합니다. `tests/public-pdf.test.mjs`는 URL allowlist, 내부 주소·redirect 차단, timeout, streaming 크기 제한, Content-Type/signature, 추출행 공개 판정을 외부 네트워크 없이 검증합니다.
 
 ## Cloudflare 공개 배포
 
@@ -163,6 +168,7 @@ npm run verify
 - `CLOUDFLARE_D1_DATABASE_ID`
 - `ADMIN_PASSWORD`
 - `SESSION_SECRET` (32자 이상)
+- `PUBLIC_PDF_ALLOWED_HOSTS` (선택, 기본 교육기관 도메인 외 정확한 호스트를 쉼표로 등록)
 
 `wrangler.jsonc`의 database ID는 의도적인 placeholder입니다. CI가 secret으로 `wrangler.deploy.jsonc`를 임시 생성하며 이 파일은 Git에서 제외됩니다. 수동 배포 시에도 실제 ID가 들어간 별도 config를 만들고 커밋하지 마세요.
 
@@ -172,7 +178,6 @@ npm run verify
 
 - 실제 3학년 Excel 미확인
 - 학생 PIN/SSO 미구현
-- 공개 PDF URL 가져오기 미구현
 - 격리 D1에서 실패 주입을 통한 staging rollback E2E 미실행
 - `xlsx@0.18.5`에 수정판 없는 보안 경고가 있어 관리자 전용·크기/행/열 제한으로 완화 중
 - 학생/관리자 UI 실제 태블릿·모바일 브라우저 시각 검수 필요

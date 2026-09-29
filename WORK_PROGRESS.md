@@ -306,3 +306,15 @@
 - 로컬 주요 커밋: `7907247`, `cd21f54`, `24f53aa`, `d4008a7`. push는 수행하지 않았다.
 - 현재 로컬 D1에는 0003~0010 migration이 pending이다. 원격 D1은 Cloudflare 미인증으로 확인하지 못했다.
 - 다음 시작점은 `KIRO_WORK_REPORT.md` 24~27절의 외부 설정·미구현·위험·우선순위를 따른다.
+
+### 2026-09-30 후속 작업: 공개 PDF URL·전체 검수 완료
+
+- 재개 시 작업 트리는 clean, 로컬 `main`은 기존 완료 커밋 6개가 push 대기 상태였다. 완료 기능은 반복하지 않았다.
+- 교육기관 공개 HTTPS PDF를 관리자 서버 API로 가져오는 기능을 추가했다. 기본 교육기관 도메인 외 호스트는 `PUBLIC_PDF_ALLOWED_HOSTS`에 명시해야 한다.
+- URL/redirect allowlist, 내부 IPv4와 IPv6 literal 차단, credential·비표준 port 차단, redirect 3회, 15초 timeout, 20MB streaming 상한, Content-Type과 `%PDF-` 검사를 적용했다.
+- 교육청 PDF 추출 결과 전체를 상태별 필터와 10개 pagination으로 검수하고 과목명·교과군·선택 유형·위계·직업·학과·학생 공개 상태를 수정할 수 있게 했다.
+- UI와 서버가 같은 공개 가능 판정을 사용하며, 잘못된 행과 중복 과목명은 최종 저장을 차단한다.
+- 독립 semantic review의 6개 보안·상태 지적을 모두 수정했다.
+- 최종 `npm run verify`: 테스트 22건, lint, TypeScript, production build 성공.
+- 기능 커밋: `db27a7b feat: add secure public PDF review flow`. push는 수행하지 않았다.
+- 남은 최우선 작업은 Cloudflare/D1 외부 설정, 학생 PIN/SSO 정책, 격리 D1 failure injection, 실제 기기 검수, 3학년·대학 원본 자료 검증이다.

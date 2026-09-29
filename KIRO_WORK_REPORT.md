@@ -61,9 +61,9 @@
 
 - 보안/배포: `.env.example`, `.gitignore`, `.github/workflows/ci-deploy.yml`, `lib/server.ts`, `package.json`, `package-lock.json`, `vite.config.ts`
 - 데이터/API: `app/api/import/route.ts`, `app/api/action/route.ts`, `app/api/auth/route.ts`, `app/api/overview/route.ts`, `app/api/backup/route.ts`, `app/api/education-guide/route.ts`, `db/schema.ts`
-- 파서/도메인: `lib/excel.ts`, `lib/excel-logic.mjs`, `lib/excel-logic.d.ts`, `lib/domain.mjs`, `lib/domain.d.ts`, `lib/education-guide-pdf.ts`, `lib/pdf-reader.ts`
+- 파서/도메인: `lib/excel.ts`, `lib/excel-logic.mjs`, `lib/excel-logic.d.ts`, `lib/domain.mjs`, `lib/domain.d.ts`, `lib/education-guide-pdf.ts`, `lib/education-guide-import.mjs`, `lib/education-guide-import.d.ts`, `lib/public-pdf.mjs`, `lib/public-pdf.d.ts`, `lib/pdf-reader.ts`
 - UI: `app/planner-app.tsx`, `app/globals.css`
-- 테스트/문서: `tests/domain.test.mjs`, `tests/real-data.test.mjs`, `README.md`, `WORK_PROGRESS.md`, `KIRO_WORK_REPORT.md`
+- 테스트/문서: `tests/domain.test.mjs`, `tests/real-data.test.mjs`, `tests/public-pdf.test.mjs`, `README.md`, `WORK_PROGRESS.md`, `KIRO_WORK_REPORT.md`
 
 ## 10. 구현한 기능
 
@@ -134,7 +134,7 @@ PDF.js가 브라우저에서 페이지 text item과 y좌표를 읽는다. 첫 �
 
 `npm run verify` 성공:
 
-- Node test 14/14 통과
+- Node test 22/22 통과
 - 실제 Excel 2개: 각 106명, 과목 열 14/16, 제외행 각 2, 학생당 선택 10
 - 실제 PDF: 243쪽, 고유 과목 114, 정상 85, 확인 필요 29
 - oxlint: 경고/오류 없음
@@ -171,19 +171,17 @@ PDF.js가 브라우저에서 페이지 text item과 y좌표를 읽는다. 첫 �
 
 1. Cloudflare D1 생성 또는 기존 D1 확인
 2. 원격 0000~0010 migration 이력 확인과 백업
-3. GitHub `production` environment에 `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_D1_DATABASE_ID`, `ADMIN_PASSWORD`, `SESSION_SECRET` 등록
+3. GitHub `production` environment에 `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_D1_DATABASE_ID`, `ADMIN_PASSWORD`, `SESSION_SECRET` 등록. 기본 교육기관 외 PDF 호스트가 필요하면 `PUBLIC_PDF_ALLOWED_HOSTS`도 등록
 4. main push 후 Actions 결과와 Worker URL 확인
 5. 학생 PIN/SSO와 개인정보 보유 정책 결정
 6. 실제 태블릿/모바일에서 학생·교사 흐름 수동 검수
 
 ## 25. 아직 구현하지 못한 기능
 
-- 공개 PDF URL 서버 가져오기
 - 학생별 PIN/SSO, 로그인 rate limiting
 - 교사별 계정/RBAC
 - 실제 3학년 parser 검증
 - 실제 대학/학과 원본 적용
-- 관리자 추출행 전체 pagination 검수
 - 공식 결과 DB failure injection 통합 테스트
 - 데이터 초기화 UI
 
@@ -207,7 +205,7 @@ PDF.js가 브라우저에서 페이지 text item과 y좌표를 읽는다. 첫 �
 5. 실제 3학년 Excel 검증
 6. 실제 대학/학과 자료 등록과 교사 매칭 검수
 7. `xlsx` 대체 가능성 및 client code splitting 검토
-8. PDF URL import는 SSRF/크기/redirect 정책과 함께 구현
+8. 관리자 overview pagination과 client bundle code splitting 검토
 
 ## 28. 주요 commit hash
 
@@ -216,5 +214,19 @@ PDF.js가 브라우저에서 페이지 text item과 y좌표를 읽는다. 첫 �
 - `24f53aa` — `ops: harden deployment and backups`
 - `d4008a7` — `test: add real data import regressions`
 - `3e7ba90` — `docs: document school operations and findings`
+- `db27a7b` — `feat: add secure public PDF review flow`
 
 이 커밋들은 로컬 `main`에 생성했으며 자동/수동 push는 수행하지 않았다.
+
+## 후속 작업: 공개 PDF URL 및 전체 검수 (2026-09-30)
+
+중단 지점에서 재개해 미완료였던 공개 PDF URL 가져오기와 관리자 추출행 전체 검수를 완료했다.
+
+- 관리자 전용 same-origin API가 공개 PDF를 가져오며 브라우저 CORS에 의존하지 않는다.
+- 기본 허용 범위는 교육기관 도메인(`.go.kr`, `.edu.kr`, `.ac.kr`, `.school.kr`, `.edu`)이고 추가 호스트는 `PUBLIC_PDF_ALLOWED_HOSTS`로 명시한다.
+- HTTPS/표준 port/credential/내부 IPv4/모든 IPv6 literal/redirect 3회/15초 timeout/20MB streaming/Content-Type/PDF signature를 검사한다.
+- 응답은 최대 크기 buffer 하나에 기록하고 timeout·거부·초과 시 stream을 중단한다.
+- 관리자 화면에서 전체 추출 과목을 상태별로 필터하고 10개씩 이동하며 과목명, 교과군, 선택 유형, 위계, 관련 직업·학과, 공개 상태를 수정한다.
+- UI와 서버가 `isEducationGuidePublishable`을 함께 사용한다. 불완전한 확인 완료 행은 서버에서 확인 필요로 강등하고, 잘못된 행이나 중복 과목명은 저장을 차단한다.
+- 독립 semantic review에서 지적된 IPv6 mapped 우회, DNS rebinding 공격면, timeout/메모리, 행 무통보 제외, stale filter, 공개 판정 불일치를 모두 수정했다.
+- `npm run verify` 통과: 테스트 22건, lint, TypeScript, production build 성공. 실제 자료 Git 추적은 계속 0건이다.
