@@ -12,9 +12,11 @@ export type PdfPageFailure = { pageNumber: number; stage: 'page' | 'text'; messa
  * 페이지 하나의 오류는 전체 분석을 멈추지 않고 failures로 돌려준다.
  */
 export async function readPdfPages(file: File, onProgress: (current: number, total: number) => void) {
+  if (file.size > 20 * 1024 * 1024) throw new PdfReadError('binary', 'PDF 파일은 20MB 이하만 분석할 수 있습니다.');
   let bytes: Uint8Array;
   try { bytes = new Uint8Array(await file.arrayBuffer()); }
   catch (error) { throw new PdfReadError('binary', '파일 binary를 읽지 못했습니다.', error); }
+  if (new TextDecoder().decode(bytes.slice(0, 5)) !== '%PDF-') throw new PdfReadError('open', 'PDF 형식이 아닌 파일입니다.');
 
   let document: any;
   try {

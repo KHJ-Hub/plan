@@ -123,7 +123,11 @@ td { padding: 12px 13px; border-top: 1px solid #f7e9ef; vertical-align: top; fon
 .course-tags { display:flex; flex-wrap:wrap; gap:5px; min-width:0; }
 .course-tag { display:inline-block; max-width:100%; padding:4px 8px; border:1px solid var(--line); border-radius:9px; background:#fff8fb; color:#5b4d97; line-height:1.35; overflow-wrap:anywhere; word-break:keep-all; }
 .danger-btn { color:#a33f61; background:#fff0f4; border:1px solid #e9a7be; }
-.reference-status-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin:0 0 14px; }
+.reference-status-grid, .registration-status-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin:0 0 14px; }
+.registration-status-grid { grid-template-columns:repeat(2,minmax(0,1fr)); margin-bottom:0; }
+.semester-flow { display:flex; align-items:center; justify-content:center; gap:8px; margin:0 0 14px; padding:10px; overflow-x:auto; border:1px solid var(--line); border-radius:14px; color:#5b4d97; background:var(--pink-50); font-size:.84rem; font-weight:800; white-space:nowrap; }
+.semester-empty { width:100%; padding:18px; }
+.student-result-summary .metric strong { overflow-wrap:anywhere; }
 .reference-status-card { display:grid; gap:6px; padding:14px; border:1px solid var(--line); border-radius:16px; background:#fff8fb; color:#5b4d97; }
 .reference-status-card span { color:var(--muted); font-size:.85rem; }
 tr.attention td { background: #fff9ed; }
@@ -240,7 +244,7 @@ tr.attention td { background: #fff9ed; }
   .page-head, .panel { padding: 17px; }
   .grid-cards { gap: 8px; }
   .verification-summary { grid-template-columns: repeat(2,minmax(0,1fr)); }
-  .reference-status-grid { grid-template-columns:1fr; }
+  .reference-status-grid, .registration-status-grid { grid-template-columns:1fr; }
   .metric { padding: 13px; }
   .metric strong { font-size: 1.35rem; }
   .topbar { align-items: flex-start; }

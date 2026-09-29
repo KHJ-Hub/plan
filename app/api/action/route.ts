@@ -1,5 +1,5 @@
 import { getDatabase } from '@/db';
-import { normalizeCourseName } from '@/lib/domain.mjs';
+import { classifyCourseNameMatch, courseMatchKey, normalizeCourseName } from '@/lib/domain.mjs';
 import { id, json, now, requireSession } from '@/lib/server';
 import { changeTeacherPassword } from '@/lib/teacher-auth';
 
@@ -25,17 +25,24 @@ export async function POST(request: Request) {
       return json({ ok: true, statusChanged: false });
     }
     if (body.action === 'savePlan') {
-      const round = await db.prepare(`SELECT id,status FROM rounds WHERE id=? AND entrance_year=(SELECT entrance_year FROM students WHERE id=?)`).bind(body.roundId, session.studentId).first<{ id: string; status: string }>();
+      const round = await db.prepare(`SELECT id,status,entrance_year FROM rounds WHERE id=? AND entrance_year=(SELECT entrance_year FROM students WHERE id=?)`).bind(body.roundId, session.studentId).first<{ id: string; status: string; entrance_year: number }>();
       if (!round || round.status !== 'open') return json({ error: '현재 신청 기간이 마감되어 있습니다.' }, { status: 409 });
-      let plan = await db.prepare(`SELECT id,status FROM plans WHERE student_id=? AND round_id=?`).bind(session.studentId, round.id).first<{ id: string; status: string }>();
+      const incomingCourses=(Array.isArray(body.courses)?body.courses:[]).map((item:any)=>({targetGrade:Number(item.targetGrade),targetSemester:Number(item.targetSemester),courseName:normalizeCourseName(item.courseName)}));
+      if(incomingCourses.length>100||incomingCourses.some((item:any)=>![2,3].includes(item.targetGrade)||![1,2].includes(item.targetSemester)||!item.courseName))return json({error:'선택 과목의 학년·학기·과목명을 확인해주세요.'},{status:400});
+      const uniqueCourses=new Map(incomingCourses.map((item:any)=>[`${item.targetGrade}:${item.targetSemester}:${item.courseName}`,item]));
+      if(uniqueCourses.size!==incomingCourses.length)return json({error:'같은 학기와 과목이 중복되어 있습니다.'},{status:400});
+      const curriculumRows=(await db.prepare(`SELECT target_grade,target_semester,course_name FROM curricula WHERE entrance_year=? AND offered=1`).bind(round.entrance_year).all<{target_grade:number;target_semester:number;course_name:string}>()).results||[];
+      const allowed=new Set(curriculumRows.map(item=>`${item.target_grade}:${item.target_semester}:${normalizeCourseName(item.course_name)}`));
+      if(incomingCourses.some((item:any)=>!allowed.has(`${item.targetGrade}:${item.targetSemester}:${item.courseName}`)))return json({error:'학교 선택 가능 과목에 없는 항목이 포함되어 있습니다. 화면을 새로고침한 뒤 다시 선택해주세요.'},{status:400});
+      const plan = await db.prepare(`SELECT id,status FROM plans WHERE student_id=? AND round_id=?`).bind(session.studentId, round.id).first<{ id: string; status: string }>();
       if (plan && ['submitted','resubmitted','pending','confirmed','recheck_required'].includes(plan.status)) return json({ error: '제출 완료된 신청안은 담임이 수정 요청할 때까지 수정할 수 없습니다.' }, { status: 409 });
       const planId = plan?.id || id('plan');
       const status = plan?.status || 'draft';
       const statements: D1PreparedStatement[] = [
-        db.prepare(`INSERT INTO plans(id,student_id,round_id,status,revision,student_memo,submitted_at,confirmed_at,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?) ON CONFLICT(student_id,round_id) DO UPDATE SET status=excluded.status,student_memo=excluded.student_memo,updated_at=excluded.updated_at,revision=CASE WHEN plans.status='revision_requested' THEN plans.revision+1 ELSE plans.revision END`).bind(planId, session.studentId, round.id, status, 1, String(body.studentMemo || ''), null, null, time, time),
+        db.prepare(`INSERT INTO plans(id,student_id,round_id,status,revision,student_memo,submitted_at,confirmed_at,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?) ON CONFLICT(student_id,round_id) DO UPDATE SET status=excluded.status,student_memo=excluded.student_memo,updated_at=excluded.updated_at,revision=CASE WHEN plans.status='revision_requested' THEN plans.revision+1 ELSE plans.revision END`).bind(planId, session.studentId, round.id, status, 1, String(body.studentMemo || '').slice(0,2000), null, null, time, time),
         db.prepare(`DELETE FROM plan_courses WHERE plan_id=?`).bind(planId),
       ];
-      for (const item of Array.isArray(body.courses) ? body.courses : []) statements.push(db.prepare(`INSERT INTO plan_courses(id,plan_id,target_grade,target_semester,course_name) VALUES(?,?,?,?,?)`).bind(id('pc'), planId, Number(item.targetGrade), Number(item.targetSemester), String(item.courseName).trim()));
+      for (const item of incomingCourses) statements.push(db.prepare(`INSERT INTO plan_courses(id,plan_id,target_grade,target_semester,course_name) VALUES(?,?,?,?,?)`).bind(id('pc'), planId, item.targetGrade, item.targetSemester, item.courseName));
       await db.batch(statements);
       return json({ ok: true, planId, status });
     }
@@ -147,15 +154,18 @@ export async function POST(request: Request) {
     const entranceYear = Number(body.entranceYear); const rows = Array.isArray(body.rows) ? body.rows : [];
     if (!entranceYear || !String(body.sourceName || '').trim()) return json({ error: '입학년도와 자료 출처를 입력해주세요.' }, { status: 400 });
     const knownRows = await db.prepare(`SELECT course_name FROM curricula WHERE entrance_year=? UNION SELECT course_name FROM course_description_sources WHERE entrance_year=?`).bind(entranceYear, entranceYear).all<{ course_name: string }>();
-    const known = new Set((knownRows.results || []).map((row) => normalizeCourseName(row.course_name)));
+    const known = (knownRows.results || []).map((row) => normalizeCourseName(row.course_name));
     const batchId = id('course_desc_import');
     const statements: D1PreparedStatement[] = [db.prepare(`INSERT INTO course_description_import_batches(id,entrance_year,source_name,source_year,uploaded_by,status,created_at) VALUES(?,?,?,?,?,?,?)`).bind(batchId, entranceYear, String(body.sourceName).trim(), Number(body.sourceYear) || null, session.actor, 'preview', time)];
     const preview = rows.map((row: any) => {
-      const incomingCourseName = String(row.courseName || ''); const normalized = normalizeCourseName(incomingCourseName);
-      const matchStatus = normalized && known.has(normalized) ? 'exact_match' : 'needs_confirmation';
+      const incomingCourseName = normalizeCourseName(row.courseName || '');
+      const exact = known.find((courseName) => classifyCourseNameMatch(incomingCourseName, courseName) === 'exact');
+      const normalizedCandidate = exact || known.find((courseName) => classifyCourseNameMatch(incomingCourseName, courseName) === 'normalized');
+      const matchStatus = exact ? 'exact_match' : 'needs_confirmation';
+      const normalized = courseMatchKey(incomingCourseName);
       const rowId = id('course_desc_import_row');
-      statements.push(db.prepare(`INSERT INTO course_description_import_rows(id,batch_id,incoming_course_name,normalized_course_name,payload_json,match_status,matched_course_name,decision,created_at) VALUES(?,?,?,?,?,?,?,?,?)`).bind(rowId, batchId, incomingCourseName, normalized, JSON.stringify(row), matchStatus, matchStatus === 'exact_match' ? normalized : null, 'pending', time));
-      return { id: rowId, incomingCourseName, normalizedCourseName: normalized, matchStatus, matchedCourseName: matchStatus === 'exact_match' ? normalized : null };
+      statements.push(db.prepare(`INSERT INTO course_description_import_rows(id,batch_id,incoming_course_name,normalized_course_name,payload_json,match_status,matched_course_name,decision,created_at) VALUES(?,?,?,?,?,?,?,?,?)`).bind(rowId, batchId, incomingCourseName, normalized, JSON.stringify(row), matchStatus, exact || normalizedCandidate ? normalizedCandidate : null, 'pending', time));
+      return { id: rowId, incomingCourseName, normalizedCourseName: normalized, matchStatus, matchedCourseName: exact || normalizedCandidate || null };
     });
     await db.batch(statements);
     return json({ ok: true, batchId, preview });
