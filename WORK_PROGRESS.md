@@ -318,3 +318,36 @@
 - 최종 `npm run verify`: 테스트 22건, lint, TypeScript, production build 성공.
 - 기능 커밋: `db27a7b feat: add secure public PDF review flow`. push는 수행하지 않았다.
 - 남은 최우선 작업은 Cloudflare/D1 외부 설정, 학생 PIN/SSO 정책, 격리 D1 failure injection, 실제 기기 검수, 3학년·대학 원본 자료 검증이다.
+
+
+## 2026-09-30 2차 최종 검수 및 운영 준비
+
+### 완료한 검수·수정
+
+- 기존 `0631cb8`까지의 완료 작업은 반복하지 않고 학생·교사 UX, 개인정보/보안, 실제 Excel, 반응형, 오류 상태, 배포 구성을 독립 검수했다.
+- 학생·교사 로그인 실패를 D1 hash key로 제한하고 429/Retry-After, 24시간 정리 migration `0011_auth_rate_limits.sql`을 추가했다.
+- HMAC 세션 서명은 `crypto.subtle.verify`로 검증하고 학생 세션은 4시간으로 단축했다.
+- 학생 제출 snapshot은 클라이언트 값을 신뢰하지 않고 서버 DB 상태에서 생성하며 자유입력 길이를 검사한다.
+- Excel staging의 신규 학생은 inactive로 유지하고 모든 파일 성공 후 activation batch에서만 학생 신원/활성 상태를 반영한다.
+- 학생 미등록 학기/자료 없음/로그인·네트워크 안내, 긴 과목명, 과목 설명 터치 영역, 모바일 footer/CTA를 보완했다.
+- 교사 입학년도는 `연도 적용`을 눌러야 조회·업로드 기준이 변경되도록 했다.
+- `OPERATIONS_CHECKLIST.md`를 새로 작성했다.
+
+### 검증 상태
+
+- `npm test`: 24/24 통과. 실제 2학년 1·2학기 Excel과 실제 PDF 테스트는 skip 없이 개인정보 출력 없이 통과했다.
+- 실제 Excel: 학생 106명 동일 식별, 반/번호/이름, 과목 열 14/16, 학생당 10과목, 학기 1/2, 제외행 2 재확인.
+- `npm run lint`, `npm run typecheck`, `npm run build`, `git diff --check`: 모두 성공.
+- 민감 확장자 Git 추적 0건, 실제 형식 Secret 하드코딩 탐지 0건.
+- 변경분 독립 최종 감사: 치명/높음/중간 결함 없음, 승인.
+
+### 외부 권한·정책 필요
+
+- Cloudflare 인증, 원격 D1 migration `0011` 적용, GitHub production Secrets, Actions 배포, 실제 운영 URL HTTP 확인.
+- 학생 PIN/SSO·재발급·개인정보 보유 기간과 외부 공개 범위에 대한 학교 결정.
+- 실제 태블릿/모바일/Whale 시각 검수, 3학년 Excel, 실제 대학/학과 원본 검수.
+- 격리 D1 staging/activation 강제 실패 주입 E2E.
+
+### 다음 작업 시작점
+
+구현 커밋 `57c5d30`(`fix: harden production user flows`) 생성 완료. 이 절과 운영 문서·보고서를 문서 커밋으로 만든 뒤 최신 HEAD를 `origin/main`에 push하고 원격 branch 일치 및 가능한 GitHub Actions 상태를 확인한다. Cloudflare 인증/Secrets가 없으면 원격 D1과 운영 URL 확인은 외부 TODO로 남긴다.

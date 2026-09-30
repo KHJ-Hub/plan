@@ -42,7 +42,7 @@ SESSION_SECRET=<예측 불가능한 32자 이상 문자열>
 PUBLIC_PDF_ALLOWED_HOSTS=<files.example.org,cdn.example.org>
 ```
 
-`SESSION_SECRET`이 없거나 예시값이면 세션을 발급하지 않습니다. 실제 비밀값은 커밋하지 마세요. 현재 로컬 D1 상태에 따라 `0003`~`0010` migration이 pending일 수 있으므로 실행 전 migration 목록을 확인할 수 있습니다.
+`SESSION_SECRET`이 없거나 예시값이면 세션을 발급하지 않습니다. 실제 비밀값은 커밋하지 마세요. 현재 로컬 D1 상태에 따라 `0003`~`0011` migration이 pending일 수 있으므로 실행 전 migration 목록을 확인할 수 있습니다.
 
 ```powershell
 npx wrangler d1 migrations list DB --local --config wrangler.jsonc
@@ -92,9 +92,9 @@ npx wrangler d1 migrations list DB --local --config wrangler.jsonc
 
 ## 학생 식별과 개인정보
 
-현재 실제 Excel에는 학번이 없어 학생은 `입학년도 + 현재 반 + 현재 번호 + 이름`으로 식별합니다. 이름만으로 조회하지 않고 URL에도 개인정보를 넣지 않으며, 학생 API는 자신의 불필요한 external ID를 반환하지 않습니다.
+현재 실제 Excel에는 학번이 없어 학생은 `입학년도 + 현재 반 + 현재 번호 + 이름`으로 식별합니다. 이름만으로 조회하지 않고 URL에도 개인정보를 넣지 않으며, 학생 API는 자신의 불필요한 external ID를 반환하지 않습니다. 학생·교사 로그인 실패는 원문을 저장하지 않는 hash key로 제한하며 반복 실패 시 15분 동안 429를 반환합니다.
 
-이 방식은 학교 명단을 아는 다른 학생의 대리 조회 위험을 완전히 막지 못합니다. 공개 운영 전 학교가 학생별 PIN 또는 학교 SSO, 재발급 절차, 보유 기간을 결정해야 합니다. 결정 전에는 접근 범위를 학교 내부로 제한하는 것을 권장합니다.
+이 제한만으로 학교 명단을 아는 다른 학생의 대리 조회 위험을 완전히 막을 수는 없습니다. 공개 운영 전 학교가 학생별 PIN 또는 학교 SSO, 재발급 절차, 보유 기간을 결정해야 합니다. 결정 전에는 접근 범위를 학교 내부로 제한하는 것을 권장합니다.
 
 ## 과목 설명 PDF
 

@@ -230,3 +230,112 @@ PDF.js가 브라우저에서 페이지 text item과 y좌표를 읽는다. 첫 �
 - UI와 서버가 `isEducationGuidePublishable`을 함께 사용한다. 불완전한 확인 완료 행은 서버에서 확인 필요로 강등하고, 잘못된 행이나 중복 과목명은 저장을 차단한다.
 - 독립 semantic review에서 지적된 IPv6 mapped 우회, DNS rebinding 공격면, timeout/메모리, 행 무통보 제외, stale filter, 공개 판정 불일치를 모두 수정했다.
 - `npm run verify` 통과: 테스트 22건, lint, TypeScript, production build 성공. 실제 자료 Git 추적은 계속 0건이다.
+
+
+## 29. 2차 최종 검수 및 실제 운영 준비 (2026-09-30)
+
+### 이번 2차 검수에서 발견한 문제
+
+- 학생·교사 로그인 API에 반복 실패 제한이 없어 공개 사이트에서 자동 대입 위험이 있었다.
+- 세션 HMAC 문자열을 일반 문자열 비교로 확인하고 있었다.
+- 제출 시 클라이언트가 보낸 snapshot을 그대로 보존해 공식 결과 검증 기준을 바꿀 수 있었다.
+- Excel staging 도중 새 학생이 즉시 active가 되고, external ID 학생의 신원 변경이 activation 전 반영될 수 있었다.
+- 미등록 학기를 학생의 “확인할 내용” 건수로 계산해 정상 빈 상태를 경고처럼 보였다.
+- 모바일에서 고정 footer와 신청안 제출 CTA가 겹칠 수 있었고 과목 설명 터치 영역과 긴 과목명 줄바꿈이 부족했다.
+- 교사 입학년도 입력 중간값이 즉시 API 조회와 업로드 기준에 반영될 수 있었다.
+- 운영 담당자가 그대로 실행할 한 문서짜리 절차서가 없었다.
+
+### 실제 수정한 문제
+
+- `0011_auth_rate_limits.sql`과 D1 로그인 제한 모듈을 추가했다. 학생은 식별 조합 8회/접속 IP 60회, 교사는 5회/12회 실패 시 15분 차단한다. IP와 학생 입력 원문은 저장하지 않고 SHA-256 key만 저장하며 24시간이 지난 기록을 정리한다. 429와 `Retry-After`를 반환한다.
+- 세션 서명 확인을 `crypto.subtle.verify`로 변경하고 학생 세션을 8시간에서 4시간으로 줄였다.
+- 제출 snapshot은 서버의 `plan_courses`, `student_profiles`, `student_preferences`에서 다시 생성한다. 학생 자유입력 길이와 진학연도 범위도 서버에서 검사한다.
+- 새 학생은 staging에서 `active=0`으로 저장하고, 모든 파일이 성공한 뒤 기존 active 해제·학생 신원/활성화·새 파일 활성화를 같은 D1 activation batch에서 실행한다.
+- 로그인 JSON/네트워크 오류와 일반 API 네트워크 오류를 사용자 행동 중심 문구로 바꿨다.
+
+### 학생 UX 개선
+
+- 로그인 입력을 필수화하고 범위·자동완성 힌트와 공용 태블릿 로그아웃 안내를 추가했다.
+- 미등록 학기는 확인 필요 건수에서 제외하고 “학교가 등록하면 자동으로 표시”되는 정상 빈 상태로 안내한다.
+- 대학·학과 기준자료가 없을 때 상태를 `확인 필요`가 아닌 `자료 없음`으로 구분했다.
+- 긴 과목명을 보수적으로 줄바꿈하고 과목 설명 summary를 모바일 44px 이상 터치 영역으로 만들었다.
+- API/네트워크 실패 시 브라우저의 개발자용 오류 문자열 대신 재시도 방법을 표시한다.
+
+### 관리자 UX 개선
+
+- 입학년도 입력값과 실제 적용 연도를 분리하고 2000~2200 네 자리 연도 검증 후 `연도 적용`을 눌러야 조회·업로드 기준이 바뀌게 했다.
+- 기존의 파일 선택 → 검사 → 학생/과목/제외행 확인 → 교체 체크 → 최종 확인 → 등록 현황 재조회 흐름은 정상임을 재확인했다.
+- 기존 정상 자료 보호, 원본명·최근 업로드 시각, 성공 학생 수, 실패 시 기존 자료 유지 문구를 재확인했다.
+- 삭제/초기화 버튼은 추가하지 않았고 이력 보존형 적용 해제와 v2 백업/복구만 유지했다.
+
+### 개인정보·보안 재점검 결과
+
+- 학생 overview는 session student ID로 제한되고 다른 학생 전체 명단, external ID, URL 개인정보를 반환하지 않는다.
+- 관리자 API는 admin session을 요구하고 Excel/PDF 제한 및 공개 PDF SSRF 방어는 기존 구현을 유지한다.
+- Secret 기본값은 fail-closed이고 `.env*`, `wrangler.deploy.jsonc`, `test-data/`는 Git에서 제외된다.
+- 서버 오류 응답은 내부 예외 대신 운영 문구를 반환하며, 실제 자료 회귀 테스트는 개인정보 값을 출력하지 않는다.
+- PIN/SSO 미구현 위험은 rate limit만으로 완전히 해결되지 않는다. 학교 정책 결정 전에는 학교 내부 접근 제한이 필수다.
+
+### 모바일·태블릿 점검 결과
+
+- 코드/CSS 기준으로 PC, 900px 이하 태블릿, 640px 이하 모바일의 카드·표·내비게이션 전환을 재검토했다.
+- 모바일 footer/CTA 간격, 긴 과목명, 과목 설명 터치 영역, 교사 연도 입력 버튼 배치를 수정했다.
+- 실제 기기 브라우저 시각 검수는 이 환경에서 수행하지 못했다. 태블릿 가로/세로와 Whale 차이는 운영 전 사용자 수동 확인 항목이다.
+
+### 실제 Excel 회귀 결과
+
+- `npm test` 1회에서 24/24 통과했고 실제 자료 테스트는 skip되지 않았다.
+- 두 실제 Excel의 학생 106명 동일 식별, 반/번호/이름, 과목 열 14/16, 학생당 10과목, 2학년 1·2학기 구분, 제외행 2를 개인정보 출력 없이 재확인했다.
+- 동일 scope는 입학년도+반+대상 학년+학기로 판단하고 교체 동의를 요구하는 코드를 재확인했다.
+- staging 실패 시 기존 active 파일은 건드리지 않고 신규 학생도 inactive로 남도록 보완했다.
+- 격리 D1 강제 실패 주입 E2E는 아직 실행하지 못했다.
+
+### 최종 검증 결과
+
+- `npm test`: 24/24 통과(실제 Excel/PDF skip 0).
+- `npm run lint`: 오류·경고 없음.
+- `npm run typecheck`: TypeScript 오류 없음.
+- `npm run build`: production build 성공. 기존 대형 client chunk 경고는 남은 최적화 항목이다.
+- `git diff --check`: 통과.
+- 실제 Excel/PDF·CSV·DB 등 민감 확장자 Git 추적 0건.
+- 실제 형식 private key/token/장문 Secret 하드코딩 탐지 0건.
+- 변경분 독립 감사에서 치명·높음·중간 결함 없음으로 승인됐다.
+
+### 운영 배포 상태
+
+- 작업 시작 시 `HEAD`, 로컬 `main`, `origin/main`은 모두 `0631cb8`이었고 작업 트리는 clean이었다.
+- GitHub Actions는 main push에서 test/lint/typecheck/build 후 secret이 모두 있을 때 D1 migration과 Worker 배포를 수행한다.
+- 현재 환경은 Cloudflare 인증과 실제 운영 URL이 없어 원격 D1 migration, Actions 배포 성공, 운영 URL HTTP 200을 확인할 수 없다.
+- 교사용 전체 절차를 `OPERATIONS_CHECKLIST.md`에 작성했다.
+
+### 사용자가 직접 해야 하는 작업
+
+1. 기존 운영 DB v2 백업과 원격 `d1_migrations`/실제 schema 대조
+2. Cloudflare API Token, Account ID, D1 ID와 GitHub production Secrets 설정
+3. `0011_auth_rate_limits.sql`까지 migration 적용 확인
+4. GitHub Actions 전체 성공과 실제 Worker URL HTTP 200/JS/CSS 응답 확인
+5. 실제 태블릿 가로·세로, 모바일, PC에서 학생·교사 흐름 수동 확인
+6. 학생 PIN/SSO, 재발급, 보유 기간, 외부 공개 범위에 대한 학교 정책 결정
+
+### 실제 운영 전에 반드시 확인할 사항
+
+- 학생 공개 전에 PIN/SSO가 없으면 학교 내부 접근 제한을 적용한다.
+- 3학년 Excel은 최초 업로드에서 헤더·집계행·선택 표시·복합 선택군을 직접 검수한다.
+- 실제 대학/학과 원본이 없으면 자료 없음 상태를 유지하고 임의 정보를 등록하지 않는다.
+- 최신 결과 교체 전 v2 백업, 교체 후 등록 현황과 표본 학생 2~3명을 확인한다.
+- 백업과 실제 자료는 학교 승인 저장소에만 보관한다.
+
+### 남은 위험과 다음 우선순위
+
+1. 학생별 PIN/학교 SSO 정책 확정과 구현
+2. 격리 D1에서 staging/activation 실패 주입 및 동시성 E2E
+3. 원격 D1 migration 이력 확인. 특히 Drizzle journal이 0006까지만 있어 다음 schema 생성 전 0007~0011 정합화 필요
+4. 실제 태블릿·모바일/Whale 시각 검수
+5. 실제 3학년 Excel과 실제 대학·학과 원본 검증
+6. 수정판 없는 `xlsx@0.18.5` 대체 검토
+7. 관리자 overview pagination과 client bundle code splitting
+
+### 이번 검수 commit
+
+- `57c5d30` — `fix: harden production user flows`
+- 이 커밋에는 로그인 제한, 세션·snapshot 보안, 안전한 Excel activation, 학생·교사 UX, migration과 회귀 테스트가 포함된다.
