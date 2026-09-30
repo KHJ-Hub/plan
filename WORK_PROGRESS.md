@@ -350,4 +350,4 @@
 
 ### 다음 작업 시작점
 
-구현 커밋 `57c5d30`(`fix: harden production user flows`) 생성 완료. 이 절과 운영 문서·보고서를 문서 커밋으로 만든 뒤 최신 HEAD를 `origin/main`에 push하고 원격 branch 일치 및 가능한 GitHub Actions 상태를 확인한다. Cloudflare 인증/Secrets가 없으면 원격 D1과 운영 URL 확인은 외부 TODO로 남긴다.
+구현 커밋 `57c5d30`과 운영 문서 커밋 `20aa4ec`은 `origin/main`에 push됐다. Actions run `36665634466`은 clean CI에 없는 `next` 타입 import 2건 때문에 typecheck에서 실패했고 deploy는 건너뛰었다. 불필요한 두 type import를 제거한 뒤 `npm run typecheck`와 `git diff --check`를 통과했다. 이 CI 수정 커밋을 push하고 후속 Actions의 verify/deploy(또는 Secret 미설정 안전 skip)를 확인한다. Cloudflare 인증/Secrets가 없으면 원격 D1과 운영 URL 확인은 외부 TODO로 남긴다.

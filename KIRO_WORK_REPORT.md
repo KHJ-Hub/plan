@@ -339,3 +339,6 @@ PDF.js가 브라우저에서 페이지 text item과 y좌표를 읽는다. 첫 �
 
 - `57c5d30` — `fix: harden production user flows`
 - 이 커밋에는 로그인 제한, 세션·snapshot 보안, 안전한 Excel activation, 학생·교사 UX, migration과 회귀 테스트가 포함된다.
+
+- 최초 push의 Actions run `36665634466`은 clean CI에서 `next` 타입 모듈을 찾지 못해 typecheck 단계에서 실패했다. Vinext 구성에 불필요했던 `next.config.ts`와 `app/layout.tsx`의 type-only import를 제거했고, 해당 `npm run typecheck`와 `git diff --check`를 다시 통과했다. 후속 push의 Actions 상태를 최종 확인한다.
+
