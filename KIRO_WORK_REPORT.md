@@ -305,7 +305,9 @@ PDF.js가 브라우저에서 페이지 text item과 y좌표를 읽는다. 첫 �
 
 - 작업 시작 시 `HEAD`, 로컬 `main`, `origin/main`은 모두 `0631cb8`이었고 작업 트리는 clean이었다.
 - GitHub Actions는 main push에서 test/lint/typecheck/build 후 secret이 모두 있을 때 D1 migration과 Worker 배포를 수행한다.
-- 현재 환경은 Cloudflare 인증과 실제 운영 URL이 없어 원격 D1 migration, Actions 배포 성공, 운영 URL HTTP 200을 확인할 수 없다.
+- 최초 run `36665634466`의 clean CI type 오류를 수정한 뒤 후속 run `36665882996`에서 `npm ci`, test, lint, typecheck, build가 모두 성공했다.
+- deploy job의 자격증명 확인은 성공했지만 필요한 production Secrets가 없어 D1 migration, Worker 배포, Secret 갱신은 모두 안전하게 skip됐다.
+- 따라서 GitHub `main` 반영과 CI 검증은 완료됐고, 원격 D1 migration과 실제 운영 URL HTTP 200은 Cloudflare/Secrets 설정 후 사용자가 확인해야 한다.
 - 교사용 전체 절차를 `OPERATIONS_CHECKLIST.md`에 작성했다.
 
 ### 사용자가 직접 해야 하는 작업
@@ -338,7 +340,8 @@ PDF.js가 브라우저에서 페이지 text item과 y좌표를 읽는다. 첫 �
 ### 이번 검수 commit
 
 - `57c5d30` — `fix: harden production user flows`
-- 이 커밋에는 로그인 제한, 세션·snapshot 보안, 안전한 Excel activation, 학생·교사 UX, migration과 회귀 테스트가 포함된다.
-
-- 최초 push의 Actions run `36665634466`은 clean CI에서 `next` 타입 모듈을 찾지 못해 typecheck 단계에서 실패했다. Vinext 구성에 불필요했던 `next.config.ts`와 `app/layout.tsx`의 type-only import를 제거했고, 해당 `npm run typecheck`와 `git diff --check`를 다시 통과했다. 후속 push의 Actions 상태를 최종 확인한다.
+- `20aa4ec` — `docs: add school operations readiness guide`
+- `29b5840` — `fix: make clean CI typecheck self-contained`
+- 구현 커밋에는 로그인 제한, 세션·snapshot 보안, 안전한 Excel activation, 학생·교사 UX, migration과 회귀 테스트가 포함된다.
+- 최초 push의 Actions run `36665634466`은 clean CI에서 `next` 타입 모듈을 찾지 못해 typecheck 단계에서 실패했다. Vinext 구성에 불필요했던 `next.config.ts`와 `app/layout.tsx`의 type-only import를 제거했고, 후속 run `36665882996`은 verify 전체 성공, production Secrets 미설정에 따른 deploy 안전 skip으로 완료됐다.
 

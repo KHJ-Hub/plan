@@ -350,4 +350,6 @@
 
 ### 다음 작업 시작점
 
-구현 커밋 `57c5d30`과 운영 문서 커밋 `20aa4ec`은 `origin/main`에 push됐다. Actions run `36665634466`은 clean CI에 없는 `next` 타입 import 2건 때문에 typecheck에서 실패했고 deploy는 건너뛰었다. 불필요한 두 type import를 제거한 뒤 `npm run typecheck`와 `git diff --check`를 통과했다. 이 CI 수정 커밋을 push하고 후속 Actions의 verify/deploy(또는 Secret 미설정 안전 skip)를 확인한다. Cloudflare 인증/Secrets가 없으면 원격 D1과 운영 URL 확인은 외부 TODO로 남긴다.
+상태: 2차 운영 준비 검수의 코드·문서·검증·GitHub 반영 완료. 구현 `57c5d30`, 운영 문서 `20aa4ec`, clean CI 수정 `29b5840`이 `origin/main`에 push됐다. Actions run `36665882996`은 `npm ci`부터 test/lint/typecheck/build까지 성공했고, production Secrets가 없어 D1 migration·Worker 배포는 안전하게 skip됐다.
+
+다음 작업은 코드 수정이 아니라 `OPERATIONS_CHECKLIST.md` 순서대로 Cloudflare/D1/production Secrets를 설정하고 Actions를 다시 실행한 뒤 실제 Worker URL HTTP 200과 migration `0011` 적용을 확인하는 것이다. 그 전까지 학생 공개는 학교 내부로 제한하고, 실제 태블릿 시각 검수와 학생 PIN/SSO 정책을 완료한다.
