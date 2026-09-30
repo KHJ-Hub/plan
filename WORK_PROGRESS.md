@@ -353,3 +353,51 @@
 상태: 2차 운영 준비 검수의 코드·문서·검증·GitHub 반영 완료. 구현 `57c5d30`, 운영 문서 `20aa4ec`, clean CI 수정 `29b5840`이 `origin/main`에 push됐다. Actions run `36665882996`은 `npm ci`부터 test/lint/typecheck/build까지 성공했고, production Secrets가 없어 D1 migration·Worker 배포는 안전하게 skip됐다.
 
 다음 작업은 코드 수정이 아니라 `OPERATIONS_CHECKLIST.md` 순서대로 Cloudflare/D1/production Secrets를 설정하고 Actions를 다시 실행한 뒤 실제 Worker URL HTTP 200과 migration `0011` 적용을 확인하는 것이다. 그 전까지 학생 공개는 학교 내부로 제한하고, 실제 태블릿 시각 검수와 학생 PIN/SSO 정책을 완료한다.
+
+## 2026-09-30 Cloudflare 신규 계정 운영 배포 재개 기록
+
+### 이번 세션에서 완료
+
+- 사용자가 Cloudflare 신규 계정 가입을 완료했다.
+- 이 PC에서 `npx wrangler login` OAuth 인증에 성공했고 `npx wrangler whoami`로 인증 상태를 확인했다.
+- 신규 계정에 기존 D1이 없음을 확인한 뒤 APAC 위치에 `baejeong-course-planner` 운영 D1을 새로 생성했다.
+- 실제 D1 ID는 Git에서 제외된 `wrangler.deploy.jsonc`에만 주입했다. ID·토큰·비밀번호·세션 Secret 값은 문서나 Git에 기록하지 않았다.
+- 새 원격 D1에 `0000_freezing_wonder_man.sql`부터 `0011_auth_rate_limits.sql`까지 12개 migration을 모두 적용했다.
+- 재검증 결과 `No migrations to apply`였고, 원격 DB에 `d1_migrations`, `auth_rate_limits` 테이블과 `0011_auth_rate_limits.sql` 적용 이력이 존재함을 확인했다.
+- GitHub `production` environment에 다음 Secret 이름을 사용자가 직접 등록했다: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_D1_DATABASE_ID`, `ADMIN_PASSWORD`, `SESSION_SECRET`.
+- 처음 잘못 등록한 `CLOUDFLARE_API_TOKE`는 마지막 `N` 누락을 확인해 올바른 이름으로 다시 등록했다.
+- `SESSION_SECRET`은 이 PC에서 암호학적 난수 64자로 다시 생성해 클립보드로 전달했고 사용자가 해당 Secret을 갱신했다. 실제 값은 출력·기록하지 않았다.
+- `PUBLIC_PDF_ALLOWED_HOSTS`는 기본 교육기관 도메인 외 호스트가 확정되지 않아 의도적으로 등록하지 않았다.
+
+### GitHub Actions 실행 결과
+
+- run `36686703387`: verify 성공. API Token Secret 이름 오타 때문에 production deploy가 안전하게 skip됐다.
+- run `36687081880`: verify 성공. 필수 Secret 검사에서 다시 안전하게 skip됐다. 이후 Secret 이름 5개를 화면에서 재확인하고 `SESSION_SECRET`을 새 64자 값으로 갱신했다.
+- run `36689713644`: verify 성공. 필수 Secret 검사를 통과해 deploy job이 실제로 실행됐으나 29초 후 `exit code 1`로 실패했다.
+- 마지막 실행 주소: `https://github.com/KHJ-Hub/plan/actions/runs/36689713644`
+- 공개 요약에서는 세부 로그를 볼 수 없었고 annotation은 deploy job `109803986098`의 `step:9:25`를 가리켰다. 사용자가 작업을 중단해야 해서 빨간 실패 step의 실제 오류 본문은 아직 확인하지 못했다.
+- 따라서 Worker 배포 성공, Worker runtime Secret 반영, 실제 운영 URL 생성 여부는 아직 확인된 것이 아니다.
+
+### 현재 데이터·공개 상태
+
+- 신규 원격 D1은 schema와 migration 이력만 준비된 빈 운영 DB이며 학생 Excel/PDF 또는 기존 운영 데이터는 넣지 않았다.
+- 새 계정으로 기존 Sites/D1 데이터가 자동 이전된 것은 아니다.
+- 실제 Worker URL HTTP 200 검증 전이므로 새 운영 사이트가 완료됐다고 판단하거나 학생에게 공개하면 안 된다.
+- 학생 PIN/SSO 정책이 정해지기 전에는 기존 원칙대로 접근 범위를 학교 내부로 제한한다.
+
+### 다음 세션의 정확한 시작점
+
+1. `AGENTS.md`, 이 파일, `git status`, 최근 커밋을 순서대로 확인한다. 마지막 확인 당시 배포 전 Git 상태는 clean이고 `main`과 `origin/main`이 `efe274f`에서 일치했다.
+2. GitHub Actions run `36689713644`를 열고 왼쪽의 빨간 `deploy` job을 선택한다. 단계 목록에서 빨간 X가 붙은 step을 펼쳐 마지막 오류 본문을 확인한다. Secret 값은 캡처하거나 출력하지 않는다.
+3. 실제 실패 step이 `Apply D1 migrations`, `Deploy Worker`, `Update Worker secrets` 중 무엇인지 로그 증거로 확정한 뒤 해당 외부 설정만 수정한다. 추측으로 코드나 Secret을 반복 변경하지 않는다.
+4. Cloudflare API Token은 계정 범위의 `Workers 스크립트: 편집`, `D1: 편집`, `계정 설정: 읽기`로 생성했다. 로그가 권한 부족을 명시할 때만 필요한 권한을 재검토한다.
+5. 수정 후 `CI and production deploy`를 `main`에서 다시 수동 실행한다. verify와 deploy의 Build Worker, Apply D1 migrations, Deploy Worker, Update Worker secrets가 모두 성공했는지 확인한다.
+6. Actions에 표시된 실제 Worker URL을 기록하고 HTTP 요청으로 `/`, `/teacher.html`, 주요 JS/CSS가 200인지 확인한다.
+7. `npx wrangler d1 migrations list DB --remote --config wrangler.deploy.jsonc`가 계속 `No migrations to apply`인지 재확인하고 `0011` 적용 상태를 유지한다.
+8. 운영 검증이 끝나면 이 진행 기록을 갱신한다. 코드 변경이 필요하면 테스트 → 진행 기록 → 명시적 사용자 동의에 따른 commit/push 순서를 지킨다.
+
+### 보안 주의
+
+- 다음 AI는 사용자에게 API Token, 관리자 비밀번호, Session Secret 값을 채팅으로 보내 달라고 요청하지 않는다.
+- GitHub는 기존 Secret 값을 다시 보여주지 않는다. 갱신이 필요하면 사용자가 GitHub Environment Secret 편집 화면에 직접 입력한다.
+- 실제 ID가 들어 있는 `wrangler.deploy.jsonc`는 `.gitignore` 대상이다. `wrangler.jsonc` placeholder를 실제 ID로 바꾸어 커밋하지 않는다.
