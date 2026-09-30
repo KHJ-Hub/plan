@@ -22,9 +22,11 @@ const statusLabels: Record<string, string> = {
 };
 const statusTone = (status: string) => status === 'submitted' || status === 'resubmitted' || status === 'confirmed' || status === '변경 없음' || status === '일치' ? 'green' : status === 'pending' || status === '과목 추가' ? 'purple' : status === 'draft' ? 'gray' : status.includes('확인') || status.includes('없음') || status.includes('등장') ? 'amber' : 'red';
 const api = async (path: string, token: string, init?: RequestInit): Promise<any> => {
-  const response = await fetch(path, { ...init, headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`, ...init?.headers } });
+  let response: Response;
+  try { response = await fetch(path, { ...init, headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`, ...init?.headers } }); }
+  catch { throw new Error('네트워크 연결을 확인한 뒤 다시 시도해주세요.'); }
   const data: any = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(data.error || '처리 중 문제가 생겼습니다.');
+  if (!response.ok) throw new Error(data.error || (response.status === 401 ? '로그인이 만료되었습니다. 다시 로그인해주세요.' : '요청을 처리하지 못했습니다. 잠시 후 다시 시도해주세요.'));
   return data;
 };
 const semesterLabel = (grade: number, semester: number) => `${grade}학년 ${semester}학기`;
@@ -40,7 +42,7 @@ export default function PlannerApp({ mode = 'student' }: { mode?: 'student' | 't
 
 function Login({ onLogin, lockedRole }: { onLogin: (session: Session) => void; lockedRole: Role }) {
   const [role] = useState<Role>(lockedRole);
-  const [form, setForm] = useState({ entranceYear: '2026', currentClass: '', currentNumber: '', name: '', password: '' });
+  const [form, setForm] = useState({ entranceYear: String(new Date().getFullYear()), currentClass: '', currentNumber: '', name: '', password: '' });
   const [notice, setNotice] = useState<Notice>(null);
   const [loading, setLoading] = useState(false);
   const submit = async (event: React.FormEvent) => {
@@ -48,25 +50,26 @@ function Login({ onLogin, lockedRole }: { onLogin: (session: Session) => void; l
     try {
       const body = role === 'admin' ? { role, password: form.password } : { role, entranceYear: Number(form.entranceYear), currentClass: Number(form.currentClass), currentNumber: Number(form.currentNumber), name: form.name };
       const result = await fetch('/api/auth', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-      const data: any = await result.json();
-      if (!result.ok) throw new Error(data.error || '로그인하지 못했습니다.');
+      const data: any = await result.json().catch(() => ({}));
+      if (!result.ok) throw new Error(data.error || '로그인 정보를 확인하고 다시 시도해주세요.');
       onLogin({ token: data.token, role, label: role === 'admin' ? '선생님' : `${form.name} 학생` });
-    } catch (error) { setNotice({ type: 'error', text: error instanceof Error ? error.message : '로그인하지 못했습니다.' }); }
+    } catch (error) { setNotice({ type: 'error', text: error instanceof TypeError ? '네트워크 연결을 확인한 뒤 다시 시도해주세요.' : error instanceof Error ? error.message : '로그인하지 못했습니다.' }); }
     finally { setLoading(false); }
   };
   return <main className="login-wrap"><section className="surface login-card">
     <div className="status-chip"><Sparkles size={16} /> {role === 'student' ? '수강설계와 공식 결과를 함께 확인해요' : '학생 신청안과 공식 결과를 살펴봐요'}</div>
     <div className="brand-icon">{role === 'student' ? '🏫' : '👨‍🏫💖'}</div><h1 className="brand-title">{role === 'student' ? '배정고 수강설계 점검표' : '배정고 선생님 페이지'}</h1>
-    <p className="brand-copy">{role === 'student' ? '내가 만든 신청안, 담임 확인 내용, 학교 공식 수강신청 결과를 한곳에서 확인하세요.' : '학생 신청안을 확인하고 학교 공식 결과를 안전하게 관리합니다.'}</p>
+    <p className="brand-copy">{role === 'student' ? '입학년도와 현재 반·번호·이름을 입력하면 내 결과를 바로 확인할 수 있어요.' : '학생 신청안을 확인하고 학교 공식 결과를 안전하게 관리합니다.'}</p>
     <form onSubmit={submit}>
       {role === 'student' ? <div className="form-grid">
-        <div className="field"><label htmlFor="entranceYear">입학년도</label><input id="entranceYear" className="control" inputMode="numeric" value={form.entranceYear} onChange={(e) => setForm({ ...form, entranceYear: e.target.value })} /></div>
-        <div className="field"><label htmlFor="studentName">이름</label><input id="studentName" className="control" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
-        <div className="field"><label htmlFor="currentClass">현재 반</label><input id="currentClass" className="control" inputMode="numeric" value={form.currentClass} onChange={(e) => setForm({ ...form, currentClass: e.target.value })} /></div>
-        <div className="field"><label htmlFor="currentNumber">현재 번호</label><input id="currentNumber" className="control" inputMode="numeric" value={form.currentNumber} onChange={(e) => setForm({ ...form, currentNumber: e.target.value })} /></div>
-      </div> : <div className="field"><label htmlFor="adminPassword">선생님 비밀번호</label><input id="adminPassword" className="control" type="password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} /></div>}
+        <div className="field"><label htmlFor="entranceYear">입학년도</label><input id="entranceYear" className="control" inputMode="numeric" min="2000" max="2200" required autoComplete="off" value={form.entranceYear} onChange={(e) => setForm({ ...form, entranceYear: e.target.value })} /></div>
+        <div className="field"><label htmlFor="studentName">이름</label><input id="studentName" className="control" maxLength={50} required autoComplete="name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} /></div>
+        <div className="field"><label htmlFor="currentClass">현재 반</label><input id="currentClass" className="control" inputMode="numeric" min="1" max="30" required autoComplete="off" value={form.currentClass} onChange={(e) => setForm({ ...form, currentClass: e.target.value })} /></div>
+        <div className="field"><label htmlFor="currentNumber">현재 번호</label><input id="currentNumber" className="control" inputMode="numeric" min="1" max="100" required autoComplete="off" value={form.currentNumber} onChange={(e) => setForm({ ...form, currentNumber: e.target.value })} /></div>
+      </div> : <div className="field"><label htmlFor="adminPassword">선생님 비밀번호</label><input id="adminPassword" className="control" type="password" required autoComplete="current-password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} /></div>}
       <NoticeBox notice={notice} /><button className="primary-btn full-btn" disabled={loading}>{loading ? '확인 중...' : role === 'student' ? '내 점검표 보기 ✨' : '선생님 화면 열기'}</button>
     </form>
+    {role === 'student' && <p className="privacy-note">공용 태블릿에서는 확인을 마친 뒤 반드시 로그아웃하세요.</p>}
     {role === 'student' ? <a className="teacher-link" href="/teacher.html">👨‍🏫 선생님 페이지</a> : <a className="teacher-link" href="/">← 학생 페이지로 돌아가기</a>}
   </section></main>;
 }
@@ -100,10 +103,10 @@ function latestOfficialGroups(rows:any[]) {
 function CurrentResult({ data }: { data: any }) {
   const groups=latestOfficialGroups(data.official); const registered=groups.filter(group=>group.uploadedAt); const courses=registered.flatMap(group=>group.courses); const selected=new Set(courses.map(courseComparisonKey));
   const missingRecommendations=[...new Set((data.requirements||[]).filter((row:any)=>!selected.has(courseComparisonKey(row.course_name))).map((row:any)=>row.course_name))];
-  const ambiguous=courses.filter(isAmbiguousCourseName); const missingSemesters=groups.length-registered.length; const attentionCount=missingSemesters+missingRecommendations.length+ambiguous.length;
-  const careerStatus=!data.preferences?.length?'진로 미입력':!data.requirements?.length?'확인 필요':missingRecommendations.length?'부족':'충족';
+  const ambiguous=courses.filter(isAmbiguousCourseName); const attentionCount=missingRecommendations.length+ambiguous.length;
+  const careerStatus=!data.preferences?.length?'진로 미입력':!data.requirements?.length?'자료 없음':missingRecommendations.length?'부족':'충족';
   return <>
-    <div className="grid-cards student-result-summary"><div className="metric"><span>결과 등록 학기</span><strong>{registered.length} / 4</strong></div><div className="metric"><span>신청 과목</span><strong>{courses.length}개</strong></div><div className={`metric ${careerStatus==='부족'?'alert':''}`}><span>진로 과목 상태</span><strong>{careerStatus}</strong></div><div className={`metric ${attentionCount?'alert':''}`}><span>확인할 내용</span><strong>{attentionCount}건</strong></div></div>
+    <div className="grid-cards student-result-summary"><div className="metric"><span>결과 등록 학기</span><strong>{registered.length} / 4</strong></div><div className="metric"><span>신청 과목</span><strong>{courses.length}개</strong></div><div className={`metric ${careerStatus==='부족'?'alert':''}`}><span>진로 과목 상태</span><strong>{careerStatus}</strong></div><div className={`metric ${attentionCount?'alert':''}`}><span>확인 필요</span><strong>{attentionCount}건</strong></div></div>
     <section className="surface panel"><div className="panel-head"><div><h2>내 수강신청 결과</h2><p className="panel-sub">학교가 등록한 입학년도·학년·학기별 최신 결과입니다. 2학년부터 3학년까지의 흐름을 한눈에 확인하세요.</p></div>{registered.length>0&&<Badge tone="green">최신 결과 반영</Badge>}</div><div className="semester-flow" aria-label="학기별 수강신청 결과 흐름"><span>2학년 1학기</span><span>→</span><span>2학년 2학기</span><span>→</span><span>3학년 1학기</span><span>→</span><span>3학년 2학기</span></div><ResultGroups groups={groups} curriculum={data.curriculum} descriptions={data.courseDescriptions} requirements={data.requirements}/>{ambiguous.length>0&&<div className="message warn">선택군으로만 표시된 과목은 실제 개별 과목을 이 파일에서 확인할 수 없습니다: {ambiguous.join(', ')}. 학교 안내와 함께 확인해주세요.</div>}</section>
     <RecommendationSummary data={data} courses={courses}/>
   </>;
@@ -126,7 +129,7 @@ function ResultGroups({ groups, curriculum, descriptions, requirements }: { grou
   const descriptionMap = new Map((descriptions || []).map((description: any) => [courseComparisonKey(description.course_name), description]));
   const reqMap = new Map<string, string[]>();
   for (const requirement of requirements || []) { const key=courseComparisonKey(requirement.course_name); const items = reqMap.get(key) || []; items.push(requirement.recommendation_type); reqMap.set(key, items); }
-  return <div className="result-block">{groups.map((group) => <div className="semester-result" key={`${group.round}-${group.grade}-${group.semester}`}><h3>{semesterLabel(group.grade, group.semester)}</h3><div className="chips">{group.courses.length?group.courses.map((name: string) => {const key=courseComparisonKey(name);return <CourseDescription key={name} name={name} info={courseInfo.get(key)} recommendations={reqMap.get(key) || []} description={descriptionMap.get(key)} />;}):<div className="empty semester-empty">아직 결과가 등록되지 않았습니다.</div>}</div></div>)}</div>;
+  return <div className="result-block">{groups.map((group) => <div className="semester-result" key={`${group.round}-${group.grade}-${group.semester}`}><h3>{semesterLabel(group.grade, group.semester)}</h3><div className="chips">{group.courses.length?group.courses.map((name: string) => {const key=courseComparisonKey(name);return <CourseDescription key={name} name={name} info={courseInfo.get(key)} recommendations={reqMap.get(key) || []} description={descriptionMap.get(key)} />;}):<div className="empty semester-empty">아직 학교에서 이 학기 결과를 등록하지 않았습니다.<br/>등록되면 이 화면에 자동으로 표시됩니다.</div>}</div></div>)}</div>;
 }
 
 function RecommendationSummary({ data, courses }: { data: any; courses: string[] }) {
@@ -175,7 +178,7 @@ function PlanEditor({ data, session, reload }: { data: any; session: Session; re
     } catch (e) { setNotice({ type: 'error', text: e instanceof Error ? e.message : '저장하지 못했습니다.' }); return false; }
   };
   const saveAll = async () => { const profileSaved = await saveProfile(true); if (!profileSaved) return; await saveDraft(false); await reload(); };
-  const submit = async () => { const profileSaved = await saveProfile(true); if (!profileSaved) return; const savedPlanId = await saveDraft(true); if (!savedPlanId) return; try { await api('/api/action', session.token, { method: 'POST', body: JSON.stringify({ action: 'submitPlan', planId: savedPlanId, snapshot: { selected, careerGoal, academicTrack, preferences } }) }); setNotice({ type: 'success', text: currentStatus === 'revision_requested' ? '수정한 신청안을 다시 제출했습니다.' : '신청안이 제출되었습니다. 담임이 수정이 필요한 경우 안내합니다.' }); await reload(); } catch (e) { setNotice({ type: 'error', text: e instanceof Error ? e.message : '제출하지 못했습니다.' }); } };
+  const submit = async () => { const profileSaved = await saveProfile(true); if (!profileSaved) return; const savedPlanId = await saveDraft(true); if (!savedPlanId) return; try { await api('/api/action', session.token, { method: 'POST', body: JSON.stringify({ action: 'submitPlan', planId: savedPlanId }) }); setNotice({ type: 'success', text: currentStatus === 'revision_requested' ? '수정한 신청안을 다시 제출했습니다.' : '신청안이 제출되었습니다. 담임이 수정이 필요한 경우 안내합니다.' }); await reload(); } catch (e) { setNotice({ type: 'error', text: e instanceof Error ? e.message : '제출하지 못했습니다.' }); } };
   const [grade, term] = semester.split('-').map(Number); const visible = curriculum.filter((c) => c.targetGrade === grade && c.targetSemester === term); const areas = [...new Set(visible.map((c) => c.area))];
   const selectedCourses = selected.map((course) => course.courseName);
   const schoolBookByCourse = new Map<string,any>((data.schoolBookEntries || []).map((row:any) => [String(row.subject_name), row] as [string,any]));
@@ -238,10 +241,12 @@ const adminNav = [
 ] as const;
 
 function AdminApp({ session, onLogout }: { session: Session; onLogout: () => void }) {
-  const [view, setView] = useState('dashboard'); const [inspectionPreset,setInspectionPreset]=useState(''); const [year, setYear] = useState(new Date().getFullYear()); const [data, setData] = useState<any>(null); const [notice, setNotice] = useState<Notice>(null);
-  const load = async () => { try { setData(await api(`/api/overview?entranceYear=${year}`, session.token)); } catch (e) { setNotice({ type:'error', text:e instanceof Error ? e.message : '자료를 불러오지 못했습니다.' }); } };
+  const initialYear = new Date().getFullYear();
+  const [view, setView] = useState('dashboard'); const [inspectionPreset,setInspectionPreset]=useState(''); const [year, setYear] = useState(initialYear); const [yearInput,setYearInput]=useState(String(initialYear)); const [data, setData] = useState<any>(null); const [notice, setNotice] = useState<Notice>(null);
+  const load = async () => { try { setData(await api(`/api/overview?entranceYear=${year}`, session.token)); setNotice(null); } catch (e) { setNotice({ type:'error', text:e instanceof Error ? e.message : '자료를 불러오지 못했습니다.' }); } };
+  const applyYear=()=>{const next=Number(yearInput);if(!Number.isInteger(next)||next<2000||next>2200){setNotice({type:'error',text:'입학년도는 2000~2200 사이의 네 자리 연도로 입력해주세요.'});return;}setYear(next);setNotice(null);};
   useEffect(() => { load(); }, [year]);
-  return <div className="shell-wide"><header className="surface topbar"><div className="brand-small"><span>👨‍🏫💖</span><strong>배정고 선생님 페이지</strong></div><div className="top-actions"><label className="user-label" htmlFor="admin-year">입학년도</label><input id="admin-year" className="control" style={{width:96,minHeight:40}} inputMode="numeric" value={year} onChange={(e) => setYear(Number(e.target.value))}/><button className="ghost-btn" onClick={onLogout}><LogOut size={16}/> 로그아웃</button></div></header>
+  return <div className="shell-wide"><header className="surface topbar"><div className="brand-small"><span>👨‍🏫💖</span><strong>배정고 선생님 페이지</strong></div><div className="top-actions"><label className="user-label" htmlFor="admin-year">입학년도</label><input id="admin-year" className="control" style={{width:96,minHeight:40}} inputMode="numeric" value={yearInput} onChange={(e) => setYearInput(e.target.value)} onKeyDown={(e)=>{if(e.key==='Enter')applyYear();}}/><button className="secondary-btn year-apply" onClick={applyYear}>연도 적용</button><button className="ghost-btn" onClick={onLogout}><LogOut size={16}/> 로그아웃</button></div></header>
   <div className="layout"><nav className="surface side-nav" aria-label="선생님 메뉴">{adminNav.map(([key,icon,label]) => <button key={key} className={view===key?'active':''} onClick={() => setView(key)}>{icon}{label}</button>)}</nav><main className="content"><section className="surface page-head"><span className="eyebrow">{year}년 입학생</span><h1>{adminNav.find(([key])=>key===view)?.[2]}</h1><p>문제가 있는 학생과 확인할 자료가 먼저 보이도록 정리했습니다.</p></section><NoticeBox notice={notice}/>{!data ? <div className="surface empty">자료를 불러오는 중입니다.</div> : view==='dashboard'?<PlanInspectionDashboard data={data} onOpen={(preset)=>{setInspectionPreset(preset);setView('students');}}/>:view==='students'?<PlanInspectionView data={data} session={session} reload={load} preset={inspectionPreset}/>:view==='upload'?<UploadView year={year} session={session} reload={load}/>:view==='verify'?<VerificationView data={data} session={session} reload={load}/>:view==='reference'?<ReferenceView year={year} data={data} session={session} reload={load}/>:<SettingsView year={year} data={data} session={session} reload={load} onLogout={onLogout}/>}</main></div></div>;
 }
 

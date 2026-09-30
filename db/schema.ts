@@ -23,6 +23,15 @@ export const students = sqliteTable('students', {
   index('idx_students_external').on(t.entranceYear, t.externalId),
 ]);
 
+
+export const authRateLimits = sqliteTable('auth_rate_limits', {
+  keyHash: text('key_hash').primaryKey(),
+  scope: text('scope').notNull(),
+  failureCount: integer('failure_count').notNull().default(0),
+  blockedUntil: integer('blocked_until').notNull().default(0),
+  updatedAt: integer('updated_at').notNull(),
+}, (t) => [index('idx_auth_rate_limits_updated_at').on(t.updatedAt)]);
+
 export const studentProfiles = sqliteTable('student_profiles', {
   studentId: text('student_id').primaryKey().references(() => students.id),
   careerGoal: text('career_goal').notNull().default(''),

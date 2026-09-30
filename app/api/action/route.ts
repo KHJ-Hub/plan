@@ -16,7 +16,10 @@ export async function POST(request: Request) {
       const careerGoal = String(body.careerGoal || '').trim();
       const academicTrack = ['humanities', 'science', 'undecided'].includes(String(body.academicTrack)) ? String(body.academicTrack) : 'undecided';
       const counselingMemo = String(body.counselingMemo || '').trim();
-      const preferences = (Array.isArray(body.preferences) ? body.preferences : []).slice(0, 3).filter((p: any) => p.university || p.department).map((p: any, rank: number) => ({ rank: rank + 1, university: String(p.university || '').trim(), department: String(p.department || '').trim(), admissionsYear: Number(p.admissionsYear || 2028) }));
+      const preferences = (Array.isArray(body.preferences) ? body.preferences : []).slice(0, 3).filter((p: any) => p.university || p.department).map((p: any, rank: number) => ({ rank: rank + 1, university: String(p.university || '').trim(), department: String(p.department || '').trim(), admissionsYear: Number(p.admissionsYear) }));
+      if (careerGoal.length > 200 || counselingMemo.length > 2000 || preferences.some((p) => p.university.length > 100 || p.department.length > 100 || !Number.isInteger(p.admissionsYear) || p.admissionsYear < 2000 || p.admissionsYear > 2200)) {
+        return json({ error: '진로·상담 내용 또는 희망 대학·학과 입력 길이와 연도를 확인해주세요.' }, { status: 400 });
+      }
       await db.batch([
         db.prepare(`INSERT INTO student_profiles(student_id,career_goal,academic_track,counseling_memo,updated_at) VALUES(?,?,?,?,?) ON CONFLICT(student_id) DO UPDATE SET career_goal=excluded.career_goal,academic_track=excluded.academic_track,counseling_memo=excluded.counseling_memo,updated_at=excluded.updated_at`).bind(session.studentId, careerGoal, academicTrack, counselingMemo, time),
         db.prepare(`DELETE FROM student_preferences WHERE student_id=?`).bind(session.studentId),
@@ -51,11 +54,19 @@ export async function POST(request: Request) {
       if (!plan || plan.round_status !== 'open') return json({ error: '제출할 수 없는 신청안입니다.' }, { status: 409 });
       if (['submitted','resubmitted','pending','confirmed','recheck_required'].includes(plan.status)) return json({ error: '이미 제출 완료된 신청안입니다.' }, { status: 409 });
       const submissionStatus = plan.status === 'revision_requested' ? 'resubmitted' : 'submitted';
-      const snapshot = body.snapshot || {};
+      const selected = (await db.prepare(`SELECT target_grade,target_semester,course_name FROM plan_courses WHERE plan_id=? ORDER BY target_grade,target_semester,course_name`).bind(plan.id).all<{ target_grade: number; target_semester: number; course_name: string }>()).results || [];
+      const profile = await db.prepare(`SELECT career_goal,academic_track FROM student_profiles WHERE student_id=?`).bind(session.studentId).first<{ career_goal: string; academic_track: string }>();
+      const preferences = (await db.prepare(`SELECT university,department,admissions_year FROM student_preferences WHERE student_id=? ORDER BY rank`).bind(session.studentId).all<{ university: string; department: string; admissions_year: number }>()).results || [];
+      const snapshot = {
+        selected: selected.map((course) => ({ targetGrade: course.target_grade, targetSemester: course.target_semester, courseName: course.course_name })),
+        careerGoal: profile?.career_goal || '', academicTrack: profile?.academic_track || 'undecided',
+        preferences: preferences.map((preference) => ({ university: preference.university, department: preference.department, admissionsYear: preference.admissions_year })),
+      };
+      const snapshotJson = JSON.stringify(snapshot);
       await db.batch([
         db.prepare(`UPDATE plans SET status=?,submitted_at=?,updated_at=? WHERE id=?`).bind(submissionStatus, time, time, plan.id),
-        db.prepare(`INSERT INTO plan_submission_snapshots(id,plan_id,submission_status,snapshot_json,submitted_at) VALUES(?,?,?,?,?)`).bind(id('submission'), plan.id, submissionStatus, JSON.stringify(snapshot), time),
-        db.prepare(`INSERT INTO review_history(id,plan_id,action,actor,comment,snapshot_json,created_at) VALUES(?,?,?,?,?,?,?)`).bind(id('review'), plan.id, submissionStatus, session.actor, '', JSON.stringify(snapshot), time),
+        db.prepare(`INSERT INTO plan_submission_snapshots(id,plan_id,submission_status,snapshot_json,submitted_at) VALUES(?,?,?,?,?)`).bind(id('submission'), plan.id, submissionStatus, snapshotJson, time),
+        db.prepare(`INSERT INTO review_history(id,plan_id,action,actor,comment,snapshot_json,created_at) VALUES(?,?,?,?,?,?,?)`).bind(id('review'), plan.id, submissionStatus, session.actor, '', snapshotJson, time),
       ]);
       return json({ ok: true });
     }

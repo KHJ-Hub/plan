@@ -297,3 +297,21 @@ tr.attention td { background: #fff9ed; }
   .review-toolbar .segmented { display:grid; grid-template-columns:1fr; }
   .pagination { justify-content:space-between; }
 }
+
+.privacy-note { margin: 14px 0 0; color: var(--muted); font-size: .84rem; }
+.course-chip { max-width: 100%; overflow-wrap: anywhere; word-break: keep-all; }
+
+@media (max-width: 640px) {
+  .course-chip, .course-description summary { min-height: 44px; }
+  .course-description summary { display: flex; align-items: center; }
+  .course-description-body { max-width: 100%; }
+  .plan-actions { bottom: 58px; }
+  .footer-note { padding: 10px; font-size: 1rem; }
+}
+
+
+@media (max-width: 640px) {
+  .topbar:has(.year-apply) { display: grid; }
+  .topbar:has(.year-apply) .top-actions { width: 100%; display: grid; grid-template-columns: minmax(0,1fr) auto auto; }
+  .topbar:has(.year-apply) #admin-year { width: 100% !important; }
+}

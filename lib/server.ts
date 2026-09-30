@@ -15,9 +15,20 @@ function decodeBase64url(value: string) {
   return atob(padded);
 }
 
-async function sign(value: string, secret: string) {
-  const key = await crypto.subtle.importKey('raw', encoder.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+async function hmacKey(usages: KeyUsage[]) {
+  return crypto.subtle.importKey('raw', encoder.encode(secret()), { name: 'HMAC', hash: 'SHA-256' }, false, usages);
+}
+
+async function sign(value: string) {
+  const key = await hmacKey(['sign']);
   return base64url(new Uint8Array(await crypto.subtle.sign('HMAC', key, encoder.encode(value))));
+}
+
+async function verify(value: string, signature: string) {
+  try {
+    const bytes = Uint8Array.from(decodeBase64url(signature), (character) => character.charCodeAt(0));
+    return crypto.subtle.verify('HMAC', await hmacKey(['verify']), bytes, encoder.encode(value));
+  } catch { return false; }
 }
 
 function secret() {
@@ -31,14 +42,15 @@ function secret() {
 export type Session = { role: 'admin' | 'student'; actor: string; studentId?: string; authVersion?: number; exp: number };
 
 export async function createSession(payload: Omit<Session, 'exp'>) {
-  const body = base64url(JSON.stringify({ ...payload, exp: Date.now() + 8 * 60 * 60 * 1000 }));
-  return `${body}.${await sign(body, secret())}`;
+  const lifetime = payload.role === 'student' ? 4 * 60 * 60 * 1000 : 8 * 60 * 60 * 1000;
+  const body = base64url(JSON.stringify({ ...payload, exp: Date.now() + lifetime }));
+  return `${body}.${await sign(body)}`;
 }
 
 export async function readSession(request: Request): Promise<Session | null> {
   const token = request.headers.get('authorization')?.replace(/^Bearer\s+/i, '') || '';
-  const [body, signature] = token.split('.');
-  if (!body || !signature || await sign(body, secret()) !== signature) return null;
+  const [body, signature, extra] = token.split('.');
+  if (!body || !signature || extra || !await verify(body, signature)) return null;
   try {
     const session = JSON.parse(decodeBase64url(body)) as Session;
     return session.exp > Date.now() ? session : null;

@@ -129,11 +129,10 @@ export async function POST(request: Request) {
         const studentId = found?.id || id('student');
         if (!found) {
           statements.push(db.prepare(`INSERT INTO students(id,entrance_year,current_grade,current_class,current_number,name,external_id,active,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?)`)
-            .bind(studentId, entranceYear, currentGradeFromEntranceYear(entranceYear), student.currentClass, student.currentNumber, cleanName, externalId, 1, createdAt, createdAt));
+            .bind(studentId, entranceYear, currentGradeFromEntranceYear(entranceYear), student.currentClass, student.currentNumber, cleanName, externalId, 0, createdAt, createdAt));
         } else if (externalId && (found.name !== cleanName || found.current_class !== student.currentClass || found.current_number !== student.currentNumber)) {
           statements.push(db.prepare(`INSERT INTO matching_issues(id,entrance_year,from_round,to_round,student_id,issue_type,details_json,resolution,admin_memo,updated_at,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)`)
             .bind(id('issue'), entranceYear, legacyRoundNumber, legacyRoundNumber, studentId, 'identity_changed', JSON.stringify({ previous: found, incoming: student, fileName: item.fileName }), 'pending', '', createdAt, createdAt));
-          statements.push(db.prepare(`UPDATE students SET current_class=?,current_number=?,name=?,updated_at=? WHERE id=?`).bind(student.currentClass, student.currentNumber, cleanName, createdAt, studentId));
         }
         const resultId = id('official');
         statements.push(db.prepare(`INSERT INTO official_results(id,file_id,student_id,entrance_year,round_number,current_class,current_number,student_name,target_grade,target_semester,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?)`)
@@ -163,6 +162,12 @@ export async function POST(request: Request) {
     for (const { fileId, item, source } of staged) {
       activation.push(db.prepare(`UPDATE upload_files SET active=0 WHERE entrance_year=? AND current_class=? AND target_grade=? AND target_semester=? AND active=1`)
         .bind(entranceYear, item.currentClass, item.targetGrade, item.targetSemester));
+      activation.push(db.prepare(`UPDATE students SET
+        current_class=(SELECT r.current_class FROM official_results r WHERE r.file_id=? AND r.student_id=students.id LIMIT 1),
+        current_number=(SELECT r.current_number FROM official_results r WHERE r.file_id=? AND r.student_id=students.id LIMIT 1),
+        name=(SELECT r.student_name FROM official_results r WHERE r.file_id=? AND r.student_id=students.id LIMIT 1),
+        active=1,updated_at=?
+        WHERE id IN (SELECT student_id FROM official_results WHERE file_id=?)`).bind(fileId, fileId, fileId, createdAt, fileId));
       activation.push(db.prepare(`UPDATE upload_files SET active=1 WHERE id=?`).bind(fileId));
       activation.push(db.prepare(`INSERT INTO audit_logs(id,actor,action,entrance_year,current_class,target_grade,target_semester,details_json,created_at) VALUES(?,?,?,?,?,?,?,?,?)`)
         .bind(id('audit'), session.actor, item.existing.length ? '최신 공식 결과 교체' : '최신 공식 결과 등록', entranceYear, item.currentClass, item.targetGrade, item.targetSemester, JSON.stringify({ fileName: item.fileName, studentCount: source.students.length, replacedFileIds: item.existing.map((existing) => existing.id) }), createdAt));
